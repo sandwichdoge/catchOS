@@ -1,10 +1,12 @@
-all: loader.o
-	ld -T link.ld -melf_i386 $? -o kernel.elf
+all: geniso
 
 loader.o: loader.s
 	nasm -f elf32 $<
 
-geniso:
+kernel.elf: loader.o
+	ld -T link.ld -melf_i386 $? -o kernel.elf
+
+geniso: kernel.elf
 	genisoimage -R \
 	-b boot/grub/stage2_eltorito \
 	-no-emul-boot \
