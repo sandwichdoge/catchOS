@@ -1,0 +1,4 @@
+make
+make geniso
+cd output
+./run.sh
