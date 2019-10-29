@@ -7,6 +7,7 @@ kernel.elf: loader.o
 	ld -T link.ld -melf_i386 $? -o kernel.elf
 
 geniso: kernel.elf
+	cp kernel.elf iso/boot/
 	genisoimage -R \
 	-b boot/grub/stage2_eltorito \
 	-no-emul-boot \
