@@ -1,12 +1,22 @@
-all: geniso
+CC=gcc
+AS=nasm
+ASFLAGS=-f elf32
+CFLAGS=-m32 -nostdlib -nostdinc -fno-builtin -fno-stack-protector -nostartfiles -nodefaultlibs -Wall -Wextra
+LDFLAGS=-T link.ld -melf_i386
+OBJECTS=loader.o kmain.o
 
-loader.o: loader.s
-	nasm -f elf32 $<
+all: kernel.elf
 
-kernel.elf: loader.o
-	ld -T link.ld -melf_i386 $? -o kernel.elf
+%.o: %.c
+	$(CC) -c $(CFLAGS) $< -o $@
 
-geniso: kernel.elf
+%.o: %.s
+	$(AS) $(ASFLAGS) $< -o $@
+
+kernel.elf: $(OBJECTS)
+	ld $(LDFLAGS) $? -o $@
+
+iso: kernel.elf
 	cp kernel.elf iso/boot/
 	genisoimage -R \
 	-b boot/grub/stage2_eltorito \
@@ -20,4 +30,4 @@ geniso: kernel.elf
 	iso
 
 clean:
-	rm -rf *.o
+	rm -rf *.o *.elf
