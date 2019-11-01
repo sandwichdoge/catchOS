@@ -3,7 +3,7 @@ AS=nasm
 ASFLAGS=-f elf32
 CFLAGS=-m32 -nostdlib -nostdinc -fno-builtin -fno-stack-protector -nostartfiles -nodefaultlibs -Wall -Wextra
 LDFLAGS=-T link.ld -melf_i386
-OBJECTS=loader.o kmain.o
+OBJECTS=loader.o kmain.o framebuffer.o
 
 all: kernel.elf
 
@@ -14,7 +14,7 @@ all: kernel.elf
 	$(AS) $(ASFLAGS) $< -o $@
 
 kernel.elf: $(OBJECTS)
-	ld $(LDFLAGS) $? -o $@
+	ld $(LDFLAGS) $^ -o $@
 
 iso: kernel.elf
 	cp kernel.elf iso/boot/
