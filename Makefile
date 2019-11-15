@@ -3,7 +3,7 @@ AS=nasm
 ASFLAGS=-f elf32
 CFLAGS=-m32 -nostdlib -nostdinc -fno-builtin -fno-stack-protector -nostartfiles -nodefaultlibs -Wall -Wextra
 LDFLAGS=-T link.ld -melf_i386
-OBJECTS=loader.o kmain.o framebuffer.o io_outb.o
+OBJECTS=loader.o kmain.o framebuffer.o io_outb.o io_inb.o serial.o
 
 all: kernel.elf
 
