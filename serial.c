@@ -19,7 +19,7 @@ void serial_configure_baud_rate(unsigned short com, unsigned short divisor) {
     outb(SERIAL_DATA_PORT(com), divisor & 0x00ff);
 }
 
-void serial_configure_line(unsigned short com) {
+void serial_configure_line(unsigned short com, unsigned char conf) {
     /*
      Bit:     | 7 | 6 | 5 4 3 | 2 | 1 0 |
      Content: | d | b | prty  | s |  dl |
@@ -30,18 +30,20 @@ void serial_configure_line(unsigned short com) {
      s    = Stop bits (s = 0 equals 1, s = 1 equals 1.5 or 2)
      dl   = Data length
      */
-    outb(SERIAL_LINE_COMMAND_PORT(com), 0x03);
+    // 0x03 for default conf
+    outb(SERIAL_LINE_COMMAND_PORT(com), conf);
 }
 
-void serial_configure_buffer(unsigned short com) {
+void serial_configure_buffer(unsigned short com, unsigned char conf) {
     // Enable FIFO buffer, clear both rx/tx FIFO queues, use 14 bytes queue size.
-    outb(SERIAL_FIFO_COMMAND_PORT(com), 0xc7);
+    // 0xc7 for default conf
+    outb(SERIAL_FIFO_COMMAND_PORT(com), conf);
 }
 
-void serial_configure_modem(unsigned short com) {
+void serial_configure_modem(unsigned short com, unsigned char conf) {
     // Ready To Transmit (RTS) and Data Terminal Ready (DTR) pins should be 1.
     // We don't enable interrupts because we won't be receiving data.
-    outb(SERIAL_MODEM_COMMAND_PORT(com), 0x03);
+    outb(SERIAL_MODEM_COMMAND_PORT(com), conf);
 }
 
 int serial_is_transmit_fifo_empty(unsigned int com) {
@@ -55,4 +57,11 @@ void serial_write(unsigned short com, char *data, unsigned int len) {
         while (serial_is_transmit_fifo_empty(com) == 0);
         outb(SERIAL_DATA_PORT(com), data[i]);
     }
+}
+
+void serial_defconfig(unsigned short com) {
+    serial_configure_baud_rate(com, 0x01); // 115200
+    serial_configure_line(com, 0x03);
+    serial_configure_buffer(com, 0x07);
+    serial_configure_modem(com, 0x03);
 }

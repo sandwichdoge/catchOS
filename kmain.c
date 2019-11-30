@@ -10,4 +10,6 @@ void kmain() {
     move_cursor(0, 2);
     write_cell(6, (char)'z', FB_BLACK, FB_WHITE);
     move_cursor(0, 3);
+
+    serial_defconfig(SERIAL_COM1_BASE);
 }
