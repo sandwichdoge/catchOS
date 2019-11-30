@@ -1,8 +1,5 @@
 #include "io.h"
 
-#define FB_BLACK 0x0
-#define FB_WHITE 0xf
-
 #define FB_COMMAND_PORT 0x3d4
 #define FB_DATA_PORT 0x3d5
 #define FB_HIGH_BYTE_CMD 14

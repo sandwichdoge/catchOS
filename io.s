@@ -1,4 +1,10 @@
+global inb
 global outb
+
+inb:
+    mov dx, [esp + 4] ; [esp + 4] is address of I/O port
+    in al, dx         ; Read 1 byte from I/O port to al
+    ret               ; Return the read byte
 
 outb:
     mov al, [esp + 8]    ; move the data to be sent into the al register
