@@ -3,7 +3,11 @@
 
 #define FB_BLACK 0x0
 #define FB_WHITE 0xf
+#define SCR_W 80
+#define SCR_H 24
 
+void clr_screen(unsigned char bg);
 void write_cell(unsigned int i, unsigned char c, unsigned char fg, unsigned char bg);
+void write_str(const char *str, unsigned int scrpos, unsigned int len);
 void move_cursor(int y, int x);
 #endif
