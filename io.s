@@ -1,5 +1,6 @@
 global inb
 global outb
+global lgdt
 
 inb:
     mov dx, [esp + 4] ; [esp + 4] is address of I/O port
