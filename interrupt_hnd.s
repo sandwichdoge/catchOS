@@ -1,5 +1,5 @@
-global int_handler_33  ; keyboard
-
+global int_handler_33    ; keyboard
+extern interrupt_handler 
 
 int_handler_33:
     push 0

@@ -11,4 +11,12 @@ struct idt_entry {
     unsigned short offset_high; // offset bits 16..31
 } __attribute__((packed));
 
+struct idt {
+    unsigned int address;
+    unsigned short size;
+} __attribute__((packed));
+
+void lidt(struct idt *IDT);
+
+void int_handler_33();
 #endif

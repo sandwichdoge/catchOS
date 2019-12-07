@@ -17,7 +17,7 @@ struct stack_state {
     unsigned int eflags;
 };
 
-struct idt_entry idt_entries[3];
+struct idt_entry idt_entries[3] = {0};
 
 void interrupt_encode_idt_entry(unsigned int interrupt_num, unsigned int f_ptr_handler) {
     idt_entries[interrupt_num].offset_high = f_ptr_handler & 0xffff;
@@ -32,8 +32,21 @@ void interrupt_encode_idt_entry(unsigned int interrupt_num, unsigned int f_ptr_h
 
 void interrupt_init_idt() {
     // TODO write
+    interrupt_encode_idt_entry(33, (unsigned int)int_handler_33);
+    
+    struct idt IDT;
+    IDT.address = (unsigned int)idt_entries;
+    IDT.size = sizeof(idt_entries);
+
+    lidt(&IDT);
 }
 
 void interrupt_handler(struct cpu_state cpu_state, unsigned int interrupt_num, struct stack_state stack_state) {
     // TODO write
+    switch (interrupt_num) {
+        case 33:    // Keyboard press
+            break;
+        default:
+            break;
+    }
 }
