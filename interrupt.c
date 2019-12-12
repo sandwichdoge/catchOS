@@ -1,6 +1,8 @@
 #include "interrupt.h"
 #include "pic.h"
 
+#define INT_KEYBOARD 33 // 0x20 + 1
+
 struct cpu_state {
     unsigned int eax;
     unsigned int ebx;
@@ -33,7 +35,9 @@ void interrupt_encode_idt_entry(unsigned int interrupt_num, unsigned int f_ptr_h
 
 void interrupt_init_idt() {
     // TODO add other interrupts
-    interrupt_encode_idt_entry(33, (unsigned int)int_handler_33);
+
+    // Keyboard press interrupt, 0x20 + 1 (which is PIC1_START_INTERRUPT + IRQ_1)
+    interrupt_encode_idt_entry(INT_KEYBOARD, (unsigned int)int_handler_33);
     
     struct idt IDT;
     IDT.address = (unsigned int)idt_entries;
@@ -45,7 +49,7 @@ void interrupt_init_idt() {
 void interrupt_handler(struct cpu_state cpu_state, unsigned int interrupt_num, struct stack_state stack_state) {
     // TODO handle keypress
     switch (interrupt_num) {
-        case 33:    // Keyboard press
+        case INT_KEYBOARD:
             
             pic_ack(interrupt_num);
             break;

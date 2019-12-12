@@ -30,9 +30,11 @@ rather than 8h and 70h, as configured by default */
 #define ICW4_SFNM	0x10		/* Special fully nested (not) */
  
 /*
-arguments:
+From OSdev - PIC
+Arguments:
     offset1 - vector offset for master PIC, vectors on the master become offset1..offset1+7
     offset2 - same for slave PIC: offset2..offset2+7
+This will remap all hw interrupt numbers to offset + IRQ
 */
 void pic_remap(int offset1, int offset2) {
     unsigned char a1, a2;
@@ -82,3 +84,5 @@ void pic_ack(unsigned int pic_int_num) {
         outb(PIC2_PORT_A, PIC_ACK);
     }
 }
+
+// https://en.wikibooks.org/wiki/X86_Assembly/Programmable_Interrupt_Controller
