@@ -1,5 +1,6 @@
 global load_gdt
 global switch_to_pm
+global kboot
 extern write_cstr
 extern kmain
 
@@ -48,7 +49,6 @@ switch_to_pm:           ; switch from 16-bit real mode to 32-bit protected mode
     mov cr0, eax
     jmp CODE_SEG:init_pm   ; put 0x08 in cs (which is an offset in the GDT for kernel code segment)
 
-
 [bits 32]
 init_pm:
     mov ax, DATA_SEG
@@ -64,5 +64,6 @@ init_pm:
     call kmain
     jmp $
 
-MSG_PROT_MODE: 
-    db "ProtMode"
+kboot:
+    call load_gdt
+    call init_pm

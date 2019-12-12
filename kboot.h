@@ -8,6 +8,5 @@
 
 #ifndef INCLUDE_GDT_H
 #define INCLUDE_GDT_H
-void load_gdt(void);
-void switch_to_pm(void);
+void kboot(void);
 #endif
