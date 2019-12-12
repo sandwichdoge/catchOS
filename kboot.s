@@ -5,11 +5,11 @@ extern kmain
 
 gdt_start:
 
-gdt_null:
+gdt_null:        ; Null gdt entry, mandatory
     dd 0x0
     dd 0x0
 
-gdt_code:
+gdt_code:        ; Kernel code section
     dw 0xffff
     dw 0x0
     db 0x0
@@ -17,11 +17,12 @@ gdt_code:
     db 11001111b
     db 0x0
 
-gdt_data:
+gdt_data:         ; Kernel data section
     dw 0xffff
     dw 0x0
     db 0x0
     db 10010010b
+    db 11001111b
     db 0x0
 
 gdt_end:
@@ -50,13 +51,12 @@ switch_to_pm:           ; switch from 16-bit real mode to 32-bit protected mode
 
 [bits 32]
 init_pm:
-    ; ISSUE: Bochs hangs up when we try to modify segment registers
     mov ax, DATA_SEG
-    ;mov ds, ax
-    ;mov ss, ax
-    ;mov es, ax
-    ;mov fs, ax
-    ;mov gs, ax
+    mov ds, ax
+    mov ss, ax
+    mov es, ax
+    mov fs, ax
+    mov gs, ax
 
     mov ebp, 0x90000
     mov esp, ebp
