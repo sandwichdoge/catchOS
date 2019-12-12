@@ -1,4 +1,5 @@
 #include "interrupt.h"
+#include "pic.h"
 
 struct cpu_state {
     unsigned int eax;
@@ -31,20 +32,22 @@ void interrupt_encode_idt_entry(unsigned int interrupt_num, unsigned int f_ptr_h
 }
 
 void interrupt_init_idt() {
-    // TODO write
+    // TODO add other interrupts
     interrupt_encode_idt_entry(33, (unsigned int)int_handler_33);
     
     struct idt IDT;
     IDT.address = (unsigned int)idt_entries;
     IDT.size = sizeof(idt_entries);
 
-    lidt(&IDT);
+    lidt(&IDT); // ASM wrapper
 }
 
 void interrupt_handler(struct cpu_state cpu_state, unsigned int interrupt_num, struct stack_state stack_state) {
-    // TODO write
+    // TODO handle keypress
     switch (interrupt_num) {
         case 33:    // Keyboard press
+            
+            pic_ack(interrupt_num);
             break;
         default:
             break;

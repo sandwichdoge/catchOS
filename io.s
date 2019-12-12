@@ -12,3 +12,9 @@ outb:
     mov dx, [esp + 4]    ; move the address of the I/O port into the dx register
     out dx, al           ; send the data to the I/O port
     ret                  ; return to the calling function
+
+io_wait:
+    jmp 1fh
+a1:
+    jmp 1fh
+b1:

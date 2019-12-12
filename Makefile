@@ -4,7 +4,7 @@ ASFLAGS=-f elf32
 CFLAGS=-m32 -nostdlib -nostdinc -fno-builtin -fno-stack-protector -nostartfiles -nodefaultlibs -Wall -Wextra -Wno-unused-parameter
 LDFLAGS=-T link.ld -melf_i386
 OBJECTS=loader.o kmain.o framebuffer.o io.o serial.o segmentation.o gdt.o \
-		lidt.o interrupt.o interrupt_hnd.o
+		lidt.o interrupt.o interrupt_hnd.o pic.o
 
 all: kernel.elf
 
