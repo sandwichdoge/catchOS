@@ -36,6 +36,19 @@ void write_str(const char *str, unsigned int scrpos, unsigned int len) {
     }
 }
 
+// Write a string until NULL encountered
+void write_cstr(const char *str, unsigned int scrpos) {
+    if (scrpos % 2) {
+        return;
+    }
+
+    unsigned int cur_pos = scrpos;
+    for (unsigned int i = 0; str[i]; i++) {
+        write_cell(cur_pos, str[i], FB_BLACK, FB_WHITE);
+        cur_pos += 2;
+    }
+}
+
 void clr_screen(unsigned char bg) {
     for (unsigned int i = 0; i < SCR_W * SCR_H; i += 2) {
         write_cell(i, ' ', bg, bg);

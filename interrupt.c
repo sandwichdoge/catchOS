@@ -34,7 +34,20 @@ void interrupt_encode_idt_entry(unsigned int interrupt_num, unsigned int f_ptr_h
 }
 
 void interrupt_init_idt() {
-    // TODO add other interrupts
+    /*
+    IRQ 0 ‒ system timer
+    IRQ 1 — keyboard controller
+    IRQ 3 — serial port COM2
+    IRQ 4 — serial port COM1
+    IRQ 5 — line print terminal 2
+    IRQ 6 — floppy controller
+    IRQ 7 — line print terminal 1
+    IRQ 8 — RTC timer
+    IRQ 12 — mouse controller
+    IRQ 13 — math co-processor
+    IRQ 14 — ATA channel 1
+    IRQ 15 — ATA channel 2
+    */
 
     // Keyboard press interrupt, 0x20 + 1 (which is PIC1_START_INTERRUPT + IRQ_1)
     interrupt_encode_idt_entry(INT_KEYBOARD, (unsigned int)int_handler_33);

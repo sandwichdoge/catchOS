@@ -8,11 +8,6 @@
 
 #ifndef INCLUDE_GDT_H
 #define INCLUDE_GDT_H
-struct gdt {
-    unsigned int address;
-    unsigned short size;
-} __attribute__((packed));
-
-void lgdt(struct gdt* global_descriptor_table);
-void lsr();
+void load_gdt(void);
+void switch_to_pm(void);
 #endif

@@ -17,6 +17,6 @@ struct idt {
 } __attribute__((packed));
 
 void lidt(struct idt *IDT);
-
+void interrupt_init_idt();
 void int_handler_33();
 #endif
