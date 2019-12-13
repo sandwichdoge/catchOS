@@ -12,8 +12,8 @@ struct idt_entry {
 } __attribute__((packed));
 
 struct idt {
-    unsigned int address;
     unsigned short size;
+    unsigned int address;
 } __attribute__((packed));
 
 void lidt(struct idt *IDT);

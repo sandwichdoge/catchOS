@@ -1,7 +1,9 @@
 #include "serial.h"
 #include "framebuffer.h"
 #include "kboot.h"
+#include "interrupt.h"
 #include "pic.h"
+#include "debug.h"
 
 char greeting[] = "Hi! Welcome to Thuan's OS! You're now in Protected Mode";
 char msg_true[] = "True";
@@ -26,5 +28,10 @@ void kmain() {
 
     test_memory_32bit_mode();
 
-    pic_init();
+    interrupt_init_idt();
+    pic_init();    
+
+    while (1) {
+        
+    }
 }
