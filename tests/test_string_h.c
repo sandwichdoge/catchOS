@@ -28,3 +28,22 @@ int test_strlen() {
 
     return 0;
 }
+
+int test_strncmp() {
+    char *s1 = "abc\0";
+    char *s2 = "abc\0";
+
+    int r = _strncmp(s1, s2, 3);
+    assert(r == 0);
+
+    char *s3 = "xyz";
+    char *s4 = "xyzz";
+    r = _strncmp(s3, s4, 4);
+    assert(r < 0);
+
+    char *s5 = "xyz";
+    char *s6 = "xyZ";
+    r = _strncmp(s5, s6, 3);
+    assert('z' - 'Z' > 0);
+    assert(r > 0);
+}
