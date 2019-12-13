@@ -2,6 +2,8 @@
 #include "pic.h"
 #include "debug.h"
 
+extern void int_handler_33(); // Handler for keyboard press
+
 #define INT_KEYBOARD 33 // 0x20 + 1
 
 struct cpu_state {
@@ -39,7 +41,7 @@ void interrupt_encode_idt_entry(unsigned int interrupt_num, unsigned int f_ptr_h
 
 void lidt (struct idt *idt_r)
 {
-    __asm__ ("lidt %0" :: "m"(*idt_r));
+    asm ("lidt %0" :: "m"(*idt_r));
 }
 
 void interrupt_init_idt() {

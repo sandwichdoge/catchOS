@@ -51,6 +51,20 @@ void pic_remap(int offset1, int offset2) {
 void pic_init() {
     pic_remap(PIC1_START_INTERRUPT, PIC2_START_INTERRUPT);
  
+    /*
+    IRQ 0 ‒ system timer
+    IRQ 1 — keyboard controller
+    IRQ 3 — serial port COM2
+    IRQ 4 — serial port COM1
+    IRQ 5 — line print terminal 2
+    IRQ 6 — floppy controller
+    IRQ 7 — line print terminal 1
+    IRQ 8 — RTC timer
+    IRQ 12 — mouse controller
+    IRQ 13 — math co-processor
+    IRQ 14 — ATA channel 1
+    IRQ 15 — ATA channel 2
+    */
     // IMR
     outb(PIC1_DATA, 0b11111101); // IRQ1 for keyboard interrupt
     outb(PIC2_DATA, 0b11111111);
