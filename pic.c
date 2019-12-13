@@ -46,15 +46,12 @@ void pic_remap(int offset1, int offset2) {
 
     outb(PIC1_DATA, ICW4_8086);
     outb(PIC2_DATA, ICW4_8086);
-
-    // Setup Interrupt Mask Register (IMR)
-    outb(PIC1_DATA, 0xFD); // 1111 1101 - Enable IRQ 1 only (keyboard).
-    outb(PIC2_DATA, 0xFF);
 }
 
 void pic_init() {
     pic_remap(PIC1_START_INTERRUPT, PIC2_START_INTERRUPT);
  
+    // IMR
     outb(PIC1_DATA, 0b11111101); // IRQ1 for keyboard interrupt
     outb(PIC2_DATA, 0b11111111);
 
