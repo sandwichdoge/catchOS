@@ -7,7 +7,8 @@ OBJECTS=loader.o kmain.o serial.o kboot.o \
 		gdt.o \
 		interrupt.o interrupt_hnd.o pic.o \
 		keyboard.o \
-		framebuffer.o io.o
+		framebuffer.o io.o \
+		string.o
 
 all: kernel.elf
 
