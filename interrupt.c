@@ -4,6 +4,7 @@
 
 extern void int_handler_33(); // Handler for keyboard press
 
+#define IDT_SIZE 256
 #define INT_KEYBOARD 33 // 0x20 + 1
 
 struct cpu_state {
@@ -23,7 +24,7 @@ struct stack_state {
     unsigned int eflags;
 };
 
-struct idt_entry idt_entries[256] = {0};
+struct idt_entry idt_entries[IDT_SIZE] = {0};
 
 // https://wiki.osdev.org/Interrupt_Descriptor_Table
 void interrupt_encode_idt_entry(unsigned int interrupt_num, unsigned int f_ptr_handler) {
@@ -64,7 +65,7 @@ void interrupt_init_idt() {
     interrupt_encode_idt_entry(INT_KEYBOARD, (unsigned int)int_handler_33);
     
     struct idt IDT;
-    IDT.size = sizeof(struct idt_entry) * 256 - 1;
+    IDT.size = sizeof(struct idt_entry) * IDT_SIZE - 1;
     IDT.address = (unsigned int)idt_entries;
 
     lidt(&IDT); // ASM wrapper

@@ -5,4 +5,5 @@ type "c" and Enter here. After that, the debugger will be called the 2nd time, e
 reg
 creg
 info gdt
+info idt
 ```
