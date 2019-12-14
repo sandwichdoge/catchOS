@@ -3,13 +3,14 @@ AS=nasm
 ASFLAGS=-f elf32
 CFLAGS=-m32 -nostdlib -nostdinc -fno-builtin -fno-stack-protector -nostartfiles -nodefaultlibs -Wall -Wextra -Wno-unused-parameter
 LDFLAGS=-T link.ld -melf_i386
-OBJECTS=loader.o kmain.o serial.o kboot.o \
-		gdt.o \
+OBJECTS=kboot/loader.o kboot/kboot.o \
+		kboot/gdt.o \
+		kmain.o serial.o \
 		controller.o \
 		interrupt.o interrupt_hnd.o pic.o \
 		keyboard.o \
 		framebuffer.o io.o \
-		string.o
+		utils/string.o
 
 all: kernel.elf
 
@@ -37,3 +38,6 @@ iso: kernel.elf
 
 clean:
 	rm -rf *.o *.elf
+	rm -f kboot/*.o
+	rm -f utils/*.o
+	rm -f memory/*.o

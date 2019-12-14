@@ -1,0 +1,4 @@
+- BIOS keeps a record of types of RAM.
+- Thus BIOS can detect the type of RAM installed.
+- Because BIOS is in ROM, it can mess with RAM.
+- So we ask BIOS for info on RAM.

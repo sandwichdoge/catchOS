@@ -1,6 +1,5 @@
 #include "serial.h"
 #include "framebuffer.h"
-#include "kboot.h"
 #include "interrupt.h"
 #include "pic.h"
 #include "debug.h"

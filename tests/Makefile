@@ -1,7 +1,7 @@
 CC=gcc
 OBJECTS=main.o \
 		test_string_h.o \
-		../string.c
+		../utils/string.c
 
 all: main.out
 
