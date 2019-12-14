@@ -9,3 +9,7 @@ make
 make iso
 ./run.sh
 ```
+
+kboot : Loaded by GRUB, still in 16-bit real mode.
+
+kmain : We're now in 32-bit protected mode.
