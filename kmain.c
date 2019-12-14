@@ -31,8 +31,6 @@ void kmain() {
     interrupt_init_idt();
     pic_init();    
 
-    _dbg_break();
-
     while (1) {
         
     }
