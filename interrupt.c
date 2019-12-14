@@ -1,7 +1,7 @@
 #include "interrupt.h"
 #include "pic.h"
 #include "keyboard.h"
-#include "framebuffer.h"
+#include "controller.h"
 #include "debug.h"
 
 extern void int_handler_33(); // Handler for keyboard press
@@ -74,12 +74,11 @@ void interrupt_init_idt() {
 }
 
 void interrupt_handler(struct cpu_state cpu_state, unsigned int interrupt_num, struct stack_state stack_state) {
-    // TODO handle keypress
     switch (interrupt_num) {
         case INT_KEYBOARD: {
             unsigned char scan_code = read_scan_code();
             unsigned char ascii = scan_code_to_ascii(scan_code);
-            write_cell(320, ascii, FB_BLACK, FB_WHITE);
+            controller_handle_keypress(ascii);
             pic_ack(interrupt_num);
             break;   
         }

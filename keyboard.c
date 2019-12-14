@@ -24,6 +24,6 @@ unsigned char sc_table_noshift[256] = {
 
 // https://www.win.tue.nl/~aeb/linux/kbd/scancodes-1.html
 unsigned char scan_code_to_ascii(unsigned char scan_code) {
-    scan_code &= ~(1 << 7);
+    if (scan_code & (1 << 7)) return 0; // Ignore key release
     return sc_table_noshift[scan_code];
 }

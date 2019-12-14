@@ -5,6 +5,7 @@ CFLAGS=-m32 -nostdlib -nostdinc -fno-builtin -fno-stack-protector -nostartfiles 
 LDFLAGS=-T link.ld -melf_i386
 OBJECTS=loader.o kmain.o serial.o kboot.o \
 		gdt.o \
+		controller.o \
 		interrupt.o interrupt_hnd.o pic.o \
 		keyboard.o \
 		framebuffer.o io.o \
