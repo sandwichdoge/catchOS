@@ -1,0 +1,3 @@
+https://wiki.osdev.org/Memory_Map_(x86)
+
+http://bochs.sourceforge.net/doc/docbook/user/internal-debugger.html
