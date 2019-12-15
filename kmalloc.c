@@ -12,6 +12,6 @@ void *kmalloc(unsigned int size) {
     return (void*)heap_start;
 }
 
-void free(void* ptr) {
+void kfree(void* ptr) {
     
 }
