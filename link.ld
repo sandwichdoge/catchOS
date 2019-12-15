@@ -24,3 +24,5 @@ SECTIONS {
         *(.bss)
     }
 }
+
+KERNEL_PROGRAM_END = .;

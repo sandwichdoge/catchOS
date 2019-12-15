@@ -24,7 +24,7 @@ init_pm:
     mov fs, ax
     mov gs, ax
 
-    mov ebp, 0x90000       ; stack base
+    mov ebp, 0x10000       ; stack base kernel stack: 4MB
     mov esp, ebp
     ; call something here, never return from init_pm
     call kmain

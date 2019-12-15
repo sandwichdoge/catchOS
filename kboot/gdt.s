@@ -11,7 +11,7 @@ gdt_code:        ; kernel code section
     dw 0x0       ; base (bits 0-15)
     db 0x0       ; base (bits 16-23)
     db 10011010b ; access byte
-    db 11001111b ; limit (bits 16-19) + flags
+    db 11001111b ; flags + limit (bits 16-19)
     db 0x0       ; base (bit 24- 31)
 
 gdt_data:         ; kernel data section
