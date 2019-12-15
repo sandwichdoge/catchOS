@@ -13,3 +13,10 @@ make iso
 kboot : Loaded by GRUB, still in 16-bit real mode.
 
 kmain : We're now in 32-bit protected mode.
+
+The kernel will have
+- Paging
+- Heap allocation
+- Preemptive multi-tasking
+- User accounts
+- Userland programs that will probably run in ring 0
