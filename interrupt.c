@@ -4,7 +4,7 @@
 #include "controller.h"
 #include "debug.h"
 
-extern void int_handler_33(); // Handler for keyboard press
+extern void asm_int_handler_33(); // Handler for keyboard press
 
 #define IDT_SIZE 256
 #define INT_KEYBOARD 33 // 0x20 + 1
@@ -27,6 +27,7 @@ struct stack_state {
 };
 
 struct idt_entry idt_entries[IDT_SIZE] = {0};
+void (*int_handler_table[IDT_SIZE])(void) = {0}; // Array of void func(void) pointers
 
 // https://wiki.osdev.org/Interrupt_Descriptor_Table
 void interrupt_encode_idt_entry(unsigned int interrupt_num, unsigned int f_ptr_handler) {
@@ -47,7 +48,13 @@ void lidt (struct idt *idt_r)
     asm ("lidt %0" :: "m"(*idt_r));
 }
 
-void interrupt_init_idt() {
+void ISR_KEYBOARD(void) {
+    unsigned char scan_code = read_scan_code();
+    unsigned char ascii = scan_code_to_ascii(scan_code);
+    controller_handle_keypress(ascii);
+}
+
+void interrupt_init_idt(void) {
     /*
     IRQ 0 ‒ system timer
     IRQ 1 — keyboard controller
@@ -63,8 +70,11 @@ void interrupt_init_idt() {
     IRQ 15 — ATA channel 2
     */
 
+    // Init ISR table
+    int_handler_table[INT_KEYBOARD] = ISR_KEYBOARD;
+
     // Keyboard press interrupt, 0x20 + 1 (which is PIC1_START_INTERRUPT + IRQ_1)
-    interrupt_encode_idt_entry(INT_KEYBOARD, (unsigned int)int_handler_33);
+    interrupt_encode_idt_entry(INT_KEYBOARD, (unsigned int)asm_int_handler_33);
     
     struct idt IDT;
     IDT.size = sizeof(struct idt_entry) * IDT_SIZE - 1;
@@ -74,15 +84,12 @@ void interrupt_init_idt() {
 }
 
 void interrupt_handler(struct cpu_state cpu_state, unsigned int interrupt_num, struct stack_state stack_state) {
-    switch (interrupt_num) {
-        case INT_KEYBOARD: {
-            unsigned char scan_code = read_scan_code();
-            unsigned char ascii = scan_code_to_ascii(scan_code);
-            controller_handle_keypress(ascii);
-            pic_ack(interrupt_num);
-            break;   
-        }
-        default:
-            break;
+    if (interrupt_num >= sizeof(int_handler_table) / sizeof(*int_handler_table)) {
+        return; // Stop if array out of range
+    }
+
+    if (int_handler_table[interrupt_num]) {
+        (*int_handler_table[interrupt_num])();
+        pic_ack(interrupt_num);
     }
 }

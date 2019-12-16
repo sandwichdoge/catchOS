@@ -1,12 +1,12 @@
-global int_handler_33    ; keyboard
+global asm_int_handler_33    ; keyboard
 extern interrupt_handler 
 
-int_handler_33:
+asm_int_handler_33:
     push 0
     push dword 33
-    jmp int_handler_common
+    jmp asm_int_handler_common
 
-int_handler_common:
+asm_int_handler_common:
     push eax
     push ebx
     push ecx

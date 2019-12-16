@@ -16,5 +16,5 @@ struct idt {
     unsigned int address;
 } __attribute__((packed));
 
-void interrupt_init_idt();
+void interrupt_init_idt(void);
 #endif

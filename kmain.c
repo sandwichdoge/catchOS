@@ -31,7 +31,7 @@ void kmain() {
     interrupt_init_idt();
     pic_init();    
 
-    write_str(msg_fb_test, 0, sizeof(msg_fb_test));
+    //write_str(msg_fb_test, 0, sizeof(msg_fb_test));
 
     while (1) {
         
