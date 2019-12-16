@@ -2,7 +2,7 @@
 #include "pic.h"
 #include "keyboard.h"
 #include "controller.h"
-#include "debug.h"
+#include "utils/debug.h"
 
 extern void asm_int_handler_33(); // Handler for keyboard press
 

@@ -2,7 +2,7 @@
 #include "framebuffer.h"
 #include "interrupt.h"
 #include "pic.h"
-#include "debug.h"
+#include "utils/debug.h"
 
 char greeting[] = "Hi! Welcome to Thuan's OS! You're now in 32-bit Protected Mode.\0";
 char msg_memtest_success[] = "Memtest success.\0";
