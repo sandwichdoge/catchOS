@@ -6,7 +6,7 @@ LDFLAGS=-T link.ld -melf_i386
 OBJECTS=kboot/loader.o kboot/kboot.o \
 		kboot/gdt.o \
 		kmain.o serial.o \
-		controller.o \
+		syscall.o shell.o \
 		interrupt.o interrupt_hnd.o pic.o \
 		keyboard.o \
 		framebuffer.o io.o \

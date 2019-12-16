@@ -1,8 +1,8 @@
 #include "interrupt.h"
 #include "pic.h"
 #include "keyboard.h"
-#include "controller.h"
 #include "utils/debug.h"
+#include "syscall.h" // TODO remove when we move keyboard press to queue in ISR_KEYBOARD
 
 extern void asm_int_handler_33(); // Handler for keyboard press
 
@@ -51,7 +51,9 @@ void lidt (struct idt *idt_r)
 void ISR_KEYBOARD(void) {
     unsigned char scan_code = read_scan_code();
     unsigned char ascii = scan_code_to_ascii(scan_code);
-    controller_handle_keypress(ascii);
+    _kb_handler_cb(ascii);
+    // TODO put ascii in a queue for kmain to process instead of calling it here
+    // We will get rid of syscall in interrupt.c this way.
 }
 
 void interrupt_init_idt(void) {
