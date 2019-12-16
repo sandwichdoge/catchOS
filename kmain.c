@@ -2,7 +2,7 @@
 #include "framebuffer.h"
 #include "interrupt.h"
 #include "pic.h"
-#include "syscall.h"
+#include "shell.h"
 #include "utils/debug.h"
 
 char greeting[] = "Hi! Welcome to Thuan's OS! You're now in 32-bit Protected Mode.\0";
@@ -34,7 +34,7 @@ void kmain() {
 
     //write_str(msg_fb_test, 0, sizeof(msg_fb_test));
     shell_init();
-    
+
     while (1) {
         
     }
