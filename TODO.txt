@@ -1,0 +1,6 @@
+- Read up Paging.
+- Detect physical memory limits.
+- Detect kernel stack overflow.
+- kmalloc.
+- User accounts.
+- Multi-tasking.
