@@ -25,7 +25,7 @@ void move_cursor(int y, int x) {
 
 // Scroll screen down some lines
 void scroll_down(unsigned int line_count) {
-    static unsigned char buf[SCR_SIZE * 2];
+    static char buf[SCR_SIZE * 2];
     _memset(buf, '\0', sizeof(buf));
 
     _memcpy(fb + (line_count * SCR_W) * 2, buf, sizeof(buf));

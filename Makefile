@@ -1,7 +1,7 @@
 CC=gcc
 AS=nasm
 ASFLAGS=-f elf32
-CFLAGS=-m32 -nostdlib -nostdinc -fno-builtin -fno-stack-protector -nostartfiles -nodefaultlibs -Wall -Wextra -Wno-unused-parameter
+CFLAGS=-Iinclude -m32 -nostdlib -nostdinc -fno-builtin -fno-stack-protector -nostartfiles -nodefaultlibs -Wall -Wextra -Wno-unused-parameter
 LDFLAGS=-T link.ld -melf_i386
 OBJECTS=kboot/loader.o kboot/kboot.o \
 		kboot/gdt.o \
