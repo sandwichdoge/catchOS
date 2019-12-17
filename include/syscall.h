@@ -9,6 +9,9 @@ void syscall_register_kb_handler(void (*kb_handler)(unsigned char c));
 // Print a string to screen.
 void syscall_fb_write_str(const char *str, unsigned int scrpos, unsigned int len);
 
+// Clear video screen.
+void syscall_fb_clr_scr(void);
+
 // Write data to serial port.
 void syscall_serial_writestr(char *str, unsigned int len);
 

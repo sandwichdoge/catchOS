@@ -14,6 +14,10 @@ void syscall_fb_write_str(const char *str, unsigned int scrpos, unsigned int len
     write_str(str, scrpos, len);
 }
 
+void syscall_fb_clr_scr() {
+    clr_screen(FB_BLACK);
+}
+
 void syscall_serial_writestr(char *str, unsigned int len) {
     serial_write(SERIAL_COM1_BASE, str, len);
 }
