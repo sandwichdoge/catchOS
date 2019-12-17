@@ -15,12 +15,11 @@ void write_cell(unsigned int scrpos, unsigned char c, unsigned char fg, unsigned
     fb[scrpos + 1] = ((fg & 0b00001111) << 4) | (bg & 0b00001111);
 }
 
-void move_cursor(int y, int x) {
-    int pos = y * SCR_W + x;
+void move_cursor(unsigned int scrpos) {
     outb(FB_COMMAND_PORT, FB_HIGH_BYTE_CMD);
-    outb(FB_DATA_PORT, (pos >> 8) & 0x00ff); // High bytes
+    outb(FB_DATA_PORT, (scrpos >> 8) & 0x00ff); // High bytes
     outb(FB_COMMAND_PORT, FB_LOW_BYTE_CMD);
-    outb(FB_DATA_PORT, pos & 0x00ff);        // Low bytes
+    outb(FB_DATA_PORT, scrpos & 0x00ff);        // Low bytes
 }
 
 // Scroll screen down some lines
@@ -32,11 +31,12 @@ void scroll_down(unsigned int line_count) {
     _memcpy(buf, fb, sizeof(buf));
 }
 
-// Write a string to framebuffer
-void write_str(const char *str, unsigned int scrpos, unsigned int len) {
+// Write a string to framebuffer, return number of chars to lost to scrolling
+unsigned int write_str(const char *str, unsigned int scrpos, unsigned int len) {
     // If next string overflows screen, scroll screen to make space for OF text
+    unsigned int lines_to_scroll = 0;
     if (scrpos + len >= SCR_SIZE) {
-        unsigned int lines_to_scroll = (scrpos + len - SCR_SIZE) / SCR_W;
+        lines_to_scroll = (scrpos + len - SCR_SIZE) / SCR_W;
 
         if (lines_to_scroll > SCR_H) {
             lines_to_scroll = SCR_H;
@@ -53,6 +53,8 @@ void write_str(const char *str, unsigned int scrpos, unsigned int len) {
         write_cell(cur_pos, str[i], FB_BLACK, FB_WHITE);
         cur_pos += 2;
     }
+
+    return (lines_to_scroll * SCR_W);
 }
 
 // Write a string until NULL encountered
