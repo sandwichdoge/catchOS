@@ -9,8 +9,8 @@
 
 void clr_screen(unsigned char bg);
 void write_cell(unsigned int i, unsigned char c, unsigned char fg, unsigned char bg);
-void write_str(const char *str, unsigned int scrpos, unsigned int len);
+unsigned int write_str(const char *str, unsigned int scrpos, unsigned int len);
 void write_cstr(const char *str, unsigned int scrpos);
-void move_cursor(int y, int x);
+void move_cursor(unsigned int scrpos);
 void scroll_down(unsigned int line_count);
 #endif
