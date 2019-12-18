@@ -31,12 +31,12 @@ void scroll_down(unsigned int line_count) {
     _memcpy(buf, fb, sizeof(buf));
 }
 
-// Write a string to framebuffer, return number of chars to lost to scrolling
-unsigned int write_str(const char *str, unsigned int scrpos, unsigned int len) {
+// Write a string to framebuffer.
+void write_str(const char *str, unsigned int *scrpos, unsigned int len) {
     // If next string overflows screen, scroll screen to make space for OF text
     unsigned int lines_to_scroll = 0;
-    if (scrpos + len >= SCR_SIZE) {
-        lines_to_scroll = (scrpos + len - SCR_SIZE) / SCR_W;
+    if (*scrpos + len >= SCR_SIZE) {
+        lines_to_scroll = (*scrpos + len - SCR_SIZE) / SCR_W;
 
         if (lines_to_scroll > SCR_H) {
             lines_to_scroll = SCR_H;
@@ -46,14 +46,14 @@ unsigned int write_str(const char *str, unsigned int scrpos, unsigned int len) {
         scrpos -= lines_to_scroll * SCR_W; // Go back the same number of lines
     }
 
-    scrpos *= 2;
-    unsigned int cur_pos = scrpos;
+    unsigned int cur_pos = (*scrpos) * 2;
 
     for (unsigned int i = 0; i < len; i++) {
         write_cell(cur_pos, str[i], FB_BLACK, FB_WHITE);
         cur_pos += 2;
     }
 
+    *scrpos = *scrpos - (lines_to_scroll * SCR_W) + len;
     return (lines_to_scroll * SCR_W);
 }
 
