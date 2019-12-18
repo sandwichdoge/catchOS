@@ -15,6 +15,9 @@ void shell_init() {
 void shell_handle_keypress(unsigned char ascii) {
     if (ascii == 0) return;
     syscall_fb_write_str(&ascii, 80 * 2, 1);
+    char buf[16] = {0};
+    syscall_read_cin(buf, 2);
+    syscall_fb_write_str(buf, 80 * 4, 2);
 }
 
 void shell_print(const char* str, unsigned int len) {

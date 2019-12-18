@@ -1,4 +1,5 @@
 CC=gcc
+CFLAGS=-I../include
 OBJECTS=main.o \
 		test_string_h.o \
 		../utils/string.c
