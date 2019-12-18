@@ -1,8 +1,8 @@
+#include "syscall.h" // _cin and _cin_pos
 #include "interrupt.h"
 #include "pic.h"
 #include "keyboard.h"
 #include "utils/debug.h"
-#include "syscall.h" // TODO remove when we move keyboard press to queue in ISR_KEYBOARD
 
 extern void asm_int_handler_33(); // Handler for keyboard press
 
@@ -48,12 +48,16 @@ void lidt (struct idt *idt_r)
     asm ("lidt %0" :: "m"(*idt_r));
 }
 
+// _cin is stdin buffer, _cin_pos keeps current position in this buffer, defined in syscall.h
+extern unsigned char *_cin;
+extern int _cin_pos;
 void ISR_KEYBOARD(void) {
     unsigned char scan_code = read_scan_code();
     unsigned char ascii = scan_code_to_ascii(scan_code);
     _kb_handler_cb(ascii);
-    // TODO put ascii in a queue for kmain to process instead of calling it here
-    // We will get rid of syscall in interrupt.c this way.
+    if (ascii) {
+        _cin[_cin_pos++] = ascii;
+    }
 }
 
 void interrupt_init_idt(void) {

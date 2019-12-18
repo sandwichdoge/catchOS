@@ -1,4 +1,4 @@
-#include "../utils/string.h"
+#include "utils/string.h"
 #include <stdio.h>
 #include <assert.h>
 #include <string.h>
@@ -17,6 +17,15 @@ int test_memcpy() {
     _memcpy("adios", s, 5);
     printf("%s\n", s);
     assert(strcmp(s, "adios, world") == 0);
+
+    return 0;
+}
+
+int test_memcpy2() {
+    char s[] = "hello, world";
+    char *prev = s;
+    _memcpy("adios", s, 5);
+    assert(prev == s);
 
     return 0;
 }

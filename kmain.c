@@ -28,6 +28,7 @@ void kmain() {
 
     interrupt_init_idt();
     pic_init();
+    syscall_init();
     shell_init();
 
     test_memory_32bit_mode();
