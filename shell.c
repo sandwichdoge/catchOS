@@ -26,7 +26,7 @@ void shell_handle_keypress(unsigned char ascii) {
             _receiving_user_input = 0;
             return;
         }
-        syscall_fb_write_str(&ascii, &_cur, 1);
+        syscall_fb_write_str((const char*)&ascii, &_cur, 1);
         syscall_fb_mov_cursr(_cur - 1);
     }
 }
@@ -40,7 +40,7 @@ void shell_print(const char* str, unsigned int len) {
     syscall_fb_write_str(str, &_cur, len);
 }
 
-void shell_cin(const char* out) {
+void shell_cin(char* out) {
     _receiving_user_input = 1;
     while (_receiving_user_input) {
     }

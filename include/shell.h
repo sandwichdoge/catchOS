@@ -4,6 +4,6 @@ void shell_handle_keypress(unsigned char ascii);
 void shell_init(void);
 void shell_setpos(unsigned int scrpos);
 void shell_print(const char* str, unsigned int len);
-void shell_cin(const char* out);
+void shell_cin(char* out);
 void shell_main();
 #endif
