@@ -54,7 +54,6 @@ void write_str(const char *str, unsigned int *scrpos, unsigned int len) {
     }
 
     *scrpos = *scrpos - (lines_to_scroll * SCR_W) + len;
-    return (lines_to_scroll * SCR_W);
 }
 
 // Write a string until NULL encountered
