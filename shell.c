@@ -5,7 +5,7 @@
 
 char msg_hello[] = "Hello!";
 char msg_q_name[] = "What is your name?";
-char greeting[] = "Hi! Welcome to Thuan's OS! You're now in 32-bit Protected Mode.\0";
+char greeting[] = "Welcome to Thuan's OS! You're now in 32-bit Protected Mode.\0";
 
 unsigned int _cur; // Global cursor position
 static char _receiving_user_input;
@@ -27,6 +27,7 @@ void shell_handle_keypress(unsigned char ascii) {
             return;
         }
         syscall_fb_write_str(&ascii, &_cur, 1);
+        syscall_fb_mov_cursr(_cur - 1);
     }
 }
 
@@ -39,8 +40,7 @@ void shell_print(const char* str, unsigned int len) {
     syscall_fb_write_str(str, &_cur, len);
 }
 
-void shell_cin(const char* out, unsigned int current_scrpos) {
-    _cur = current_scrpos;
+void shell_cin(const char* out) {
     _receiving_user_input = 1;
     while (_receiving_user_input) {
     }
@@ -52,8 +52,8 @@ void shell_main() {
     shell_print(msg_q_name, sizeof(msg_q_name));
 
     char buf[128] = {0};
-    shell_cin(buf, _cur);
+    shell_cin(buf);
     shell_setpos(80 * 4);
-    shell_print("Hello \0", _strlen("Hello "));
+    shell_print("Cheers \0", _strlen("Cheers "));
     shell_print(buf, _strlen(buf));
 }

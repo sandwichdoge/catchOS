@@ -58,6 +58,7 @@ void write_str(const char *str, unsigned int *scrpos, unsigned int len) {
 
 // Write a string until NULL encountered
 void write_cstr(const char *str, unsigned int scrpos) {
+    // TODO Handle scrolling
     scrpos *= 2;
 
     unsigned int cur_pos = scrpos;
