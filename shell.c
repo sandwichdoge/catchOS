@@ -1,26 +1,59 @@
 #include "syscall.h"
 #include "shell.h"
+#include "utils/string.h"
 #include "utils/debug.h"
 
-char greeting[] = "Hi! Welcome to Thuan's OS! You're now in 32-bit Protected Mode.\0";
+char msg_hello[] = "Hello!";
+char msg_q_name[] = "What is your name?";
+char greeting[] = "Welcome to Thuan's OS! You're now in 32-bit Protected Mode.\0";
+
 unsigned int _cur; // Global cursor position
+static char _receiving_user_input;
 
 void shell_init() {
+    _receiving_user_input = 0;
+    _cur = 0;
     syscall_register_kb_handler(shell_handle_keypress);
     syscall_fb_clr_scr();
-    syscall_fb_write_str(greeting, 0, sizeof(greeting));
+    syscall_fb_write_str(greeting, &_cur, sizeof(greeting));
     _cur = 80 * 3;
 }
 
 void shell_handle_keypress(unsigned char ascii) {
-    if (ascii == 0) return;
-    syscall_fb_write_str(&ascii, 80 * 2, 1);
-    char buf[16] = {0};
-    syscall_read_cin(buf, 1);
-    syscall_fb_write_str(buf, 80 * 4, 1);
+    if (_receiving_user_input) {
+        if (ascii == 0) return;
+        if (ascii == '\n') {
+            _receiving_user_input = 0;
+            return;
+        }
+        syscall_fb_write_str(&ascii, &_cur, 1);
+        syscall_fb_mov_cursr(_cur - 1);
+    }
+}
+
+void shell_setpos(unsigned int scrpos){
+    _cur = scrpos;
 }
 
 void shell_print(const char* str, unsigned int len) {
-    unsigned int chars_lost = syscall_fb_write_str(str, _cur, len);
-    _cur = _cur + len - chars_lost;
+    // TODO parse str, handle linebreak
+    syscall_fb_write_str(str, &_cur, len);
+}
+
+void shell_cin(const char* out) {
+    _receiving_user_input = 1;
+    while (_receiving_user_input) {
+    }
+    syscall_read_cin(out, CIN_BUFSZ);
+}
+
+void shell_main() {
+    shell_print(msg_hello, sizeof(msg_hello));
+    shell_print(msg_q_name, sizeof(msg_q_name));
+
+    char buf[128] = {0};
+    shell_cin(buf);
+    shell_setpos(80 * 4);
+    shell_print("Cheers \0", _strlen("Cheers "));
+    shell_print(buf, _strlen(buf));
 }

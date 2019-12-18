@@ -12,3 +12,6 @@ type "c" and Enter here. After that, the debugger will be called the 2nd time, e
     info idt
     x [addr] // Print value at addr in memory
 ```
+
+http://bochs.sourceforge.net/doc/docbook/user/internal-debugger.html
+

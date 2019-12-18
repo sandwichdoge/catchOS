@@ -54,10 +54,14 @@ extern int _cin_pos;
 void ISR_KEYBOARD(void) {
     unsigned char scan_code = read_scan_code();
     unsigned char ascii = scan_code_to_ascii(scan_code);
-    _kb_handler_cb(ascii);
     if (ascii) {
-        _cin[_cin_pos++] = ascii;
+        if (_cin_pos < CIN_BUFSZ) {
+            _cin[_cin_pos++] = ascii;
+        } else {
+            // Handle full stdin buffer
+        }
     }
+    _kb_handler_cb(ascii);
 }
 
 void interrupt_init_idt(void) {
