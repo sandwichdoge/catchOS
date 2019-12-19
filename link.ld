@@ -4,6 +4,7 @@ SECTIONS
 {
 .text phys : AT(phys) {
     code = .;
+    *(.booter)
     *(.text)
     *(.rodata)
     . = ALIGN(0);
