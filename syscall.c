@@ -8,25 +8,9 @@
 #include "utils/string.h"
 #include "utils/debug.h"
 
-unsigned char _cin_buf_[CIN_BUFSZ];
-unsigned char* _cin;
-int _cin_pos;
-
-void syscall_init() {
-    _cin = _cin_buf_;
-    _cin_pos = 0;
-}
 
 void syscall_register_kb_handler(void (*kb_handler)(unsigned char c)) {
     _kb_handler_cb = kb_handler;
-}
-
-void syscall_read_cin(char *out, unsigned int len) {
-    if (len <= sizeof(_cin_buf_)) {
-        _memcpy(_cin, out, len);
-        _memset(_cin, 0, sizeof(_cin));
-        _cin_pos = 0;
-    }
 }
 
 void syscall_fb_write_str(const char *str, unsigned int *scrpos, unsigned int len) {
