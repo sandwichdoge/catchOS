@@ -3,14 +3,15 @@ ENTRY(loader)
 SECTIONS {
     . = 0x00200000;
 
+    .rodata ALIGN (0x0000):
+    {
+        *(.multiboot)
+        *(.rodata)
+    }
+
     .text ALIGN (0x1000):
     {
         *(.text)
-    }
-
-    .rodata ALIGN (0x1000):
-    {
-        *(.rodata)
     }
 
     .data ALIGN (0x1000):
