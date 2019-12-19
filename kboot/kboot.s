@@ -32,4 +32,4 @@ init_pm:
 
 kboot:
     call load_gdt
-    call init_pm
+    call switch_to_pm

@@ -1,26 +1,28 @@
 ENTRY(loader)
-phys = 0x00200000;
-SECTIONS
-{
-.text phys : AT(phys) {
-    code = .;
-    *(.booter)
-    *(.text)
-    *(.rodata)
-    . = ALIGN(0);
+
+SECTIONS {
+    . = 0x00200000;
+
+    .text ALIGN (0x1000):
+    {
+        *(.text)
+    }
+
+    .rodata ALIGN (0x1000):
+    {
+        *(.rodata)
+    }
+
+    .data ALIGN (0x1000):
+    {
+        *(.data)
+    }
+    
+    .bss ALIGN (0x1000):
+    {
+        *(COMMON)
+        *(.bss)
+    }
 }
-.data : AT(phys + (data - code))
-{
-    data = .;
-    *(.data)
-    . = ALIGN(4096);
-}
-.bss : AT(phys + (bss - code))
-{
-    bss = .;
-    *(.bss)
-    . = ALIGN(4096);
-}
-end = .;
-}
+
 KERNEL_PROGRAM_END = .;
