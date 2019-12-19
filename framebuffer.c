@@ -31,6 +31,18 @@ void scroll_down(unsigned int line_count) {
     _memcpy(buf, fb, sizeof(buf));
 }
 
+void write_chr(const char c, unsigned int *scrpos) {
+    int lines_to_scroll = 0;
+    if (*scrpos + 1 >= SCR_SIZE) {
+        lines_to_scroll = 1;
+        scroll_down(lines_to_scroll);
+        *scrpos -= SCR_W; // Go back 1 line
+    }
+
+    write_cell((*scrpos) * 2, c, FB_BLACK, FB_WHITE);
+    *scrpos = *scrpos - (lines_to_scroll * SCR_W) + 1;
+}
+
 // Write a string to framebuffer.
 void write_str(const char *str, unsigned int *scrpos, unsigned int len) {
     // If next string overflows screen, scroll screen to make space for OF text
@@ -43,7 +55,7 @@ void write_str(const char *str, unsigned int *scrpos, unsigned int len) {
         }
 
         scroll_down(lines_to_scroll);
-        scrpos -= lines_to_scroll * SCR_W; // Go back the same number of lines
+        *scrpos -= lines_to_scroll * SCR_W; // Go back the same number of lines
     }
 
     unsigned int cur_pos = (*scrpos) * 2;
@@ -66,6 +78,14 @@ void write_cstr(const char *str, unsigned int scrpos) {
         write_cell(cur_pos, str[i], FB_BLACK, FB_WHITE);
         cur_pos += 2;
     }
+}
+
+int fb_get_scr_w() {
+    return SCR_W;
+}
+
+int fb_get_scr_h() {
+    return SCR_H;
 }
 
 void clr_screen(unsigned char bg) {

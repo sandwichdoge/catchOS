@@ -9,6 +9,8 @@ char msg_hello[] = "Hello!";
 char msg_q_name[] = "What is your name?";
 char greeting[] = "Welcome to Thuan's OS! You're now in 32-bit Protected Mode.\0";
 
+int SCREEN_WIDTH, SCREEN_HEIGHT;
+
 unsigned int _cur; // Global cursor position
 static char _receiving_user_input;
 
@@ -20,6 +22,8 @@ void shell_init() {
     _cin = _cin_buf_;
     _receiving_user_input = 0;
     _cur = 0;
+    SCREEN_WIDTH = syscall_fb_get_scr_w();
+    SCREEN_HEIGHT = syscall_fb_get_scr_h();
     syscall_register_kb_handler(shell_handle_keypress);
     syscall_fb_clr_scr();
     syscall_fb_write_str(greeting, &_cur, sizeof(greeting));
@@ -57,9 +61,19 @@ void shell_setpos(unsigned int scrpos){
     _cur = scrpos;
 }
 
-void shell_print(const char* str, unsigned int len) {
+void shell_cout(const char* str, unsigned int len) {
     // TODO parse str, handle linebreak
-    syscall_fb_write_str(str, &_cur, len);
+    //syscall_fb_write_str(str, &_cur, len);
+    char *tmp = str;
+    while (len--) {
+        if (*tmp == '\n') {
+            _cur = _cur + (SCREEN_WIDTH - (_cur % SCREEN_WIDTH)); // Next line
+        } else {
+            syscall_fb_write_chr(*tmp, &_cur);
+        }
+        tmp++;
+    }
+    syscall_fb_mov_cursr(_cur - 1);
 }
 
 void shell_cin(char* out) {
@@ -67,17 +81,25 @@ void shell_cin(char* out) {
     _receiving_user_input = 1;
     while (_receiving_user_input) {
     }
-    shell_read_cin(out, CIN_BUFSZ);
+    shell_read_cin(out, _cin_pos);
+    _cin_pos = 0;
 }
 
+char msg_cheers[] = "\nCheers ";
+char LF[] = "\n";
+
 void shell_main() {
-    shell_print(msg_hello, sizeof(msg_hello));
-    shell_print(msg_q_name, sizeof(msg_q_name));
-
+    shell_cout(msg_hello, sizeof(msg_hello));
     char buf[CIN_BUFSZ] = {0};
-    shell_cin(buf);
 
-    shell_setpos(80 * 4);
-    shell_print("Cheers \0", _strlen("Cheers "));
-    shell_print(buf, _strlen(buf));
+    for (;;) {
+        _memset(buf, 0, CIN_BUFSZ);
+        shell_cout(msg_q_name, sizeof(msg_q_name));
+        shell_cin(buf);
+        shell_cout(msg_cheers, sizeof(msg_cheers));
+        shell_cout(buf, _strlen(buf));
+        shell_cout(LF, 1);
+    }
+
+
 }

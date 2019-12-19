@@ -13,6 +13,18 @@ void syscall_register_kb_handler(void (*kb_handler)(unsigned char c)) {
     _kb_handler_cb = kb_handler;
 }
 
+int syscall_fb_get_scr_w() {
+    return fb_get_scr_w();
+}
+
+int syscall_fb_get_scr_h() {
+    return fb_get_scr_h();
+}
+
+void syscall_fb_write_chr(const char c, unsigned int *scrpos) {
+    write_chr(c, scrpos);
+}
+
 void syscall_fb_write_str(const char *str, unsigned int *scrpos, unsigned int len) {
     write_str(str, scrpos, len);
 }
