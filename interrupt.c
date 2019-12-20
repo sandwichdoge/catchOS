@@ -5,8 +5,10 @@
 #include "utils/debug.h"
 
 extern void asm_int_handler_33(); // Handler for keyboard press
+extern void asm_int_handler_14(); // Handler for page fault
 
 #define IDT_SIZE 256
+#define INT_PAGEFAULT 14
 #define INT_KEYBOARD 33 // 0x20 + 1
 
 struct cpu_state {
@@ -58,6 +60,11 @@ void ISR_KEYBOARD(void) {
     _kb_handler_cb(ascii);
 }
 
+void ISR_PAGEFAULT(void) {
+    _dbg_set_edi_esi(0x555);
+    _dbg_break();
+}
+
 void interrupt_init_idt(void) {
     /*
     IRQ 0 ‒ system timer
@@ -76,10 +83,12 @@ void interrupt_init_idt(void) {
 
     // Init ISR table
     int_handler_table[INT_KEYBOARD] = ISR_KEYBOARD;
+    int_handler_table[INT_PAGEFAULT] = ISR_PAGEFAULT;
 
     // Keyboard press interrupt, 0x20 + 1 (which is PIC1_START_INTERRUPT + IRQ_1)
     interrupt_encode_idt_entry(INT_KEYBOARD, (unsigned int)asm_int_handler_33);
-    
+    interrupt_encode_idt_entry(INT_PAGEFAULT, (unsigned int)asm_int_handler_14);
+
     struct idt IDT;
     IDT.size = sizeof(struct idt_entry) * IDT_SIZE - 1;
     IDT.address = (unsigned int)idt_entries;
