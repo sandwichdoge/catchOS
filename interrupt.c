@@ -1,4 +1,4 @@
-#include "syscall.h" // _cin and _cin_pos
+#include "syscall.h" // _kb_handler_cb()
 #include "interrupt.h"
 #include "pic.h"
 #include "keyboard.h"
@@ -50,9 +50,6 @@ void lidt (struct idt *idt_r)
     asm ("lidt %0" :: "m"(*idt_r));
 }
 
-// _cin is stdin buffer, _cin_pos keeps current position in this buffer, defined in syscall.h
-extern unsigned char *_cin;
-extern int _cin_pos;
 void ISR_KEYBOARD(void) {
     unsigned char scan_code = read_scan_code();
     unsigned char ascii = scan_code_to_ascii(scan_code);
