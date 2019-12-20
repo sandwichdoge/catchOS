@@ -8,6 +8,7 @@ OBJECTS=kboot/kboot.o kboot/loader.o \
 		kmain.o serial.o \
 		shell.o \
 		interrupt.o interrupt_hnd.o pic.o \
+		paging.o paging_en.o \
 		syscall.o keyboard.o \
 		framebuffer.o io.o \
 		utils/string.o

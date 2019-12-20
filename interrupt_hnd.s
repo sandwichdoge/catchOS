@@ -1,10 +1,17 @@
 global asm_int_handler_33    ; keyboard
+global asm_int_handler_14    ; pagefault
 extern interrupt_handler 
+
+asm_int_handler_14:
+    push 0
+    push dword 14
+    jmp asm_int_handler_common
 
 asm_int_handler_33:
     push 0
     push dword 33
     jmp asm_int_handler_common
+
 
 asm_int_handler_common:
     push eax
