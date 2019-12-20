@@ -9,7 +9,7 @@ char msg_hello[] = "Hello!";
 char msg_q_name[] = "What is your name? ";
 char greeting[] = "Welcome to Thuan's OS! You're now in 32-bit Protected Mode.\0";
 
-int SCREEN_WIDTH, SCREEN_HEIGHT;
+unsigned int SCREEN_WIDTH, SCREEN_HEIGHT;
 
 unsigned int _cur; // Global cursor position
 static char _receiving_user_input;
@@ -63,7 +63,7 @@ void shell_setpos(unsigned int scrpos){
 
 void shell_cout(const char* str, unsigned int len) {
     // TODO parse str, handle linebreak
-    char *tmp = str;
+    char *tmp = (char*)str;
     while (len--) {
         if (*tmp == '\n') {
             _cur = _cur + (SCREEN_WIDTH - (_cur % SCREEN_WIDTH)); // Next line
