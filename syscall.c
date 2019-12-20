@@ -21,6 +21,10 @@ int syscall_fb_get_scr_h() {
     return fb_get_scr_h();
 }
 
+void syscall_fb_scroll_down(unsigned int lines) {
+    scroll_down(lines);
+}
+
 void syscall_fb_write_chr(const char c, unsigned int *scrpos) {
     write_chr(c, scrpos);
 }

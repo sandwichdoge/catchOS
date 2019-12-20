@@ -10,6 +10,8 @@ void syscall_init();
 int syscall_fb_get_scr_w();
 int syscall_fb_get_scr_h();
 
+void syscall_fb_scroll_down(unsigned int lines);
+
 // Subscribe to keyboard events.
 void syscall_register_kb_handler(void (*kb_handler)(unsigned char c));
 

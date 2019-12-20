@@ -6,7 +6,7 @@
 #define CIN_BUFSZ 256
 
 char msg_hello[] = "Hello!";
-char msg_q_name[] = "What is your name?";
+char msg_q_name[] = "What is your name? ";
 char greeting[] = "Welcome to Thuan's OS! You're now in 32-bit Protected Mode.\0";
 
 int SCREEN_WIDTH, SCREEN_HEIGHT;
@@ -63,11 +63,14 @@ void shell_setpos(unsigned int scrpos){
 
 void shell_cout(const char* str, unsigned int len) {
     // TODO parse str, handle linebreak
-    //syscall_fb_write_str(str, &_cur, len);
     char *tmp = str;
     while (len--) {
         if (*tmp == '\n') {
             _cur = _cur + (SCREEN_WIDTH - (_cur % SCREEN_WIDTH)); // Next line
+            if (_cur >= SCREEN_WIDTH * SCREEN_HEIGHT) {
+                syscall_fb_scroll_down(1);
+                _cur -= SCREEN_WIDTH;
+            }
         } else {
             syscall_fb_write_chr(*tmp, &_cur);
         }
@@ -85,8 +88,7 @@ void shell_cin(char* out) {
     _cin_pos = 0;
 }
 
-char msg_cheers[] = "\nCheers ";
-char LF[] = "\n";
+char msg_cheers[] = "Cheers ";
 
 void shell_main() {
     shell_cout(msg_hello, sizeof(msg_hello));
@@ -94,12 +96,12 @@ void shell_main() {
 
     for (;;) {
         _memset(buf, 0, CIN_BUFSZ);
-        shell_cout(msg_q_name, sizeof(msg_q_name));
+        shell_cout(msg_q_name, _strlen(msg_q_name));
         shell_cin(buf);
-        shell_cout(msg_cheers, sizeof(msg_cheers));
+        shell_cout("\n", 1);
+        shell_cout(msg_cheers, _strlen(msg_cheers)); // \nCheers User\n
         shell_cout(buf, _strlen(buf));
-        shell_cout(LF, 1);
+        shell_cout("\n", 1);
     }
-
 
 }

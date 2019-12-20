@@ -1,6 +1,7 @@
 #include "io.h"
 #include "framebuffer.h"
 #include "utils/string.h"
+#include "utils/debug.h"
 
 #define FB_COMMAND_PORT 0x3d4
 #define FB_DATA_PORT 0x3d5
