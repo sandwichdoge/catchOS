@@ -24,4 +24,6 @@ TODO
 #### 4.2.3 Interrupt Handler Implementation
 ![Interrupts](resources/Interrupts.jpg)
 
-### 4.3 Scheduler
+### 4.3 Paging
+
+### 4.4 Scheduler
