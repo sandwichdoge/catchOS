@@ -30,3 +30,18 @@ void paging_init() {
     loadPageDirectory((void*)page_directory);
     enablePaging();
 }
+
+unsigned int virtual_addr_to_pd(unsigned int virtual_addr) {
+	return virtual_addr / 0x400000; // 4 MB
+}
+
+// Map virtual address to phys_addr in one page.
+void paging_map(unsigned int virtual_addr, unsigned int phys_addr, unsigned int *page_dir, unsigned int *page_table) {
+	// Populate the page table
+	for (unsigned int i = 0; i < 1024; i++) {
+		page_table[i] = phys_addr + (i * 0x1000) + 3;
+	}
+	
+	unsigned int pd = virtual_addr_to_pd(virtual_addr);
+	page_dir[pd] = page_table;
+}
