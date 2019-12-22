@@ -31,7 +31,7 @@ void paging_init() {
     enablePaging();
 }
 
-unsigned int virtual_addr_to_pd(unsigned int virtual_addr) {
+unsigned int virtual_addr_to_pde(unsigned int virtual_addr) {
 	return virtual_addr / 0x400000; // 4 MB
 }
 
@@ -39,9 +39,11 @@ unsigned int virtual_addr_to_pd(unsigned int virtual_addr) {
 void paging_map(unsigned int virtual_addr, unsigned int phys_addr, unsigned int *page_dir, unsigned int *page_table) {
 	// Populate the page table
 	for (unsigned int i = 0; i < 1024; i++) {
+		// We can fit all addreses of 4GB physical memory into a PTE.
+		// Since the page must be 4kB aligned, last 12 bits are always zeroes, so x86 uses them as access bits cleverly.
 		page_table[i] = phys_addr + (i * 0x1000) + 3;
 	}
 	
-	unsigned int pd = virtual_addr_to_pd(virtual_addr);
-	page_dir[pd] = page_table;
+	unsigned int pde = virtual_addr_to_pd(virtual_addr);
+	page_dir[pde] = page_table;
 }
