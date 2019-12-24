@@ -31,5 +31,6 @@ init_pm:
     jmp $
 
 kboot:
+    ; TODO paging here
     call load_gdt
     call switch_to_pm

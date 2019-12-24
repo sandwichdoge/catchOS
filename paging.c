@@ -10,6 +10,7 @@ extern void enablePaging();
 unsigned int page_directory[PAGE_TOTAL] __attribute__((aligned(4096))); // 1024 page tables in page directory
 unsigned int page_table_list[PAGE_TOTAL / 1024][PAGE_TOTAL] __attribute__((aligned(4096)));
 
+
 void paging_init() {
     for (unsigned int i = 0; i < PAGE_TOTAL / 1024; i++) {
         paging_map(i * PDE_SIZE, i * PDE_SIZE, page_directory, page_table_list[i]);
