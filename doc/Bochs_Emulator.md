@@ -15,3 +15,5 @@ type "c" and Enter here. After that, the debugger will be called the 2nd time, e
 
 http://bochs.sourceforge.net/doc/docbook/user/internal-debugger.html
 
+https://thestarman.pcministry.com/linux/bochsrc.bxrc.htm
+

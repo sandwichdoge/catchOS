@@ -13,7 +13,18 @@
 ![PhysMem](resources/Physical_Memory_Map.jpg)
 #### 4.1.4 Reserved Memory Space On x86
 ![PhysMem](resources/Reserved_x86_Memory.png)
-#### 4.1.5 Memory Managerment Unit
+#### 4.1.5 Paging
+![Paging](resources/Paging.jpg)
+- With Paging enabled, when a memory address is deferenced, x86 goes to the Paging Directory
+to look for the corresponding Page Table that manages 4MiB of the physical memory region.
+
+```
+// 2nd Page Table is looked up (because each Page Table manages 4MiB), 
+// then offset 0x100000 in the Page Table is set to 0x2.
+int *p = 0x500000;
+*p = 0x2;
+```
+#### 4.1.6 Memory Management Unit
 TODO
 
 ### 4.2 Interrupts
@@ -24,6 +35,5 @@ TODO
 #### 4.2.3 Interrupt Handler Implementation
 ![Interrupts](resources/Interrupts.jpg)
 
-### 4.3 Paging
 
-### 4.4 Scheduler
+### 4.3 Scheduler
