@@ -3,27 +3,17 @@ extern void loadPageDirectory(void* page_directory);
 extern void enablePaging();
 
 #define PDE_SIZE 0x400000
-#define PAGE_TOTAL (32 * 1000 * 1024) / (4 * 1024) // Each page manages 4 KiB of phys memory
+#define PAGE_TOTAL (32 * 1024 * 1024) / (4 * 1024) // Each page manages 4 KiB of phys memory
 
 // Page index 123 in table index 456 will be mapped to (456 * 1024) + 123 = 467067. 467067 * 4 = 1868268 KiB.
 
 unsigned int page_directory[PAGE_TOTAL] __attribute__((aligned(4096))); // 1024 page tables in page directory
-unsigned int page_table_list[8][PAGE_TOTAL] __attribute__((aligned(4096)));
+unsigned int page_table_list[PAGE_TOTAL / 1024][PAGE_TOTAL] __attribute__((aligned(4096)));
 
 void paging_init() {
-    // TODO: Can't translate phys address, virtual address is fine
-    // Every page directory must have the kernel mapped in it, otherwise triple fault?
-    // Can map any virtual address to 0x0 phys, but can't map to any other phys addr.
- 
     for (unsigned int i = 0; i < PAGE_TOTAL / 1024; i++) {
         paging_map(i * PDE_SIZE, i * PDE_SIZE, page_directory, page_table_list[i]);
     }
-
-
-/*
-    unsigned int *pt2 = page_directory[1] ^ 3;
-    _dbg_set_edi_esi(pt2[0]);
-    _dbg_break();*/
 
     loadPageDirectory((void*)page_directory);
     enablePaging();
