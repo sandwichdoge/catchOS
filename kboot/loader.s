@@ -47,7 +47,7 @@ hhboot:
     mov [asm_page_directory - 0xc0000000 + 768 * 4], esi
     lea esi, [asm_page_directory - 0xc0000000]
     ; load page directory
-    mov cr3, esi        
+    mov cr3, esi
     
     ; enable paging
     mov eax, cr0
