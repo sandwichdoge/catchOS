@@ -31,22 +31,22 @@ higher_half_init:
     mov eax, ebx
     mov edx, 0x1000
     mul edx             ; multiply index with 0x1000
-    add eax, 0xc0000000 ; add virtual address starting
+    add eax, 0x0 ; add virtual address starting
     mov ecx, eax        ; put multiplied value in ecx
     or ecx, 3
     ; asm_first_page_table + (ebx * 4) = ecx
-    lea edx, [asm_first_page_table - 0xc0000000]
+    lea edx, [asm_first_page_table - 0x0]
     mov [edx + ebx * 4], ecx
     inc ebx
     cmp ebx, 1024
     jne .loop2
 hhboot:
-    lea esi, [asm_first_page_table - 0xc0000000]
+    lea esi, [asm_first_page_table - 0x0]
     xchg bx, bx ;chk esi, save this address, this address points to first table
     ; Page Table is now in esi
     or esi, 3
-    mov [asm_page_directory - 0xc0000000], esi
-    lea esi, [asm_page_directory - 0xc0000000]
+    mov [asm_page_directory - 0x0], esi
+    lea esi, [asm_page_directory - 0x0]
     xchg bx, bx ;deref value in esi, should be first_page_table | 3
     mov cr3, esi        ; load page directory
     mov eax, cr0
