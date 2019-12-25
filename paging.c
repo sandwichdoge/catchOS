@@ -1,6 +1,7 @@
 #include "utils/debug.h"
 extern void loadPageDirectory(void* page_directory);
 extern void enablePaging();
+extern void disablePaging();
 
 #define PDE_SIZE 0x400000
 #define PAGE_TOTAL (32 * 1024 * 1024) / (4 * 1024) // Each page manages 4 KiB of phys memory
@@ -9,15 +10,24 @@ extern void enablePaging();
 
 unsigned int page_directory[PAGE_TOTAL] __attribute__((aligned(4096))); // 1024 page tables in page directory
 unsigned int page_table_list[PAGE_TOTAL / 1024][PAGE_TOTAL] __attribute__((aligned(4096)));
+unsigned int page_table_list_high[PAGE_TOTAL / 1024][PAGE_TOTAL] __attribute__((aligned(4096)));
 
 
 void paging_init() {
+	/*
     for (unsigned int i = 0; i < PAGE_TOTAL / 1024; i++) {
-        paging_map(i * PDE_SIZE, i * PDE_SIZE, page_directory, page_table_list[i]);
+        //paging_map(i * PDE_SIZE, i * PDE_SIZE, page_directory, page_table_list[i]);
     }
 
+	paging_map(0x00000000, 0x0, page_directory, page_table_list[0]);
+	paging_map(0xc0000000, 0x0, page_directory, page_table_list[0]);
+
+	unsigned int page_directory_phys = (unsigned int)page_directory - 0xc0000000;
+	_dbg_set_edi_esi(page_directory_phys);
+	_dbg_break();
     loadPageDirectory((void*)page_directory);
-    enablePaging();
+	_dbg_break(); // Can't get here
+    enablePaging();*/
 }
 
 unsigned int virtual_addr_to_pde(unsigned int virtual_addr) {
@@ -34,6 +44,5 @@ void paging_map(unsigned int virtual_addr, unsigned int phys_addr, unsigned int 
 	}
 	
 	unsigned int pde = virtual_addr_to_pde(virtual_addr);
-	page_directory[pde] = (unsigned int)page_table | 3;
-
+	page_dir[pde] = (unsigned int)page_table | 3;
 }
