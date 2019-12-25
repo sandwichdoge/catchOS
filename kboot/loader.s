@@ -27,12 +27,12 @@ loader:                         ; the loader label (defined as entry point in li
 higher_half_init:
     ; init first page table here
     xor ebx, ebx
-    lea edi, [asm_first_page_table - 0x0]
+    lea edi, [asm_first_page_table - 0xc0000000]
 .loop2:
     mov eax, ebx
     mov edx, 0x1000
     mul edx             ; multiply index with 0x1000
-    add eax, 0x0 ; add virtual address starting
+    ;add eax, 0xc0000000 ; add virtual address starting
     mov ecx, eax        ; put multiplied value in ecx
     or ecx, 3
     ; asm_first_page_table + (ebx * 4) = ecx
@@ -41,11 +41,11 @@ higher_half_init:
     cmp ebx, 1024
     jne .loop2
 hhboot:
-    lea esi, [asm_first_page_table - 0x0] ; Page Table is now in esi
+    lea esi, [asm_first_page_table - 0xc0000000] ; Page Table is now in esi
     or esi, 3
-    mov [asm_page_directory - 0x0], esi
-    lea esi, [asm_page_directory - 0x0]
-    
+    mov [asm_page_directory - 0xc0000000], esi
+    mov [asm_page_directory - 0xc0000000 + 768 * 4], esi
+    lea esi, [asm_page_directory - 0xc0000000]
     ; load page directory
     mov cr3, esi        
     
