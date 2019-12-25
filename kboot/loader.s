@@ -27,6 +27,7 @@ loader:                         ; the loader label (defined as entry point in li
 higher_half_init:
     ; init first page table here
     xor ebx, ebx
+    lea edi, [asm_first_page_table - 0x0]
 .loop2:
     mov eax, ebx
     mov edx, 0x1000
@@ -35,32 +36,32 @@ higher_half_init:
     mov ecx, eax        ; put multiplied value in ecx
     or ecx, 3
     ; asm_first_page_table + (ebx * 4) = ecx
-    lea edx, [asm_first_page_table - 0x0]
-    mov [edx + ebx * 4], ecx
+    mov [edi + ebx * 4], ecx
     inc ebx
     cmp ebx, 1024
     jne .loop2
 hhboot:
-    lea esi, [asm_first_page_table - 0x0]
-    xchg bx, bx ;chk esi, save this address, this address points to first table
-    ; Page Table is now in esi
+    lea esi, [asm_first_page_table - 0x0] ; Page Table is now in esi
     or esi, 3
     mov [asm_page_directory - 0x0], esi
     lea esi, [asm_page_directory - 0x0]
-    xchg bx, bx ;deref value in esi, should be first_page_table | 3
-    mov cr3, esi        ; load page directory
+    
+    ; load page directory
+    mov cr3, esi        
+    
+    ; enable paging
     mov eax, cr0
     or eax, 0x80000000  ; set 32th bit of cr0
     mov cr0, eax
-    xchg bx, bx
+    
     jmp kboot
 
 
 section .bss:                   ; our stack is in uninitialized data section
-align 4				                  ; align at 4 bytes
+align 4096				                  ; align at 4 bytes
 kernel_stack:                   ; label points to beginning of memory
     resb KERNEL_STACK_SIZE      ; reserve stack for the kernel
-asm_page_directory:
+asm_page_directory: ; ERROR: Need to align our directory here?
     TIMES 1024 dd 0
 asm_first_page_table:
     TIMES 1024 dd 0
