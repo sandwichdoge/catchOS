@@ -1,4 +1,5 @@
 CC=gcc
+CXX=g++
 AS=nasm
 ASFLAGS=-f elf32
 CFLAGS=-Iinclude -m32 -nostdlib -nostdinc -fno-builtin -fno-stack-protector -nostartfiles -nodefaultlibs -Wall -Wextra -Wno-unused-parameter
@@ -14,6 +15,9 @@ OBJECTS=kboot/kboot.o kboot/loader.o \
 		utils/string.o
 
 all: kernel.elf
+
+%.o: %.cpp
+	$(CXX) -c $(CFLAGS) $< -o $@
 
 %.o: %.c
 	$(CC) -c $(CFLAGS) $< -o $@

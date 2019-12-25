@@ -21,13 +21,25 @@ int _strncmp(char *s1, char *s2, unsigned int len) {
     return (*s1 - *s2);
 }
 
-void _memset(char *dst, char c, unsigned int len) {
+void _memset_s(char *dst, char c, unsigned int len) {
     while (len--) {
         *(dst++) = c;
     }
 }
 
-void _memcpy(char *src, char *dst, unsigned int len) {
+void _memset_u(unsigned char *dst, char c, unsigned int len) {
+    while (len--) {
+        *(dst++) = c;
+    }
+}
+
+void _memcpy_s(char *src, char *dst, unsigned int len) {
+    while (len--) {
+        *(dst++) = *(src++);
+    }
+}
+
+void _memcpy_u(unsigned char *src, char *dst, unsigned int len) {
     while (len--) {
         *(dst++) = *(src++);
     }
