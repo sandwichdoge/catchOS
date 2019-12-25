@@ -30,6 +30,7 @@ void kmain() {
 
     serial_defconfig(SERIAL_COM1_BASE);
     shell_init();
+    test_memory_32bit_mode();
     shell_main();
 
     while (1) {
