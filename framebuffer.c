@@ -34,23 +34,21 @@ void scroll_down(unsigned int line_count) {
 
 // Framebuffer doesn't have the concept of linebreak, we have to implement it in the shell/stdin.
 void write_chr(const char c, unsigned int *scrpos) {
-    int lines_to_scroll = 0;
-    if (*scrpos + 1 >= SCR_SIZE) {
-        lines_to_scroll = 1;
-        scroll_down(lines_to_scroll);
+    if (*scrpos + 1 > SCR_SIZE) {
+        scroll_down(1);
         *scrpos -= SCR_W; // Go back 1 line
     }
 
     write_cell((*scrpos) * 2, c, FB_BLACK, FB_WHITE);
-    *scrpos = *scrpos - (lines_to_scroll * SCR_W) + 1;
+    *scrpos = *scrpos + 1;
 }
 
 // Write a string to framebuffer.
 void write_str(const char *str, unsigned int *scrpos, unsigned int len) {
     // If next string overflows screen, scroll screen to make space for OF text
     unsigned int lines_to_scroll = 0;
-    if (*scrpos + len >= SCR_SIZE) {
-        lines_to_scroll = (*scrpos + len - SCR_SIZE) / SCR_W;
+    if (*scrpos + len > SCR_SIZE) {
+        lines_to_scroll = ((*scrpos + len - SCR_SIZE) / SCR_W) + 1; // Divide rounded down, so we add 1
 
         if (lines_to_scroll > SCR_H) {
             lines_to_scroll = SCR_H;
@@ -58,6 +56,7 @@ void write_str(const char *str, unsigned int *scrpos, unsigned int len) {
 
         scroll_down(lines_to_scroll);
         *scrpos -= lines_to_scroll * SCR_W; // Go back the same number of lines
+        write_cell(*scrpos * 2, 'x', FB_BLACK, FB_WHITE);
     }
 
     unsigned int cur_pos = (*scrpos) * 2;
@@ -67,7 +66,7 @@ void write_str(const char *str, unsigned int *scrpos, unsigned int len) {
         cur_pos += 2;
     }
 
-    *scrpos = *scrpos - (lines_to_scroll * SCR_W) + len;
+    *scrpos = *scrpos + len;
 }
 
 // Write a string until NULL encountered

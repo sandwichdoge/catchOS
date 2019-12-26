@@ -44,7 +44,7 @@ void shell_handle_keypress(unsigned char ascii) {
 
         _cin[_cin_pos++] = ascii;
 
-        syscall_fb_write_str((const char*)&ascii, &_cur, 1);
+        syscall_fb_write_chr(ascii, &_cur);
         syscall_fb_mov_cursr(_cur - 1);
     }
 }
@@ -88,8 +88,6 @@ void shell_cin(char* out) {
     _cin_pos = 0;
 }
 
-char msg_cheers[] = "Cheers ";
-
 void shell_main() {
     shell_cout(msg_hello, sizeof(msg_hello));
     char buf[CIN_BUFSZ] = {0};
@@ -97,11 +95,11 @@ void shell_main() {
     for (;;) {
         _memset(buf, 0, CIN_BUFSZ);
         shell_cout(msg_q_name, _strlen(msg_q_name));
+        
         shell_cin(buf);
         shell_cout("\n", 1);
         shell_cout("Cheers ", _strlen("Cheers ")); // \nCheers User\n
         shell_cout(buf, _strlen(buf));
         shell_cout("\n", 1);
     }
-
 }
