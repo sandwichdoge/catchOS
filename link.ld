@@ -5,12 +5,12 @@ SECTIONS {
 
     .multiboot ALIGN (0x4): AT(ADDR(.multiboot)-0xC0000000)
     {
-        *(.multiboot)
+        *(.multiboot*)
     }
 
     .rodata ALIGN (0x1000): AT(ADDR(.rodata)-0xC0000000)
     {
-        *(.rodata)
+        *(.rodata*)
         *(.rodata.*)
     }
 
