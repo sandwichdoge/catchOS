@@ -3,18 +3,12 @@ extern kboot                    ; kboot will switch to protected mode and call k
 
 KERNEL_STACK_SIZE equ 4096      ; size of stack in bytes
 
-section .text                  ; start of the text (code) section
+section .text                   ; start of the text (code) section
 loader:                         ; the loader label (defined as entry point in linker script)
-    mov eax, 0xCAFEBABE         ; place the number 0xCAFEBABE in the register eax
     mov esp, kernel_stack + KERNEL_STACK_SIZE	; point esp to the start of the
                                                 ; stack (end of memory area)
-                                ; esp at 0xc020000 + KERNEL_STACK_SIZE + end_of_kernel
-    jmp higher_half_init
-    
-.loop:
-    jmp .loop                   ; loop forever
 
-higher_half_init:
+higher_half_init:               ; initialize higher-half kernel
     ; init first page table here
     xor ebx, ebx
     lea edi, [asm_first_page_table - 0xc0000000]
@@ -50,7 +44,7 @@ higher_half_init:
     jmp kboot
 
 
-section .bss                   ; our stack is in uninitialized data section
+section .bss                    ; our stack is in uninitialized data section
 align 4096				                  ; align at 4 bytes
 kernel_stack:                   ; label points to beginning of memory
     resb KERNEL_STACK_SIZE      ; reserve stack for the kernel
