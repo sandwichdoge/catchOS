@@ -32,6 +32,7 @@ void scroll_down(unsigned int line_count) {
     _memcpy(buf, fb, sizeof(buf));
 }
 
+// Framebuffer doesn't have the concept of linebreak, we have to implement it in the shell/stdin.
 void write_chr(const char c, unsigned int *scrpos) {
     int lines_to_scroll = 0;
     if (*scrpos + 1 >= SCR_SIZE) {

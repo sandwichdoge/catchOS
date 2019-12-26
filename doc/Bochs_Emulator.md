@@ -34,6 +34,8 @@ magic_break: enabled=1
 ```
 bochs -f bochsrc.txt -q
 ```
+When started, bochs may pause the emulation. Switch to bochs console, type 'c', then press Enter to continue.
+
 
 ## 2.4. Debugging
 Write this into your bochsrc: "magic_break: enabled=1", and put "xchg bx,bx" in your code 
@@ -49,7 +51,12 @@ type "c" and Enter here. After that, the debugger will be called the 2nd time, e
     x /16 [addr] // Print 16 values at addr in memory, 4 bytes in size each
 ```
 
+http://bochs.sourceforge.net/doc/docbook/user/bochsrc.html
+
 http://bochs.sourceforge.net/doc/docbook/user/internal-debugger.html
 
 https://thestarman.pcministry.com/linux/bochsrc.bxrc.htm
 
+
+## 2.5. Logging
+As configured in bochsrc.txt file, log will be written to output/bochslog.txt.
