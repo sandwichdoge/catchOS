@@ -4,7 +4,7 @@ AS=nasm
 ASFLAGS=-f elf32
 CFLAGS=-Iinclude -m32 -nostdlib -nostdinc -fno-builtin -fno-stack-protector -nostartfiles -nodefaultlibs -Wall -Wextra -Wno-unused-parameter
 LDFLAGS=-T link.ld -melf_i386
-OBJECTS=kboot/kboot.o kboot/loader.o \
+OBJECTS=kboot/multiboot_header.o kboot/kboot.o kboot/loader.o \
 		kboot/gdt.o \
 		kmain.o serial.o \
 		shell.o \
@@ -26,7 +26,7 @@ all: kernel.elf
 	$(AS) $(ASFLAGS) $< -o $@
 
 kernel.elf: $(OBJECTS)
-	ld $(LDFLAGS) $^ -o $@
+	ld $^ -o $@ $(LDFLAGS)
 
 iso: kernel.elf
 	cp kernel.elf iso/boot/

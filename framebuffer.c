@@ -8,7 +8,7 @@
 #define FB_HIGH_BYTE_CMD 14
 #define FB_LOW_BYTE_CMD 15
 
-volatile char *fb = (volatile char*)0xC00B8000; // Video memory address
+char *fb = (char*)0xC00B8000; // Video memory address
 
 // Write character to a cell in 80x24 framebuffer
 void write_cell(unsigned int scrpos, unsigned char c, unsigned char fg, unsigned char bg) {
@@ -32,6 +32,7 @@ void scroll_down(unsigned int line_count) {
     _memcpy(buf, fb, sizeof(buf));
 }
 
+// Framebuffer doesn't have the concept of linebreak, we have to implement it in the shell/stdin.
 void write_chr(const char c, unsigned int *scrpos) {
     int lines_to_scroll = 0;
     if (*scrpos + 1 >= SCR_SIZE) {

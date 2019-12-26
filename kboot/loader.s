@@ -1,30 +1,14 @@
 global loader                   ; the entry symbol for ELF
 extern kboot                    ; kboot will switch to protected mode and call kmain
 
-MAGIC_NUMBER equ 0x1BADB002     ; define the magic number constant
-FLAGS        equ 0x0            ; multiboot flags
-CHECKSUM     equ -MAGIC_NUMBER  ; calculate the checksum
-                                ; (magic number + checksum + flags should equal 0)
 KERNEL_STACK_SIZE equ 4096      ; size of stack in bytes
 
-section .multiboot:
-align 4                         ; the code must be 4 byte aligned
-    dd MAGIC_NUMBER             ; write the magic number to the machine code,
-    dd FLAGS                    ; the flags,
-    dd CHECKSUM                 ; and the checksum
-
-section .text:                  ; start of the text (code) section
+section .text                   ; start of the text (code) section
 loader:                         ; the loader label (defined as entry point in linker script)
-    mov eax, 0xCAFEBABE         ; place the number 0xCAFEBABE in the register eax
     mov esp, kernel_stack + KERNEL_STACK_SIZE	; point esp to the start of the
                                                 ; stack (end of memory area)
-                                ; esp at 0xc020000 + KERNEL_STACK_SIZE + end_of_kernel
-    jmp higher_half_init
-    
-.loop:
-    jmp .loop                   ; loop forever
 
-higher_half_init:
+higher_half_init:               ; initialize higher-half kernel
     ; init first page table here
     xor ebx, ebx
     lea edi, [asm_first_page_table - 0xc0000000]
@@ -60,11 +44,11 @@ higher_half_init:
     jmp kboot
 
 
-section .bss:                   ; our stack is in uninitialized data section
+section .bss                    ; our stack is in uninitialized data section
 align 4096				                  ; align at 4 bytes
 kernel_stack:                   ; label points to beginning of memory
     resb KERNEL_STACK_SIZE      ; reserve stack for the kernel
 asm_page_directory: ; ERROR: Need to align our directory here?
-    TIMES 1024 dd 0
+    resb 4096
 asm_first_page_table:
-    TIMES 1024 dd 0
+    resb 4096
