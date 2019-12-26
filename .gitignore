@@ -3,3 +3,4 @@
 *.iso
 *log.txt
 *.out
+.vscode
