@@ -46,6 +46,8 @@ TODO
 ![IDT](resources/IDT.jpg)
 #### 4.2.2 Programmable Interrupt Controller
 ![PIC](resources/PIC.jpg)
+- All hardware interrupts must go through the PIC (ATA, keyboard, etc.).
+- All CPU-generated interrupts do not go through the PIC.
 #### 4.2.3 Interrupt Handler Implementation
 ![Interrupts](resources/Interrupts.jpg)
 #### 4.2.4 Interrupts
@@ -66,4 +68,21 @@ vs USB:
 Key press -> keyboard controller recognizes press -> stores keypress until USB poll -> sends status to USB controller -> USB controller sends interrupt to CPU
 ```
 
-### 4.3 Scheduler
+##### 4.2.4.2 Pagefault
+- This is an exception, which is a kind of interrupt.
+- The CPU generates this to interrupt itself, thus pagefault interrupt will not go through the PIC.
+- After paging is enabled, when an unmapped memory address is dereferenced, the CPU generates a pagefault interrupt.
+- We should translate this into a segmentation fault signal.
+
+### 4.3 I/O
+#### 4.3.1 stdin
+![stdin](resources/stdin.jpg)
+
+How the shell uses syscall to handle keyboard input and screen output
+
+![stdin_sequence](resources/stdin_sequence_diagram.jpg)
+
+Sequence diagram on what happens when a key is pressed
+
+
+### 4.4 Scheduler
