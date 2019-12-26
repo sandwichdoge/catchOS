@@ -3,7 +3,7 @@ extern kboot                    ; kboot will switch to protected mode and call k
 
 KERNEL_STACK_SIZE equ 4096      ; size of stack in bytes
 
-section .text:                  ; start of the text (code) section
+section .text                  ; start of the text (code) section
 loader:                         ; the loader label (defined as entry point in linker script)
     mov eax, 0xCAFEBABE         ; place the number 0xCAFEBABE in the register eax
     mov esp, kernel_stack + KERNEL_STACK_SIZE	; point esp to the start of the
@@ -50,11 +50,11 @@ higher_half_init:
     jmp kboot
 
 
-section .bss:                   ; our stack is in uninitialized data section
+section .bss                   ; our stack is in uninitialized data section
 align 4096				                  ; align at 4 bytes
 kernel_stack:                   ; label points to beginning of memory
     resb KERNEL_STACK_SIZE      ; reserve stack for the kernel
 asm_page_directory: ; ERROR: Need to align our directory here?
-    TIMES 1024 dd 0
+    resb 4096
 asm_first_page_table:
-    TIMES 1024 dd 0
+    resb 4096
