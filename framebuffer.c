@@ -25,6 +25,10 @@ void move_cursor(unsigned int scrpos) {
 
 // Scroll screen down some lines
 void scroll_down(unsigned int line_count) {
+    if (line_count > SCR_H) {
+        line_count = SCR_H;
+    }
+
     static char buf[SCR_SIZE * 2];
     _memset(buf, '\0', sizeof(buf));
 
@@ -49,10 +53,6 @@ void write_str(const char *str, unsigned int *scrpos, unsigned int len) {
     unsigned int lines_to_scroll = 0;
     if (*scrpos + len > SCR_SIZE) {
         lines_to_scroll = ((*scrpos + len - SCR_SIZE) / SCR_W) + 1; // Divide rounded down, so we add 1
-
-        if (lines_to_scroll > SCR_H) {
-            lines_to_scroll = SCR_H;
-        }
 
         scroll_down(lines_to_scroll);
         *scrpos -= lines_to_scroll * SCR_W; // Go back the same number of lines

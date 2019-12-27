@@ -51,10 +51,14 @@ void lidt (struct idt *idt_r)
 }
 
 void ISR_KEYBOARD(void) {
+    static int is_shift_key_depressed = 0;
     unsigned char scan_code = read_scan_code();
-    unsigned char ascii = scan_code_to_ascii(scan_code);
-
-    _kb_handler_cb(ascii);
+    unsigned char ascii = scan_code_to_ascii(scan_code, is_shift_key_depressed);
+    if (ascii == KEY_LSHIFT || ascii == KEY_RSHIFT) {
+        is_shift_key_depressed ^= 1;
+    } else {
+        _kb_handler_cb(ascii);
+    }
 }
 
 void ISR_PAGEFAULT(void) {
