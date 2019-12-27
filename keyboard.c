@@ -10,12 +10,12 @@ unsigned char read_scan_code() {
 
 unsigned char sc_table_noshift[256] = {
     0, 27, '1', '2', '3', '4', '5', '6', 
-    '7', '8', '9', '0', '-', '=', 8 /*Backspace*/, '\t',
+    '7', '8', '9', '0', '-', '=', KEY_BACKSPACE /*Backspace*/, '\t',
     'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 
     'o', 'p', '[', ']', '\n', 17 /*LCtrl*/, 'a', 's', 
     'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', 
-    '\'', '`', 14 /*LShift*/, '\\', 'z', 'x', 'c', 'v', 
-    'b', 'n', 'm', ',', '.', '/', 15 /*RShift*/, 0, 
+    '\'', '`', KEY_LSHIFT /*LShift*/, '\\', 'z', 'x', 'c', 'v', 
+    'b', 'n', 'm', ',', '.', '/', KEY_RSHIFT /*RShift*/, 0, 
     0 /*LAlt*/, ' ', 26 /*CapsLock*/, 0, 0, 0, 0, 0, 0, 
     0, 0, 0, 0 /*F10*/, 0 /*NumLock*/, 0 /*ScrollLock*/, 0 /*Home*/, 0 /*Up*/, 
     0 /*PgUp*/, 0 /*Keypad--*/, 0 /*Left*/, 0 /*Keypad-5*/, 0 /*Right*/, 0 /*Keypad-+*/, 0 /*End*/, 0 /*Down*/, 
@@ -24,12 +24,12 @@ unsigned char sc_table_noshift[256] = {
 
 unsigned char sc_table_shift[256] = {
     0, 27, '!', '@', '#', '$', '%', '^', 
-    '&', '*', '(', ')', '_', '+', 8 /*Backspace*/, '\t',
+    '&', '*', '(', ')', '_', '+', KEY_BACKSPACE /*Backspace*/, '\t',
     'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 
     'O', 'P', '{', '}', '\n', 17 /*LCtrl*/, 'A', 'S', 
     'D', 'F', 'G', 'H', 'J', 'K', 'L', ':', 
-    '"', '~', 14 /*LShift*/, '|', 'Z', 'X', 'C', 'V', 
-    'B', 'N', 'M', ',', '.', '/', 15 /*RShift*/, 0, 
+    '"', '~', KEY_LSHIFT /*LShift*/, '|', 'Z', 'X', 'C', 'V', 
+    'B', 'N', 'M', ',', '.', '/', KEY_RSHIFT /*RShift*/, 0, 
     0 /*LAlt*/, ' ', 26 /*CapsLock*/, 0, 0, 0, 0, 0, 0, 
     0, 0, 0, 0 /*F10*/, 0 /*NumLock*/, 0 /*ScrollLock*/, 0 /*Home*/, 0 /*Up*/, 
     0 /*PgUp*/, 0 /*Keypad--*/, 0 /*Left*/, 0 /*Keypad-5*/, 0 /*Right*/, 0 /*Keypad-+*/, 0 /*End*/, 0 /*Down*/, 

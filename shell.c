@@ -1,6 +1,6 @@
 #include "syscall.h"
 #include "shell.h"
-#include "keyboard.h"
+#include "keyboard.h" // For key defs
 #include "utils/string.h"
 #include "utils/debug.h"
 
@@ -48,12 +48,12 @@ void shell_handle_keypress(unsigned char ascii) {
             _cur--;
             syscall_fb_write_chr(' ', &_cur);
             _cur--;
-            syscall_fb_mov_cursr(_cur - 1);
         } else {
             _cin[_cin_pos++] = ascii;
             syscall_fb_write_chr(ascii, &_cur);
-            syscall_fb_mov_cursr(_cur - 1);
         }
+        
+        syscall_fb_mov_cursr(_cur - 1);
     }
 }
 
