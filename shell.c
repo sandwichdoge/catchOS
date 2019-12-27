@@ -75,6 +75,7 @@ void shell_cin(char* out) {
     _cin_pos = 0;
     _receiving_user_input = 1;
     while (_receiving_user_input) {
+        asm("hlt");
     }
 
     if ((unsigned long)_cin_pos <= sizeof(_cin_buf_)) {
@@ -90,7 +91,7 @@ void shell_cin(char* out) {
 
 void shell_main() {
     shell_init();
-    
+
     shell_cout(msg_hello, sizeof(msg_hello));
     char buf[CIN_BUFSZ] = {0};
 
