@@ -14,7 +14,7 @@ OBJECTS=kboot/multiboot_header.o kboot/kboot.o kboot/loader.o \
 		framebuffer.o io.o \
 		utils/string.o
 
-all: kernel.elf
+all: kernel.elf program
 
 %.o: %.cpp
 	$(CXX) -c $(CFLAGS) $< -o $@
@@ -27,6 +27,9 @@ all: kernel.elf
 
 kernel.elf: $(OBJECTS)
 	ld $^ -o $@ $(LDFLAGS)
+
+program: iso/modules/program.s
+	$(AS) -f bin $< -o iso/modules/program
 
 iso: kernel.elf
 	cp kernel.elf iso/boot/
