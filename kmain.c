@@ -5,6 +5,7 @@
 #include "shell.h"
 #include "syscall.h"
 #include "paging.h"
+#include "multiboot.h"
 #include "utils/debug.h"
 #include "utils/string.h"
 
@@ -22,13 +23,30 @@ void test_memory_32bit_mode() {
     }
 }
 
-void kmain() {
+void halt() {
+    asm("hlt");
+}
+
+void call_user_module(multiboot_info_t *mbinfo) {
+    unsigned int module_ptr = mbinfo->mods_addr + 0xc0000000;
+    unsigned int mcount = mbinfo->mods_count;
+    unsigned int prog_addr = *(unsigned int*)module_ptr + 0xc0000000;
+
+    typedef void (*call_module_t)(void);
+    call_module_t start_program = (call_module_t)prog_addr;
+    start_program();
+    _dbg_break();
+}
+
+void kmain(unsigned int ebx) {
     write_cstr("Setting up interrupts..", 0);
     interrupt_init_idt();
     pic_init();
     write_cstr("Setting up paging..", 80);
     paging_init();
     test_memory_32bit_mode();
+
+    call_user_module((multiboot_info_t *)ebx);
 
     serial_defconfig(SERIAL_COM1_BASE);
     shell_main();
