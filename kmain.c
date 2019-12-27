@@ -23,6 +23,10 @@ void test_memory_32bit_mode() {
     }
 }
 
+void halt() {
+    asm("hlt");
+}
+
 void call_user_module(multiboot_info_t *mbinfo) {
     unsigned int program_addr = mbinfo->mods_addr + 0xc0000000;
     unsigned int mcount = mbinfo->mods_count;
@@ -30,9 +34,6 @@ void call_user_module(multiboot_info_t *mbinfo) {
 
     typedef void (*call_module_t)(void);
     call_module_t start_program = (call_module_t)prog_addr;
-
-    _dbg_set_edi_esi(prog_addr);
-    _dbg_break();
     start_program();
 }
 

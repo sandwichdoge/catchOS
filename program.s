@@ -1,2 +1,2 @@
 mov eax, 0xCAFEBABE
-jmp $
+xchg bx, bx

@@ -9,8 +9,6 @@ extern void enablePaging();
 
 unsigned int page_directory[PAGE_TOTAL] __attribute__((aligned(4096))); // 1024 page tables in page directory
 unsigned int page_table_list[PAGE_TOTAL / 1024][PAGE_TOTAL] __attribute__((aligned(4096)));
-unsigned int page_table_list_high[PAGE_TOTAL / 1024][PAGE_TOTAL] __attribute__((aligned(4096)));
-
 
 static unsigned int virtual_addr_to_pde(unsigned int virtual_addr) {
 	return virtual_addr >> 22;
@@ -30,6 +28,8 @@ static void paging_map(unsigned int virtual_addr, unsigned int phys_addr, unsign
 }
 
 void paging_init() {
+	paging_map(0x0, 0x0, page_directory, page_table_list[0]);
+
 	for (unsigned int i = 0; i < PAGE_TOTAL / 1024; i++) {
         paging_map(0xc0000000 + i * PDE_SIZE, i * PDE_SIZE, page_directory, page_table_list[i]);
     }
