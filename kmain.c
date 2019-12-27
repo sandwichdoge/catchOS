@@ -18,6 +18,7 @@ void test_memory_32bit_mode() {
         write_cstr("Memtest success.", 80);
     } else {
         write_cstr("Memtest failed.", 80);
+        _dbg_break();
     }
 }
 
@@ -27,10 +28,9 @@ void kmain() {
     pic_init();
     write_cstr("Setting up paging..", 80);
     paging_init();
+    test_memory_32bit_mode();
 
     serial_defconfig(SERIAL_COM1_BASE);
-    shell_init();
-    test_memory_32bit_mode();
     shell_main();
 
     while (1) {

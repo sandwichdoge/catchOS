@@ -89,6 +89,8 @@ void shell_cin(char* out) {
 }
 
 void shell_main() {
+    shell_init();
+    
     shell_cout(msg_hello, sizeof(msg_hello));
     char buf[CIN_BUFSZ] = {0};
 
