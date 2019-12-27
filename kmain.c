@@ -30,12 +30,14 @@ void halt() {
 void call_user_module(multiboot_info_t *mbinfo) {
     unsigned int module_ptr = mbinfo->mods_addr + 0xc0000000;
     unsigned int mcount = mbinfo->mods_count;
-    unsigned int prog_addr = *(unsigned int*)module_ptr + 0xc0000000;
+    
+    if (mcount > 0) {
+        unsigned int prog_addr = *(unsigned int*)module_ptr + 0xc0000000;
 
-    typedef void (*call_module_t)(void);
-    call_module_t start_program = (call_module_t)prog_addr;
-    start_program();
-    _dbg_break();
+        typedef void (*call_module_t)(void);
+        call_module_t start_program = (call_module_t)prog_addr;
+        start_program();
+    }
 }
 
 void kmain(unsigned int ebx) {
