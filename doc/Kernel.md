@@ -1,4 +1,25 @@
 #### [Home](README.md)
+
+- [4. Kernel](#4-kernel)
+* [4.1 Memory](#41-memory)
+    + [4.1.1 Detecting Memory's Limits](#411-detecting-memory-s-limits)
+    + [4.1.2 Global Descriptor Table](#412-global-descriptor-table)
+    + [4.1.3 Physical Memory Map](#413-physical-memory-map)
+    + [4.1.4 Reserved Memory Space On x86](#414-reserved-memory-space-on-x86)
+    + [4.1.5 Paging](#415-paging)
+    + [4.1.6 Higher-Half Kernel](#416-higher-half-kernel)
+    + [4.1.7 Memory Management Unit](#417-memory-management-unit)
+* [4.2 Interrupts](#42-interrupts)
+    + [4.2.1 Interrupt Descriptor Table](#421-interrupt-descriptor-table)
+    + [4.2.2 Programmable Interrupt Controller](#422-programmable-interrupt-controller)
+    + [4.2.3 Interrupt Handler Implementation](#423-interrupt-handler-implementation)
+    + [4.2.4 Interrupts](#424-interrupts)
+    - [4.2.4.1 Keyboard](#4241-keyboard)
+    - [4.2.4.2 Pagefault](#4242-pagefault)
+* [4.3 I/O](#43-i-o)
+    + [4.3.1 stdin](#431-stdin)
+* [4.4 Scheduler](#44-scheduler)
+
 ## 4. Kernel
 
 ### 4.1 Memory

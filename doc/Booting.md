@@ -1,4 +1,11 @@
 #### [Home](README.md)
+
+- [3. Booting](#3-booting)
+* [3.1. Boot Sequence](#31-boot-sequence)
+* [3.2. Setup for High-Half Kernel](#32-setup-for-high-half-kernel)
+* [3.3. Multiboot Specification](#33-multiboot-specification)
+* [3.4. Kernel Entry](#34-kernel-entry)
+
 ## 3. Booting
 ### 3.1. Boot Sequence
 ![Boot Sequence](resources/Boot_Sequence.jpg)

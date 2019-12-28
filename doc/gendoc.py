@@ -7,13 +7,11 @@ def getExt(fname):
 
 def add_home_link(s):
     home_link = "#### [Home](README.md)\n"
-    if (s[:len(home_link)]) == home_link:
-        pass
-    else:
-        if s.find(home_link) == -1:
-            s = home_link + s
+    if s.find(home_link) == -1:
+        s = home_link + s
     return s
 
+# Generate Table of Content: https://ecotrust-canada.github.io/markdown-toc/
 
 def gen_doc(root_dir):
     print(root_dir)
