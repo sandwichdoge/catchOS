@@ -39,7 +39,9 @@ higher_half_init() -> kboot() -> kmain() -> paging_init()
 ```
 
 #### 4.1.7 Memory Management Unit
-TODO
+Virtual Memory Layout of a user program
+![VirtMem](resources/AddressSpaceLayout.png)
+
 
 ### 4.2 Interrupts
 #### 4.2.1 Interrupt Descriptor Table
