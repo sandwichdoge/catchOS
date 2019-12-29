@@ -1,12 +1,5 @@
-CC=gcc
-CXX=g++
-AS=nasm
-ASFLAGS=-f elf32
-CFLAGS=-Iinclude -m32 -nostdlib -nostdinc -fno-builtin -fno-stack-protector -nostartfiles -nodefaultlibs -Wall -Wextra -Wno-unused-parameter \
--D WITH_GRUB_MB
-LDFLAGS=-T link.ld -melf_i386
-
 TESTS_DIR=tests
+INCLUDE_DIR=include
 KERNEL_DIR=kernel
 KBOOT_DIR=$(KERNEL_DIR)/kboot
 DRIVERS_DIR=$(KERNEL_DIR)/drivers
@@ -15,6 +8,14 @@ MMU_DIR=$(KERNEL_DIR)/mmu
 COMMON_DIR=$(KERNEL_DIR)/common
 SYS_DIR=$(KERNEL_DIR)/sys
 UTILS_DIR=$(KERNEL_DIR)/utils
+
+CC=gcc
+CXX=g++
+AS=nasm
+ASFLAGS=-f elf32
+CFLAGS=-I$(INCLUDE_DIR) -m32 -nostdlib -nostdinc -fno-builtin -fno-stack-protector -nostartfiles -nodefaultlibs -Wall -Wextra -Wno-unused-parameter \
+-D WITH_GRUB_MB
+LDFLAGS=-T $(KERNEL_DIR)/link.ld -melf_i386
 
 OBJECTS=$(KBOOT_DIR)/multiboot_header.o $(KBOOT_DIR)/kboot.o \
 		$(KBOOT_DIR)/loader.o $(KBOOT_DIR)/gdt.o \

@@ -28,6 +28,7 @@
 - Thus BIOS can detect the type of RAM installed and its features.
 - Because BIOS is in ROM, it can mess with RAM without consequences.
 - So we ask BIOS for info on RAM.
+- At the moment, we use multiboot info header to get memory upper and lower limits.
 #### 4.1.2 Global Descriptor Table
 ![GDT](resources/GDT.jpg)
 #### 4.1.3 Physical Memory Map
