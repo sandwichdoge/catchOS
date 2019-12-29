@@ -6,6 +6,7 @@
 #include "syscall.h"
 #include "paging.h"
 #include "multiboot.h"
+#include "kinfo.h"
 #include "utils/debug.h"
 #include "utils/string.h"
 
@@ -28,11 +29,11 @@ void halt() {
 }
 
 void call_user_module(multiboot_info_t *mbinfo) {
-    unsigned int module_ptr = mbinfo->mods_addr + 0xc0000000;
+    struct multiboot_mod_list *mods = (struct multiboot_mod_list *)mbinfo->mods_addr + 0xc0000000;
     unsigned int mcount = mbinfo->mods_count;
     
     if (mcount > 0) {
-        unsigned int prog_addr = *(unsigned int*)module_ptr + 0xc0000000;
+        unsigned int prog_addr = *(unsigned int*)mods + 0xc0000000;
 
         typedef void (*call_module_t)(void);
         call_module_t start_program = (call_module_t)prog_addr;
@@ -41,25 +42,22 @@ void call_user_module(multiboot_info_t *mbinfo) {
 }
 
 void kmain(unsigned int ebx) {
+// First thing first, gather all info about our hardware capabilities, store it in kinfo singleton
 #ifdef WITH_GRUB_MB
     multiboot_info_t *mbinfo = (multiboot_info_t *)ebx;
+    kinfo_init((multiboot_info_t *)ebx);
+#else
+    kinfo_init((void*)0);
 #endif
+
+// Setup paging
+    write_cstr("Setting up paging..", 80);
+    paging_init();
+
 // Setup interrupts
     write_cstr("Setting up interrupts..", 0);
     interrupt_init_idt();
     pic_init();
-
-// Setup paging
-    write_cstr("Setting up paging..", 80);
-#ifdef WITH_GRUB_MB
-    unsigned int mem_lower = mbinfo->mem_lower;
-    unsigned int mem_upper = mbinfo->mem_upper;
-#else // TODO: Ask BIOS for mem limits, hardcode for now
-    unsigned int mem_lower = 0x27c;
-    unsigned int mem_upper = 0x7bc0;
-#endif
-
-    paging_init(mem_lower, mem_upper);
 
 // Perform memory tests
     test_memory_32bit_mode();

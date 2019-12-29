@@ -1,3 +1,4 @@
+#include "kinfo.h"
 #include "utils/debug.h"
 extern void loadPageDirectory(void* page_directory);
 extern void enablePaging();
@@ -27,9 +28,11 @@ static void paging_map(unsigned int virtual_addr, unsigned int phys_addr, unsign
 	page_dir[pde] = ((unsigned int)page_table - 0xc0000000) | 3;
 }
 
-void paging_init(unsigned int phys_mem_lower_kb, unsigned int phys_mem_upper_kb) {
-	unsigned int phys_mem_size_kb = (phys_mem_upper_kb - phys_mem_lower_kb); // e.g 31680
-	unsigned int pages_total = phys_mem_upper_kb / 4;
+void paging_init() {
+	struct kinfo *kinfo = get_kernel_info();
+
+	unsigned int phys_mem_size_kb = (kinfo->phys_mem_upper - kinfo->phys_mem_lower); // e.g 31680
+	unsigned int pages_total = kinfo->phys_mem_upper / 4;
 	unsigned int page_tables_total = (pages_total + (1024 - 1)) / 1024; // Round up int division
 
 	for (unsigned int i = 0; i < page_tables_total; i++) {

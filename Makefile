@@ -8,7 +8,7 @@ LDFLAGS=-T link.ld -melf_i386
 OBJECTS=kboot/multiboot_header.o kboot/kboot.o kboot/loader.o \
 		kboot/gdt.o \
 		kmain.o serial.o \
-		shell.o \
+		shell.o kinfo.o \
 		interrupt.o interrupt_hnd.o pic.o \
 		paging.o paging_en.o \
 		syscall.o keyboard.o \
