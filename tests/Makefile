@@ -1,10 +1,11 @@
 CC=gcc
 CFLAGS=-I../include
 OBJECTS=main.o \
-		test_string_h.o \
-		../utils/string.c
+		test_string_util.o \
+		../kernel/utils/string.c
 
 all: main.out
+	./main.out
 
 %.o: %.c
 	$(CC) -c $(CFLAGS) $< -o $@
