@@ -6,6 +6,7 @@ CFLAGS=-Iinclude -m32 -nostdlib -nostdinc -fno-builtin -fno-stack-protector -nos
 -D WITH_GRUB_MB
 LDFLAGS=-T link.ld -melf_i386
 
+TESTS_DIR=tests
 KERNEL_DIR=kernel
 KBOOT_DIR=$(KERNEL_DIR)/kboot
 DRIVERS_DIR=$(KERNEL_DIR)/drivers
@@ -15,13 +16,13 @@ COMMON_DIR=$(KERNEL_DIR)/common
 SYS_DIR=$(KERNEL_DIR)/sys
 UTILS_DIR=$(KERNEL_DIR)/utils
 
-OBJECTS=$(KBOOT_DIR)/multiboot_header.o $(KBOOT_DIR)/kboot.o $(KBOOT_DIR)/loader.o \
-		$(KBOOT_DIR)/gdt.o \
+OBJECTS=$(KBOOT_DIR)/multiboot_header.o $(KBOOT_DIR)/kboot.o \
+		$(KBOOT_DIR)/loader.o $(KBOOT_DIR)/gdt.o \
 		$(KERNEL_DIR)/kmain.o \
 		$(KERNEL_DIR)/shell/shell.o \
 		$(DRIVERS_DIR)/serial.o \
-		$(INTERRUPT_DIR)/interrupt.o $(INTERRUPT_DIR)/interrupt_hnd.o $(INTERRUPT_DIR)/pic.o \
 		$(DRIVERS_DIR)/framebuffer.o $(DRIVERS_DIR)/keyboard.o \
+		$(INTERRUPT_DIR)/interrupt.o $(INTERRUPT_DIR)/interrupt_hnd.o $(INTERRUPT_DIR)/pic.o \
 		$(MMU_DIR)/paging.o $(MMU_DIR)/paging_en.o \
 		$(SYS_DIR)/syscall.o \
 		$(COMMON_DIR)/io.o $(COMMON_DIR)/kinfo.o \
@@ -59,6 +60,13 @@ iso: kernel.elf
 
 clean:
 	rm -rf *.o *.elf
-	rm -f kboot/*.o
-	rm -f utils/*.o
-	rm -f memory/*.o
+	rm -f $(KERNEL_DIR)/*.o
+	rm -f $(KBOOT_DIR)/*.o
+	rm -f $(UTILS_DIR)/*.o
+	rm -f $(MMU_DIR)/*.o
+	rm -f $(SYS_DIR)/*.o
+	rm -f $(INTERRUPT_DIR)/*.o
+	rm -f $(DRIVERS_DIR)/*.o
+	rm -f $(COMMON_DIR)/*.o
+	rm -f $(SHELL_DIR)/*.o
+	rm -f $(TESTS_DIR)/*.o

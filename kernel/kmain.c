@@ -29,7 +29,7 @@ void halt() {
 }
 
 void call_user_module(multiboot_info_t *mbinfo) {
-    struct multiboot_mod_list *mods = mbinfo->mods_addr + 0xc0000000;
+    struct multiboot_mod_list *mods = (struct multiboot_mod_list *)(mbinfo->mods_addr + 0xc0000000);
     unsigned int mcount = mbinfo->mods_count;
     
     if (mcount > 0) {
