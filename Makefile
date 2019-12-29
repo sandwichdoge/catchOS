@@ -5,15 +5,27 @@ ASFLAGS=-f elf32
 CFLAGS=-Iinclude -m32 -nostdlib -nostdinc -fno-builtin -fno-stack-protector -nostartfiles -nodefaultlibs -Wall -Wextra -Wno-unused-parameter \
 -D WITH_GRUB_MB
 LDFLAGS=-T link.ld -melf_i386
-OBJECTS=kboot/multiboot_header.o kboot/kboot.o kboot/loader.o \
-		kboot/gdt.o \
-		kmain.o serial.o \
-		shell.o kinfo.o \
-		interrupt.o interrupt_hnd.o pic.o \
-		paging.o paging_en.o \
-		syscall.o keyboard.o \
-		framebuffer.o io.o \
-		utils/string.o
+
+KERNEL_DIR=kernel
+KBOOT_DIR=$(KERNEL_DIR)/kboot
+DRIVERS_DIR=$(KERNEL_DIR)/drivers
+INTERRUPT_DIR=$(KERNEL_DIR)/interrupt
+MMU_DIR=$(KERNEL_DIR)/mmu
+COMMON_DIR=$(KERNEL_DIR)/common
+SYS_DIR=$(KERNEL_DIR)/sys
+UTILS_DIR=$(KERNEL_DIR)/utils
+
+OBJECTS=$(KBOOT_DIR)/multiboot_header.o $(KBOOT_DIR)/kboot.o $(KBOOT_DIR)/loader.o \
+		$(KBOOT_DIR)/gdt.o \
+		$(KERNEL_DIR)/kmain.o \
+		$(KERNEL_DIR)/shell/shell.o \
+		$(DRIVERS_DIR)/serial.o \
+		$(INTERRUPT_DIR)/interrupt.o $(INTERRUPT_DIR)/interrupt_hnd.o $(INTERRUPT_DIR)/pic.o \
+		$(DRIVERS_DIR)/framebuffer.o $(DRIVERS_DIR)/keyboard.o \
+		$(MMU_DIR)/paging.o $(MMU_DIR)/paging_en.o \
+		$(SYS_DIR)/syscall.o \
+		$(COMMON_DIR)/io.o $(COMMON_DIR)/kinfo.o \
+		$(UTILS_DIR)/string.o
 
 all: kernel.elf program
 
