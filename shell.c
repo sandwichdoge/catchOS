@@ -44,9 +44,9 @@ void shell_handle_keypress(unsigned char ascii) {
         }
         if (ascii == KEY_BACKSPACE) {
             if (_cin_pos == 0) return;
-            _cin[_cin_pos--] = ' ';
+            _cin[_cin_pos--] = '\0';
             _cur--;
-            syscall_fb_write_chr(' ', &_cur);
+            syscall_fb_write_chr('\0', &_cur);
             _cur--;
         } else {
             _cin[_cin_pos++] = ascii;
