@@ -27,10 +27,12 @@ static void paging_map(unsigned int virtual_addr, unsigned int phys_addr, unsign
 	page_dir[pde] = ((unsigned int)page_table - 0xc0000000) | 3;
 }
 
-void paging_init() {
-	paging_map(0x0, 0x0, page_directory, page_table_list[0]);
+void paging_init(unsigned int phys_mem_lower_kb, unsigned int phys_mem_upper_kb) {
+	unsigned int phys_mem_size_kb = (phys_mem_upper_kb - phys_mem_lower_kb); // e.g 31680
+	unsigned int pages_total = phys_mem_upper_kb / 4;
+	unsigned int page_tables_total = (pages_total + (1024 - 1)) / 1024; // Round up int division
 
-	for (unsigned int i = 0; i < PAGE_TOTAL / 1024; i++) {
+	for (unsigned int i = 0; i < page_tables_total; i++) {
         paging_map(0xc0000000 + i * PDE_SIZE, i * PDE_SIZE, page_directory, page_table_list[i]);
     }
 	
@@ -40,4 +42,3 @@ void paging_init() {
     loadPageDirectory((void*)page_directory_phys);
     enablePaging();
 }
-

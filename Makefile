@@ -2,7 +2,8 @@ CC=gcc
 CXX=g++
 AS=nasm
 ASFLAGS=-f elf32
-CFLAGS=-Iinclude -m32 -nostdlib -nostdinc -fno-builtin -fno-stack-protector -nostartfiles -nodefaultlibs -Wall -Wextra -Wno-unused-parameter
+CFLAGS=-Iinclude -m32 -nostdlib -nostdinc -fno-builtin -fno-stack-protector -nostartfiles -nodefaultlibs -Wall -Wextra -Wno-unused-parameter \
+-D WITH_GRUB_MB
 LDFLAGS=-T link.ld -melf_i386
 OBJECTS=kboot/multiboot_header.o kboot/kboot.o kboot/loader.o \
 		kboot/gdt.o \

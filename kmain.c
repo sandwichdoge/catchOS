@@ -41,15 +41,35 @@ void call_user_module(multiboot_info_t *mbinfo) {
 }
 
 void kmain(unsigned int ebx) {
+#ifdef WITH_GRUB_MB
+    multiboot_info_t *mbinfo = (multiboot_info_t *)ebx;
+#endif
+// Setup interrupts
     write_cstr("Setting up interrupts..", 0);
     interrupt_init_idt();
     pic_init();
+
+// Setup paging
     write_cstr("Setting up paging..", 80);
-    paging_init();
+#ifdef WITH_GRUB_MB
+    unsigned int mem_lower = mbinfo->mem_lower;
+    unsigned int mem_upper = mbinfo->mem_upper;
+#else // TODO: Ask BIOS for mem limits, hardcode for now
+    unsigned int mem_lower = 0x27c;
+    unsigned int mem_upper = 0x7bc0;
+#endif
+
+    paging_init(mem_lower, mem_upper);
+
+// Perform memory tests
     test_memory_32bit_mode();
 
-    call_user_module((multiboot_info_t *)ebx);
+// Call user program
+#ifdef WITH_GRUB_MB
+    call_user_module(mbinfo);
+#endif
 
+// Enter I/O shell
     serial_defconfig(SERIAL_COM1_BASE);
     shell_main();
 

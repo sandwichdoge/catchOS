@@ -2,6 +2,8 @@ ENTRY(loader)
 
 SECTIONS {
     . = 0xC0200000;
+    KERNEL_START_PHYS = . - 0xC0000000;
+    KERNEL_START_VIRTUAL = .;
 
     .multiboot ALIGN (0x4): AT(ADDR(.multiboot)-0xC0000000)
     {
@@ -35,6 +37,7 @@ SECTIONS {
     {
         *(.comment)
     }
-}
 
-KERNEL_PROGRAM_END = .;
+    KERNEL_END_VIRTUAL = .;
+    KERNEL_END_PHYS = . - 0xC0000000;
+}
