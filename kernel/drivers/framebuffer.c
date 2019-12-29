@@ -91,6 +91,6 @@ int fb_get_scr_h() {
 
 void clr_screen(unsigned char bg) {
     for (unsigned int i = 0; i < SCR_W * SCR_H; i += 2) {
-        write_cell(i, ' ', bg, bg);
+        write_cell(i, '\0', bg, bg);
     }
 }
