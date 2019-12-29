@@ -24,6 +24,16 @@
     );                              \
 }
 
+#define _dbg_set_edi(val) {     \
+    unsigned int tmp;               \
+                                    \
+    asm ("movl %1, %%edi;"          \
+    :"=r"(tmp)        /* output */  \
+    :"r"(val)         /* input */   \
+    :"%edi"         /* clobbered register */ \
+    );                              \
+}
+
 #define _dbg_save_edi_esi() { \
     asm ("push %esi");        \
     asm ("push %edi");        \
