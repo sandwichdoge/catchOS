@@ -2,6 +2,7 @@ CC=gcc
 CFLAGS=-I../include
 OBJECTS=main.o \
 		test_string_util.o \
+		test_alloc.o \
 		../kernel/utils/string.c
 
 all: main.out
