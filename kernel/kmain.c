@@ -7,6 +7,7 @@
 #include "paging.h"
 #include "multiboot.h"
 #include "kinfo.h"
+#include "kheap.h"
 #include "utils/debug.h"
 #include "utils/string.h"
 
@@ -54,6 +55,9 @@ void kmain(unsigned int ebx) {
 // Setup paging
     write_cstr("Setting up paging..", 80);
     paging_init();
+
+// Setup heap
+    kheap_init();
 
 // Setup interrupts
     write_cstr("Setting up interrupts..", 0);
