@@ -34,7 +34,7 @@ void call_user_module(multiboot_info_t *mbinfo) {
     unsigned int mcount = mbinfo->mods_count;
 
     if (mcount > 0) {
-        unsigned int prog_addr = (unsigned int*)(mods->mod_start + 0xc0000000);
+        unsigned int prog_addr = (mods->mod_start + 0xc0000000);
 
         typedef void (*call_module_t)(void);
         call_module_t start_program = (call_module_t)prog_addr;

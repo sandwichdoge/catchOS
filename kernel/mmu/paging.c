@@ -6,12 +6,10 @@ extern void enablePaging();
 
 #define PAGE_SIZE 0x1000 // 4096
 #define PDE_SIZE 0x400000
-#define PAGE_TOTAL (32 * 1024 * 1024) / (4 * 1024) // Each page manages 4 KiB of phys memory, 8192 for 32MB
 
 // Page index 123 in table index 456 will be mapped to (456 * 1024) + 123 = 467067. 467067 * 4 = 1868268 KiB.
 
 unsigned int page_directory[1024] __attribute__((aligned(4096))); // 1024 page tables in page directory
-unsigned int page_table_list[8][1024] __attribute__((aligned(4096)));
 
 static unsigned int virtual_addr_to_pde(unsigned int virtual_addr) {
 	return virtual_addr >> 22;
@@ -40,7 +38,7 @@ void paging_init() {
 	unsigned int *page_tables = kmalloc_align(1024 * page_tables_total, 4096);
 
 	for (unsigned int i = 0; i < page_tables_total; i++) {
-        paging_map(0xc0000000 + i * PDE_SIZE, i * PDE_SIZE, page_directory, (unsigned int)page_tables + 0x1000 * i);
+        paging_map(0xc0000000 + i * PDE_SIZE, i * PDE_SIZE, page_directory, page_tables + 1024 * i);
     }
 
 	unsigned int page_directory_phys = (unsigned int)page_directory - 0xc0000000;
