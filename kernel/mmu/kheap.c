@@ -4,7 +4,7 @@
 // Kernel program is at 0x200000 in phys memory
 // A quick way is to start the heap at kernel program's end
 
-char* heap_cur = (char*)0;
+static char* heap_cur = (char*)0;
 
 void kheap_init() {
     struct kinfo *kinfo = get_kernel_info();

@@ -32,9 +32,9 @@ void halt() {
 void call_user_module(multiboot_info_t *mbinfo) {
     struct multiboot_mod_list *mods = (struct multiboot_mod_list *)(mbinfo->mods_addr + 0xc0000000);
     unsigned int mcount = mbinfo->mods_count;
-    
+
     if (mcount > 0) {
-        unsigned int prog_addr = *(unsigned int*)mods + 0xc0000000;
+        unsigned int prog_addr = (unsigned int*)(mods->mod_start + 0xc0000000);
 
         typedef void (*call_module_t)(void);
         call_module_t start_program = (call_module_t)prog_addr;
@@ -52,12 +52,12 @@ void kmain(unsigned int ebx) {
     kinfo_init((void*)0);
 #endif
 
+// Setup heap
+    kheap_init();
+
 // Setup paging
     write_cstr("Setting up paging..", 80);
     paging_init();
-
-// Setup heap
-    kheap_init();
 
 // Setup interrupts
     write_cstr("Setting up interrupts..", 0);

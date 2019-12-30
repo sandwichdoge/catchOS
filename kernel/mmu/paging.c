@@ -1,8 +1,10 @@
 #include "kinfo.h"
+#include "kheap.h"
 #include "utils/debug.h"
 extern void loadPageDirectory(void* page_directory);
 extern void enablePaging();
 
+#define PAGE_SIZE 0x1000 // 4096
 #define PDE_SIZE 0x400000
 #define PAGE_TOTAL (32 * 1024 * 1024) / (4 * 1024) // Each page manages 4 KiB of phys memory, 8192 for 32MB
 
@@ -35,10 +37,12 @@ void paging_init() {
 	unsigned int pages_total = kinfo->phys_mem_upper / 4;
 	unsigned int page_tables_total = (pages_total + (1024 - 1)) / 1024; // Round up int division
 
+	unsigned int *page_tables = kmalloc_align(1024 * page_tables_total, 4096);
+
 	for (unsigned int i = 0; i < page_tables_total; i++) {
-        paging_map(0xc0000000 + i * PDE_SIZE, i * PDE_SIZE, page_directory, page_table_list[i]);
+        paging_map(0xc0000000 + i * PDE_SIZE, i * PDE_SIZE, page_directory, (unsigned int)page_tables + 0x1000 * i);
     }
-	
+
 	unsigned int page_directory_phys = (unsigned int)page_directory - 0xc0000000;
 
 	// loadPageDirectory() only accepts physical addresses.
