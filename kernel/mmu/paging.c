@@ -9,7 +9,7 @@ extern void enablePaging();
 
 // Page index 123 in table index 456 will be mapped to (456 * 1024) + 123 = 467067. 467067 * 4 = 1868268 KiB.
 
-unsigned int page_directory[1024] __attribute__((aligned(4096))); // 1024 page tables in page directory
+unsigned int kernel_page_directory[1024] __attribute__((aligned(4096))); // 1024 page tables in page directory
 
 static unsigned int virtual_addr_to_pde(unsigned int virtual_addr) {
 	return virtual_addr >> 22;
@@ -38,12 +38,12 @@ void paging_init() {
 	unsigned int *page_tables = kmalloc_align(1024 * page_tables_total, 4096);
 
 	for (unsigned int i = 0; i < page_tables_total; i++) {
-        paging_map(0xc0000000 + i * PDE_SIZE, i * PDE_SIZE, page_directory, page_tables + 1024 * i);
+        paging_map(0xc0000000 + i * PDE_SIZE, i * PDE_SIZE, kernel_page_directory, page_tables + 1024 * i);
     }
 
-	unsigned int page_directory_phys = (unsigned int)page_directory - 0xc0000000;
+	unsigned int kernel_page_directory_phys = (unsigned int)kernel_page_directory - 0xc0000000;
 
 	// loadPageDirectory() only accepts physical addresses.
-    loadPageDirectory((void*)page_directory_phys);
+    loadPageDirectory((void*)kernel_page_directory_phys);
     enablePaging();
 }

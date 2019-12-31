@@ -64,6 +64,11 @@ higher_half_init() -> kboot() -> kmain() -> paging_init()
 Virtual Memory Layout of a user program
 ![VirtMem](resources/AddressSpaceLayout.png)
 
+Memory Allocator
+![Allocator](resources/MMU.jpg)
+- We use a bitmap to keep track of which physical memory pages are available. 1 bit represents 1 page (4KiB).
+- Allocating a new page will take O(n) time, modifying a page will take O(1) time.
+
 
 ### 4.2 Interrupts
 #### 4.2.1 Interrupt Descriptor Table
