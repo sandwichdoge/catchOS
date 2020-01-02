@@ -1,3 +1,7 @@
+#ifndef INCLUDE_DEBUG_H
+#define INCLUDE_DEBUG_H
+#include "serial.h"
+#include "utils/string.h"
 #define _dbg_set_edi_esi(val) {     \
     unsigned int tmp;               \
                                     \
@@ -47,3 +51,10 @@
 #define _dbg_break() {      \
     asm("xchg %bx, %bx");   \
 }
+
+#define _dbg_serial(str) { \
+    serial_write(SERIAL_COM1_BASE, str, _strlen(str)); \
+}
+
+
+#endif
