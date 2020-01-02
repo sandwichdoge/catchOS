@@ -10,5 +10,5 @@ boot: cdrom
 log: bochslog.txt
 clock: sync=none, time0=local
 cpu: count=1, ips=1000000
-com1: enabled=1, mode=file, dev=com1.out
+com1: enabled=1, mode=file, dev=serial_debug.txt
 magic_break: enabled=1

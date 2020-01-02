@@ -72,8 +72,10 @@ void kmain(unsigned int ebx) {
     call_user_module(mbinfo);
 #endif
 
-// Enter I/O shell
     serial_defconfig(SERIAL_COM1_BASE);
+    serial_write(SERIAL_COM1_BASE, "Hello", 5);
+
+// Enter I/O shell
     shell_main();
 
     while (1) {
