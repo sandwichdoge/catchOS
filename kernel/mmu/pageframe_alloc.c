@@ -1,4 +1,5 @@
 #include "kinfo.h"
+#include "utils/debug.h"
 
 static char *pageframe_bitmap = (void*)0;
 static unsigned int pages_total = 0;
@@ -37,7 +38,9 @@ unsigned int page_from_addr(unsigned int addr) {
 }
 
 void* pageframe_alloc(unsigned int pages) {
+    // Bitmap: 0 means available, 1 means already allocated
     if (pages > 8) { // To reduce complexity, please request oly 8 pages or fewer at a time
+        _dbg_serial("Error. May not request more than 8 pages at a time.\n");
         return (void*)0;
     }
     // Check every bit to find satisfactory free pages
@@ -49,15 +52,31 @@ void* pageframe_alloc(unsigned int pages) {
             // Carry on to next byte
         } else {
             // Now check the byte whether it has enough available consecutive bits
-            unsigned int bits_looped;
-            for (bits_looped = 0; bits_looped < 8; bits_looped++) {
-                if (pageframe_bitmap[i] & (1 << bits_looped) == 0) break;
-            }
-            bits_looped += 1;
 
-            unsigned int available_bits = (8 - bits_looped);
-            if (available_bits >= pages) { // We got enough available bits in byte
-                unsigned int page_no = i * 8 + (bits_looped - 1);
+            // Find most consecutive bits in byte (e.g. 01001000)
+            int i = 0, longest_len = 0, longest_pos = 0, cur_len = 0, last_one = -1;
+            for (i = 0; i < 8; i++) {
+                if ((pageframe_bitmap[i] & (1 << (7 - i))) == 0) {
+                    cur_len++;
+                    if (i == 7) {
+                        if (longest_len < cur_len) {
+                            longest_len = cur_len;
+                            longest_pos = last_one + 1;
+                        }
+                    }
+                } else {
+                    if (longest_len < cur_len) {
+                        longest_len = cur_len;
+                        longest_pos = last_one + 1;
+                    }
+                    cur_len = 0;
+                    last_one = i;
+                }
+            }
+            
+
+            if (longest_len >= pages) { // We got enough available bits in byte
+                unsigned int page_no = i * 8 + longest_pos;
                 ret = (void*)pageframe_addr_from_page(page_no);
                 break;
             }
@@ -69,6 +88,7 @@ void* pageframe_alloc(unsigned int pages) {
 
 void pageframe_free(void *phys_addr, unsigned int pages) {
     if (pages > 8) {
+        _dbg_serial("Error. Tried to free more than 8 pages.\n");
         return;
     }
 

@@ -6,6 +6,9 @@ extern int test_strlen();
 extern int test_strncmp();
 extern void test_kmalloc_align();
 extern void test_page_to_bit();
+extern void test_algo_longest_consecutive_zeroes_in_byte();
+extern void test_algo_longest_consecutive_zeroes_in_byte2();
+extern void test_algo_longest_consecutive_zeroes_in_byte3();
 
 int main() {
     test_memset();
@@ -15,5 +18,8 @@ int main() {
 
     test_kmalloc_align();
     test_page_to_bit();
+    test_algo_longest_consecutive_zeroes_in_byte();
+    test_algo_longest_consecutive_zeroes_in_byte2();
+    test_algo_longest_consecutive_zeroes_in_byte3();
     return 0;
 }
