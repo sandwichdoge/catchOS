@@ -54,29 +54,30 @@ void* pageframe_alloc(unsigned int pages) {
             // Now check the byte whether it has enough available consecutive bits
 
             // Find most consecutive bits in byte (e.g. 01001000)
-            int i = 0, longest_len = 0, longest_pos = 0, cur_len = 0, last_one = -1;
+            // TODO find closest match instead (e.g. request 2 pages, provide 2nd bit)
+            int i = 0, shortest_fit_len = 9, shortest_fit_pos = -1, cur_len = 0, last_one = -1;
             for (i = 0; i < 8; i++) {
                 if ((pageframe_bitmap[i] & (1 << (7 - i))) == 0) {
                     cur_len++;
                     if (i == 7) {
-                        if (longest_len < cur_len) {
-                            longest_len = cur_len;
-                            longest_pos = last_one + 1;
+                        if (shortest_fit_len > cur_len && cur_len >= pages) {
+                            shortest_fit_len = cur_len;
+                            shortest_fit_pos = last_one + 1;
                         }
                     }
                 } else {
-                    if (longest_len < cur_len) {
-                        longest_len = cur_len;
-                        longest_pos = last_one + 1;
+                    if (shortest_fit_len > cur_len && cur_len >= pages) {
+                        shortest_fit_len = cur_len;
+                        shortest_fit_pos = last_one + 1;
                     }
                     cur_len = 0;
                     last_one = i;
                 }
             }
-            
 
-            if (longest_len >= pages) { // We got enough available bits in byte
-                unsigned int page_no = i * 8 + longest_pos;
+
+            if (shortest_fit_pos >= 0) { // We got enough available bits in byte
+                unsigned int page_no = i * 8 + shortest_fit_pos;
                 ret = (void*)pageframe_addr_from_page(page_no);
                 break;
             }
