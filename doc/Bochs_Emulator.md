@@ -34,7 +34,7 @@ boot: cdrom
 log: bochslog.txt
 clock: sync=realtime, time0=local
 cpu: count=1, ips=1000000
-com1: enabled=1, mode=file, dev=com1.out
+com1: enabled=1, mode=file, dev=serial_debug.txt
 magic_break: enabled=1
 ```
 
@@ -58,6 +58,8 @@ type "c" and Enter here. After that, the debugger will be called the 2nd time, e
     info tab     // Paging table
     x /16 [addr] // Print 16 values at addr in memory, 4 bytes in size each
 ```
+
+We also use _dbg_serial() to print out debug messages. Serial log file is saved to ```output/serial_debug.txt```.
 
 http://bochs.sourceforge.net/doc/docbook/user/bochsrc.html
 
