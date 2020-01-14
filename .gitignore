@@ -4,3 +4,5 @@
 *log.txt
 *.out
 .vscode
+
+output/serial_debug.txt
