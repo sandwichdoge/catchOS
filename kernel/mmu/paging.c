@@ -1,6 +1,5 @@
 #include "kinfo.h"
 #include "kheap.h"
-#include "pageframe_alloc.h"
 #include "utils/debug.h"
 extern void loadPageDirectory(void* page_directory);
 extern void enablePaging();
@@ -47,6 +46,4 @@ void paging_init() {
 	// loadPageDirectory() only accepts physical addresses.
     loadPageDirectory((void*)kernel_page_directory_phys);
     enablePaging();
-	
-	pageframe_alloc_init();
 }

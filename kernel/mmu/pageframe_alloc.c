@@ -4,6 +4,7 @@
 #include "utils/string.h"
 #include "utils/debug.h"
 
+static int is_initialized = 0;
 static unsigned char *pageframe_bitmap = NULL;
 static unsigned int pages_total = 0;
 
@@ -110,17 +111,21 @@ void pageframe_free(void *phys_addr, unsigned int pages) {
 }
 
 void pageframe_alloc_init() {
-    struct kinfo *kinfo = get_kernel_info();
-    pages_total = (kinfo->phys_mem_upper * 1024) / 4096;
-    // 1 bit represents 1 page in phys mem (4 KiB). We assign just enough for the bitmap of physical memory.
-    pageframe_bitmap = kmalloc_align(pages_total / 8, 4096);
+    if (!is_initialized) {
+        struct kinfo *kinfo = get_kernel_info();
+        pages_total = (kinfo->phys_mem_upper * 1024) / 4096;
+        // 1 bit represents 1 page in phys mem (4 KiB). We assign just enough for the bitmap of physical memory.
+        pageframe_bitmap = kmalloc_align(pages_total / 8, 4096);
 
-    _dbg_set_edi((unsigned int)pages_total);
-    _dbg_set_esi((unsigned int)pageframe_bitmap);
-    _dbg_break();
+        /*_dbg_set_edi((unsigned int)pages_total);
+        _dbg_set_esi((unsigned int)pageframe_bitmap);
+        _dbg_break();*/
 
-    // Reserved Kernel data area (1024 pages - 4 MiB) starting from 0x0.
-    for (unsigned int i = 0; i < 1024; i += 8) {
-        pageframe_alloc_set_pages(i, 8);
+        // Reserved Kernel data area (1024 pages - 4 MiB) starting from 0x0.
+        for (unsigned int i = 0; i < 1024; i++) {
+            pageframe_alloc_set_page(i);
+        }
+
+        is_initialized = 1;
     }
 }
