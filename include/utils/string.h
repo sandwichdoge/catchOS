@@ -1,5 +1,6 @@
 #ifndef INCLUDE_STRING_H
 #define INCLUDE_STRING_H
+#include "stdtype.h"
 unsigned int _strlen(char *s);
 int _strncmp(char *s1, char *s2, unsigned int len);
 
@@ -9,8 +10,8 @@ void _memset_u(unsigned char *dst, char c, unsigned int len);
 void _memcpy_s(char *src, char *dst, unsigned int len);
 void _memcpy_u(unsigned char *src, char *dst, unsigned int len);
 
-void _int_to_str_s(int n, char *out);
-void _int_to_str_u(unsigned int n, char *out);
+int _int_to_str_s(char *out, size_t bufsize, int n);
+int _int_to_str_u(char *out, size_t bufsize, unsigned int n);
 
 #define _memcpy(src, dst, len) _Generic((src), char*: _memcpy_s, \
                                 default: _memcpy_s, \
@@ -20,7 +21,7 @@ void _int_to_str_u(unsigned int n, char *out);
                                 default: _memset_s, \
                                 unsigned char*: _memset_u)(dst, c, len)
 
-#define _int_to_str(n, out) _Generic((n), int: _int_to_str_s, \
+#define _int_to_str(out, bufsize, n) _Generic((n), int: _int_to_str_s, \
                                 default: _int_to_str_s, \
-                                unsigned int: _int_to_str_u)(n, out)
+                                unsigned int: _int_to_str_u)(out, bufsize, n)
 #endif
