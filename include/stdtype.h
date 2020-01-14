@@ -10,4 +10,5 @@ typedef unsigned char uint8_t;
 typedef char int8_t;
 typedef unsigned long uintptr_t;
 typedef unsigned long size_t;
+#define NULL (void*)0
 #endif
