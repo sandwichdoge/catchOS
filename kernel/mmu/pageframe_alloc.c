@@ -11,6 +11,11 @@ void pageframe_alloc_init() {
     pages_total = (kinfo->phys_mem_upper * 1024) / 4096;
 	// 1 bit represents 1 page in phys mem (4 KiB). We assign just enough for the bitmap of physical memory.
 	pageframe_bitmap = kmalloc_align(pages_total / 8, 4096);
+
+    // Reserved Kernel data area (1024 pages - 4 MiB) starting from 0x0.
+    for (unsigned int i = 0; i < 0x400; i += 8) {
+        pageframe_alloc_set_pages(i, 8);
+    }
 }
 
 static void pageframe_alloc_set_page(unsigned int page_no) {
