@@ -12,6 +12,7 @@ extern void test_algo_longest_consecutive_zeroes_in_byte3();
 extern void test_algo_most_fit_byte();
 extern void test_algo_most_fit_byte2();
 extern void test_algo_most_fit_byte3();
+extern void test_algo_set_page();
 
 int main() {
     test_memset();
@@ -27,5 +28,6 @@ int main() {
     test_algo_most_fit_byte();
     test_algo_most_fit_byte2();
     test_algo_most_fit_byte3();
+    test_algo_set_page();
     return 0;
 }

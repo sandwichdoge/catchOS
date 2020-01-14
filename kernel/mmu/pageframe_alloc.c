@@ -1,31 +1,20 @@
 #include "kinfo.h"
 #include "kheap.h" // kmalloc_align()
 #include "stdtype.h"
+#include "utils/string.h"
 #include "utils/debug.h"
 
 static unsigned char *pageframe_bitmap = NULL;
 static unsigned int pages_total = 0;
 
-void pageframe_alloc_init() {
-	struct kinfo *kinfo = get_kernel_info();
-    pages_total = (kinfo->phys_mem_upper * 1024) / 4096;
-	// 1 bit represents 1 page in phys mem (4 KiB). We assign just enough for the bitmap of physical memory.
-	pageframe_bitmap = kmalloc_align(pages_total / 8, 4096);
-
-    // Reserved Kernel data area (1024 pages - 4 MiB) starting from 0x0.
-    for (unsigned int i = 0; i < 0x400; i += 8) {
-        pageframe_alloc_set_pages(i, 8);
-    }
-}
-
 static void pageframe_alloc_set_page(unsigned int page_no) {
-	unsigned int byte_no = page_no / 8;
-	unsigned int carry_bit = byte_no % 8;
-	pageframe_bitmap[byte_no] = (1 << carry_bit);
+    unsigned int byte_no = page_no / 8;
+	unsigned int carry_bit = page_no % 8;
+	pageframe_bitmap[byte_no] |= (1 << carry_bit);
 }
 
 static void pageframe_alloc_set_pages(unsigned int page_start, unsigned int pages) {
-    for (unsigned int i = page_start; i < page_start + pages; i++) {
+    for (unsigned int i = 0; i < pages; i++) {
         pageframe_alloc_set_page(page_start + i);
     }
 }
@@ -68,11 +57,11 @@ void* pageframe_alloc(unsigned int pages) {
 
             // Find most consecutive bits in byte (e.g. 01001000)
             // Find best match (e.g. request 2 pages, provide shortest 2 free bits)
-            int i = 0, best_fit_len = 9, best_fit_pos = -1, cur_len = 0, last_one = -1;
-            for (i = 0; i < 8; i++) {
-                if ((pageframe_bitmap[i] & (1 << (7 - i))) == 0) {
+            int j = 0, best_fit_len = 9, best_fit_pos = -1, cur_len = 0, last_one = -1;
+            for (j = 0; j < 8; j++) {
+                if ((pageframe_bitmap[i] & (1 << j)) == 0) {
                     cur_len++;
-                    if (i == 7) {
+                    if (j == 7) {
                         if (best_fit_len > cur_len && cur_len >= (int)pages) {
                             best_fit_len = cur_len;
                             best_fit_pos = last_one + 1;
@@ -84,14 +73,12 @@ void* pageframe_alloc(unsigned int pages) {
                         best_fit_pos = last_one + 1;
                     }
                     cur_len = 0;
-                    last_one = i;
+                    last_one = j;
                 }
             }
 
-
             if (best_fit_pos >= 0) { // We got enough available bits in byte
                 unsigned int page_no = i * 8 + best_fit_pos;
-
                 // Mark pages as allocated in bitmap
                 pageframe_alloc_set_pages(page_no, pages);
 
@@ -119,5 +106,21 @@ void pageframe_free(void *phys_addr, unsigned int pages) {
         } else {
             // Handle error trying to free an already freed page
         }
+    }
+}
+
+void pageframe_alloc_init() {
+    struct kinfo *kinfo = get_kernel_info();
+    pages_total = (kinfo->phys_mem_upper * 1024) / 4096;
+    // 1 bit represents 1 page in phys mem (4 KiB). We assign just enough for the bitmap of physical memory.
+    pageframe_bitmap = kmalloc_align(pages_total / 8, 4096);
+
+    _dbg_set_edi((unsigned int)pages_total);
+    _dbg_set_esi((unsigned int)pageframe_bitmap);
+    _dbg_break();
+
+    // Reserved Kernel data area (1024 pages - 4 MiB) starting from 0x0.
+    for (unsigned int i = 0; i < 1024; i += 8) {
+        pageframe_alloc_set_pages(i, 8);
     }
 }
