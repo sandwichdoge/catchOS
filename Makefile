@@ -8,6 +8,7 @@ MMU_DIR=$(KERNEL_DIR)/mmu
 COMMON_DIR=$(KERNEL_DIR)/common
 SYS_DIR=$(KERNEL_DIR)/sys
 UTILS_DIR=$(KERNEL_DIR)/utils
+SHELL_DIR=$(KERNEL_DIR)/shell
 
 CC=gcc
 CXX=g++
@@ -20,7 +21,7 @@ LDFLAGS=-T $(KERNEL_DIR)/link.ld -melf_i386
 OBJECTS=$(KBOOT_DIR)/multiboot_header.o $(KBOOT_DIR)/kboot.o \
 		$(KBOOT_DIR)/loader.o $(KBOOT_DIR)/gdt.o \
 		$(KERNEL_DIR)/kmain.o \
-		$(KERNEL_DIR)/shell/shell.o \
+		$(SHELL_DIR)/shell.o \
 		$(DRIVERS_DIR)/serial.o \
 		$(DRIVERS_DIR)/framebuffer.o $(DRIVERS_DIR)/keyboard.o \
 		$(INTERRUPT_DIR)/interrupt.o $(INTERRUPT_DIR)/interrupt_hnd.o $(INTERRUPT_DIR)/pic.o \
