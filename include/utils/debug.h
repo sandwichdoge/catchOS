@@ -48,9 +48,11 @@
     asm ("pop %esi");            \
 }
 
+#ifdef TARGET_BOCHS
 #define _dbg_break() {      \
     asm("xchg %bx, %bx");   \
 }
+#endif // TARGET_BOCHS
 
 #define _dbg_serial(str) { \
     serial_write(SERIAL_COM1_BASE, str, _strlen(str)); \
