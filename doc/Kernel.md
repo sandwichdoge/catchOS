@@ -13,12 +13,14 @@
     + [4.2.1 Interrupt Descriptor Table](#421-interrupt-descriptor-table)
     + [4.2.2 Programmable Interrupt Controller](#422-programmable-interrupt-controller)
     + [4.2.3 Interrupt Handler Implementation](#423-interrupt-handler-implementation)
-    + [4.2.4 Interrupts](#424-interrupts)
+    + [4.2.4 Hardware Interrupts](#424-hardware-interrupts)
     - [4.2.4.1 Keyboard](#4241-keyboard)
     - [4.2.4.2 Pagefault](#4242-pagefault)
+    + [4.2.5 Software Interrupts](#425-software-interrupts)
+    - [4.2.5.1 Mode Switching](#4251-mode-switching)
 * [4.3 I/O](#43-i-o)
     + [4.3.1 stdin](#431-stdin)
-* [4.4 Scheduler](#44-scheduler)
+* [4.3 Context Switching](#43-context-switching)
 
 ## 4. Kernel
 
@@ -40,9 +42,11 @@
 - With Paging enabled, when a memory address is deferenced, x86 goes to the Paging Directory
 to look for the corresponding Page Table that manages 4MiB of the physical memory region.
 - Once paging is enabled, everything must use paging, including the kernel (even interrupts).
+- Page directory is stored in CR3 register, we change this register on each context switch so no 2 processes may 
+share the same address space.
 
 ```
-// 2nd Page Table is looked up (because each Page Table manages 4MiB), 
+// Here 2nd Page Table is looked up (because each Page Table manages 4MiB), 
 // then 4 bytes at offset 0x100000 in the Page Table is set to 0x2.
 int *p = 0x500000;
 *p = 0x2;
@@ -73,13 +77,15 @@ Memory Allocator
 ### 4.2 Interrupts
 #### 4.2.1 Interrupt Descriptor Table
 ![IDT](resources/IDT.jpg)
+- We use Interrupt Gates in our kernel because they disable interrupts before executing the handler code, as opposed to Trap Gates.
+- Task Gates are for hardware context-switching, so we will not use them in our kernel at all.
 #### 4.2.2 Programmable Interrupt Controller
 ![PIC](resources/PIC.jpg)
 - All hardware interrupts must go through the PIC (ATA, keyboard, etc.).
 - All CPU-generated interrupts do not go through the PIC.
 #### 4.2.3 Interrupt Handler Implementation
 ![Interrupts](resources/Interrupts.jpg)
-#### 4.2.4 Interrupts
+#### 4.2.4 Hardware Interrupts
 ##### 4.2.4.1 Keyboard
 - When a key is pressed, the keyboard sends an interrupt to the PIC, which is then sent to the CPU.
 The interrupt number is 0x1, plus the PIC offset (0x20 in our case) becomes 0x21.
@@ -103,6 +109,13 @@ Key press -> keyboard controller recognizes press -> stores keypress until USB p
 - After paging is enabled, when an unmapped memory address is dereferenced, the CPU generates a pagefault interrupt.
 - We should translate this into a segmentation fault signal.
 
+#### 4.2.5 Software Interrupts
+- We can populate the IDT with custom interrupt numbers.
+- In user mode we may call asm(int <num>) to execute the software interrupt.
+
+##### 4.2.5.1 Mode Switching
+- TODO: interrupt to switch from user mode to kernel mode privilege?
+
 ### 4.3 I/O
 #### 4.3.1 stdin
 ![stdin](resources/stdin.jpg)
@@ -122,4 +135,7 @@ vs USB:
 Key press -> keyboard controller recognizes press -> stores keypress until USB poll -> sends status to USB controller -> USB controller sends interrupt to CPU
 ```
 
-### 4.4 Scheduler
+### 4.3 Context Switching
+
+- Transition between threads, the content of EIP, SS, general registers of each thread are saved and restored accordingly.
+- Context switching is not related to mode switching (aka transitioning between user mode and kernel mode or vice-versa).

@@ -6,7 +6,7 @@
 
 static int is_initialized = 0;
 static unsigned char *pageframe_bitmap = NULL;
-static unsigned int pages_total = 0;
+static unsigned int _pages_total = 0;
 
 static void pageframe_alloc_set_page(unsigned int page_no) {
     unsigned int byte_no = page_no / 8;
@@ -41,16 +41,17 @@ static unsigned int page_from_addr(unsigned int addr) {
 }
 
 void* pageframe_alloc(unsigned int pages) {
+    if (!is_initialized) return NULL;
+
     // Bitmap: 0 means available, 1 means already allocated
-    if (pages > 8) { // To reduce complexity, please request oly 8 pages or fewer at a time
-        _dbg_serial("Error. May not request more than 8 pages at a time.\n");
+    if (pages > 8) { // TODO First fit algo if more than 8 pages requested
         return NULL;
     }
     // Check every bit to find satisfactory free pages
     void *ret = NULL;
 
     // Check 1 byte at a time for performance
-    for (unsigned int i = 0; i < pages_total / 8; i++) {
+    for (unsigned int i = 0; i < _pages_total / 8; i++) {
         if (pageframe_bitmap[i] == 0xff) { // No available pages (aka no available bits in byte)
             // Carry on to next byte
         } else {
@@ -94,6 +95,8 @@ void* pageframe_alloc(unsigned int pages) {
 }
 
 void pageframe_free(void *phys_addr, unsigned int pages) {
+    if (!is_initialized) return NULL;
+    
     if (pages > 8) {
         _dbg_serial("Error. Tried to free more than 8 pages.\n");
         return;
@@ -113,11 +116,11 @@ void pageframe_free(void *phys_addr, unsigned int pages) {
 void pageframe_alloc_init() {
     if (!is_initialized) {
         struct kinfo *kinfo = get_kernel_info();
-        pages_total = (kinfo->phys_mem_upper * 1024) / 4096;
+        _pages_total = (kinfo->phys_mem_upper * 1024) / 4096;
         // 1 bit represents 1 page in phys mem (4 KiB). We assign just enough for the bitmap of physical memory.
-        pageframe_bitmap = kmalloc_align(pages_total / 8, 4096);
+        pageframe_bitmap = kmalloc_align(_pages_total / 8, 4096);
 
-        /*_dbg_set_edi((unsigned int)pages_total);
+        /*_dbg_set_edi((unsigned int)_pages_total);
         _dbg_set_esi((unsigned int)pageframe_bitmap);
         _dbg_break();*/
 
