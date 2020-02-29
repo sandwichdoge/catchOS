@@ -28,7 +28,8 @@ struct stack_state {
     unsigned int eflags;
 };
 
-struct idt_entry idt_entries[IDT_SIZE] = {0};
+struct idt IDT; // To be loaded into the CPU
+struct idt_entry idt_entries[IDT_SIZE] = {0}; // Main content of IDT
 void (*int_handler_table[IDT_SIZE])(void) = {0}; // Array of void func(void) pointers
 
 // https://wiki.osdev.org/Interrupt_Descriptor_Table
@@ -90,7 +91,6 @@ void interrupt_init_idt(void) {
     interrupt_encode_idt_entry(INT_KEYBOARD, (unsigned int)asm_int_handler_33);
     interrupt_encode_idt_entry(INT_PAGEFAULT, (unsigned int)asm_int_handler_14);
 
-    struct idt IDT;
     IDT.size = sizeof(struct idt_entry) * IDT_SIZE - 1;
     IDT.address = (unsigned int)idt_entries;
 
