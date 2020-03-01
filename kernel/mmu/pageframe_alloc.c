@@ -95,7 +95,7 @@ void* pageframe_alloc(unsigned int pages) {
 }
 
 void pageframe_free(void *phys_addr, unsigned int pages) {
-    if (!is_initialized) return NULL;
+    if (!is_initialized) return;
     
     if (pages > 8) {
         _dbg_serial("Error. Tried to free more than 8 pages.\n");
@@ -103,7 +103,7 @@ void pageframe_free(void *phys_addr, unsigned int pages) {
     }
 
     for (int i = 0; i < (int)pages; i++) { // Free 1 page at a time (which represents 4KiB)
-        unsigned int page_no = page_from_addr((unsigned int)(phys_addr + i * 4096));
+        unsigned int page_no = page_from_addr((unsigned int)((char*)phys_addr + i * 4096));
         int page_status = pageframe_alloc_get_page(page_no);
         if (page_status == 1) {
             pageframe_alloc_clear_page(page_no);

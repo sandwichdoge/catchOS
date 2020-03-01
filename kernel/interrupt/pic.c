@@ -66,10 +66,10 @@ void pic_init() {
     IRQ 15 — ATA channel 2
     */
     // IMR
-    outb(PIC1_DATA, 0b11111101); // IRQ1 for keyboard interrupt
-    outb(PIC2_DATA, 0b11111111);
+    outb(PIC1_DATA, 0xfd);  // IRQ1 for keyboard interrupt (0b11111101)
+    outb(PIC2_DATA, 0xff);
 
-    asm("sti"); // ENable interrupts
+    asm("sti");             // Enable interrupts
 }
 
 // Send acknowledge byte back to PIC, otherwise it will stop generating interrupts.

@@ -13,7 +13,7 @@ char *fb = (char*)0xC00B8000; // Video memory address
 // Write character to a cell in 80x24 framebuffer
 void write_cell(unsigned int scrpos, unsigned char c, unsigned char fg, unsigned char bg) {
     fb[scrpos] = c;
-    fb[scrpos + 1] = ((fg & 0b00001111) << 4) | (bg & 0b00001111);
+    fb[scrpos + 1] = ((fg & 0xf) << 4) | (bg & 0xf);
 }
 
 void move_cursor(unsigned int scrpos) {

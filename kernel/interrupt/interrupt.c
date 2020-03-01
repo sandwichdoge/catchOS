@@ -40,10 +40,10 @@ void interrupt_encode_idt_entry(unsigned int interrupt_num, unsigned int f_ptr_h
     idt_entries[interrupt_num].segment_selector = 0x8; // code segment in gdt
     idt_entries[interrupt_num].reserved = 0x0;
 
-    idt_entries[interrupt_num].type_and_attr = (1 << 7) | // P
+    idt_entries[interrupt_num].type_and_attr =  (1 << 7) |  // P
                                                 (0 << 6) | (0 << 5) |	// DPL
-                                                (0 << 4) | // S
-                                                0b1110;   // 32-bit interrupt gate
+                                                (0 << 4) |  // S
+                                                0xe;        // 32-bit interrupt gate - 0b1110
 }
 
 void lidt (struct idt *idt_r)
