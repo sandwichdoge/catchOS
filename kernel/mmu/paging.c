@@ -1,8 +1,8 @@
 #include "kinfo.h"
 #include "kheap.h"
 #include "utils/debug.h"
-extern void loadPageDirectory(void* page_directory);
-extern void enablePaging();
+extern void load_page_directory(void* page_directory);
+extern void enable_paging();
 
 #define PAGE_SIZE 0x1000 // 4096
 #define PDE_SIZE 0x400000
@@ -43,7 +43,7 @@ void paging_init() {
 
 	unsigned int kernel_page_directory_phys = (unsigned int)kernel_page_directory - 0xc0000000;
 
-	// loadPageDirectory() only accepts physical addresses.
-    loadPageDirectory((void*)kernel_page_directory_phys);
-    enablePaging();
+	// load_page_directory() only accepts physical addresses.
+    load_page_directory((void*)kernel_page_directory_phys);
+    enable_paging();
 }
