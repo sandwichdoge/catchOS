@@ -28,12 +28,8 @@ static void paging_map(unsigned int virtual_addr, unsigned int phys_addr, unsign
 	page_dir[pde] = ((unsigned int)page_table - 0xc0000000) | 3;
 }
 
+// We're already in high-half kernel after kboot. So all addresses below are virtual.
 void paging_init() {
-	//struct kinfo *kinfo = get_kernel_info();
-	//unsigned int phys_mem_size_kb = (kinfo->phys_mem_upper - kinfo->phys_mem_lower); // e.g 31680
-	//unsigned int pages_total = kinfo->phys_mem_upper / 4;
-	//unsigned int page_tables_total = (pages_total + (1024 - 1)) / 1024; // Round up int division
-
 	// Allocate memory for 1 page table
 	unsigned int *page_tables = kmalloc_align(4096, 4096);
 
