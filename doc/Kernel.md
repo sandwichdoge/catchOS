@@ -68,10 +68,14 @@ higher_half_init() -> kboot() -> kmain() -> paging_init()
 Virtual Memory Layout of a user program
 ![VirtMem](resources/AddressSpaceLayout.png)
 
-Memory Allocator
+Pageframe Allocator
 ![Allocator](resources/MMU.jpg)
 - We use a bitmap to keep track of which physical memory pages are available. 1 bit represents 1 page (4KiB).
 - Allocating a new page will take O(n) time, modifying a page will take O(1) time.
+
+Memory Allocator
+- Manages chunks of requested memory. We can use external online libs here (e.g. K&R).
+- Translates physical addresses into virtual addresses for processes.
 
 
 ### 4.2 Interrupts

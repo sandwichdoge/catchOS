@@ -5,6 +5,7 @@
 #include "utils/debug.h"
 
 static int is_initialized = 0;
+// Bitmap: 0 means available, 1 means already allocated
 static unsigned char *pageframe_bitmap = NULL;
 static unsigned int _pages_total = 0;
 
@@ -40,16 +41,10 @@ static unsigned int page_from_addr(unsigned int addr) {
     return (addr / 4096);
 }
 
-void* pageframe_alloc(unsigned int pages) {
-    if (!is_initialized) return NULL;
-
-    // Bitmap: 0 means available, 1 means already allocated
-    if (pages > 8) { // TODO First fit algo if more than 8 pages requested
-        return NULL;
-    }
-    // Check every bit to find satisfactory free pages
+static void* pageframe_alloc_bestfit(unsigned int pages) {
     void *ret = NULL;
 
+    // Check every bit to find satisfactory free pages
     // Check 1 byte at a time for performance
     for (unsigned int i = 0; i < _pages_total / 8; i++) {
         if (pageframe_bitmap[i] == 0xff) { // No available pages (aka no available bits in byte)
@@ -88,6 +83,34 @@ void* pageframe_alloc(unsigned int pages) {
                 break;
             }
         }
+    }
+
+    return ret;
+}
+
+static void* pageframe_alloc_firstfit(unsigned int pages) {
+    void* ret = NULL;
+
+    for (unsigned int i = 0; i < _pages_total / 8; i++) {
+        if (pageframe_bitmap[i] != 0x0) {
+            // Carry on to next byte
+        } else {
+            
+        }
+    }
+
+    return ret;
+}
+
+void* pageframe_alloc(unsigned int pages) {
+    if (!is_initialized) return NULL;
+
+    void *ret = NULL;
+
+    if (pages > 8) { // First fit algo if more than 8 pages requested
+        ret = pageframe_alloc_firstfit(pages);
+    } else { // Fewer than 8 pages requested
+        ret = pageframe_alloc_bestfit(pages);
     }
 
     // If out of memory (not enough pages), ret is NULL
