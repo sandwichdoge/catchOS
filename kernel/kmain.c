@@ -8,7 +8,7 @@
 #include "multiboot.h"
 #include "kinfo.h"
 #include "kheap.h"
-#include "malloc.h"
+#include "mmu.h"
 #include "utils/debug.h"
 #include "utils/string.h"
 #include "stdtype.h"
@@ -61,14 +61,12 @@ void kmain(unsigned int ebx) {
 
 // Setup paging
     write_cstr("Setting up paging..", 80);
-    paging_init();
+    mmu_init();
 
 // Setup interrupts
     write_cstr("Setting up interrupts..", 0);
     interrupt_init_idt();
     pic_init();
-
-    malloc_init();
 
 // Perform memory tests
     test_memory_32bit_mode();

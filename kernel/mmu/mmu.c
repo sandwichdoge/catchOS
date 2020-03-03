@@ -1,6 +1,8 @@
 #include "pageframe_alloc.h"
+#include "paging.h"
 #include "stdtype.h"
 
-void malloc_init() {
+void mmu_init() {
+    paging_init();
     pageframe_alloc_init();
 }

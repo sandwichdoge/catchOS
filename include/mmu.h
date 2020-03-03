@@ -1,4 +1,4 @@
 #ifndef INCLUDE_MALLOC_H
 #define INCLUDE_MALLOC_H
-void malloc_init();
+void mmu_init();
 #endif

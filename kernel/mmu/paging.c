@@ -16,7 +16,7 @@ static unsigned int virtual_addr_to_pde(unsigned int virtual_addr) {
 }
 
 // Map 1 page table (4MiB) from virtual address to phys_addr.
-static void paging_map(unsigned int virtual_addr, unsigned int phys_addr, unsigned int *page_dir, unsigned int *page_table) {
+void paging_map(unsigned int virtual_addr, unsigned int phys_addr, unsigned int *page_dir, unsigned int *page_table) {
 	// Populate the page table. Fill each entry with corresponding physical address (increased by 0x1000 bytes each entry).
     for (unsigned int i = 0; i < 1024; i++) {
 		// We can fit all addreses of 4GB physical memory into a PTE.
