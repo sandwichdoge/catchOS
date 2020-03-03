@@ -8,14 +8,14 @@
 
 static int _is_initialized = 0;
 // Bitmap representing allocated phys pages: 0 means available, 1 means already allocated
-static unsigned char *pageframe_bitmap = NULL;
-static unsigned int _pages_total_phys = 0;                  // Total pages in the pageframe_bitmap
+static unsigned char *_pageframe_bitmap = NULL;
+static unsigned int _pages_total_phys = 0;                  // Total pages in the _pageframe_bitmap
 static unsigned int _pages_total_virt = 4294967296 / 4096;  // Total pages for a process in 4GiB virtual address space
 
 static void pageframe_alloc_set_page(unsigned int page_no) {
     unsigned int byte_no = page_no / 8;
 	unsigned int carry_bit = page_no % 8;
-	pageframe_bitmap[byte_no] |= (1 << carry_bit);
+	_pageframe_bitmap[byte_no] |= (1 << carry_bit);
 }
 
 static void pageframe_alloc_set_pages(unsigned int page_start, unsigned int pages) {
@@ -27,13 +27,13 @@ static void pageframe_alloc_set_pages(unsigned int page_start, unsigned int page
 static void pageframe_alloc_clear_page(unsigned int page_no) {
 	unsigned int byte_no = page_no / 8;
 	unsigned int carry_bit = byte_no % 8;
-	pageframe_bitmap[byte_no] &= ~(1 << carry_bit);
+	_pageframe_bitmap[byte_no] &= ~(1 << carry_bit);
 }
 
 static int pageframe_alloc_get_page(unsigned int page_no) {
 	unsigned int byte_no = page_no / 8;
     unsigned int carry_bit = byte_no % 8;
-    return ((pageframe_bitmap[byte_no] & (1 << carry_bit)) >> carry_bit);
+    return ((_pageframe_bitmap[byte_no] & (1 << carry_bit)) >> carry_bit);
 }
 
 static unsigned int pageframe_addr_from_page(unsigned int page_no) {
@@ -50,7 +50,7 @@ static void* pageframe_alloc_bestfit(unsigned int pages) {
     // Check every bit to find satisfactory free pages
     // Check 1 byte at a time for performance
     for (unsigned int i = 0; i < _pages_total_phys / 8; i++) {
-        if (pageframe_bitmap[i] == 0xff) { // No available pages (aka no available bits in byte)
+        if (_pageframe_bitmap[i] == 0xff) { // No available pages (aka no available bits in byte)
             // Carry on to next byte
         } else {
             // Now check the byte whether it has enough available consecutive bits
@@ -59,7 +59,7 @@ static void* pageframe_alloc_bestfit(unsigned int pages) {
             // Find best match (e.g. request 2 pages, provide shortest 2 free bits)
             int j = 0, best_fit_len = 9, best_fit_pos = -1, cur_len = 0, last_one = -1;
             for (j = 0; j < 8; j++) {
-                if ((pageframe_bitmap[i] & (1 << j)) == 0) {
+                if ((_pageframe_bitmap[i] & (1 << j)) == 0) {
                     cur_len++;
                     if (j == 7) {
                         if (best_fit_len > cur_len && cur_len >= (int)pages) {
@@ -95,7 +95,7 @@ static void* pageframe_alloc_firstfit(unsigned int pages) {
     void* ret = NULL;
 
     for (unsigned int i = 0; i < _pages_total_phys / 8; i++) {
-        if (pageframe_bitmap[i] != 0x0) {
+        if (_pageframe_bitmap[i] != 0x0) {
             // Carry on to next byte
         } else {
             
@@ -134,21 +134,22 @@ void pageframe_free(void *phys_addr, unsigned int pages) {
     }
 }
 
+// Allocate and init _pageframe_bitmap
 void pageframe_alloc_init() {
     if (!_is_initialized) {
         struct kinfo *kinfo = get_kernel_info();
         _pages_total_phys = (kinfo->phys_mem_upper * 1024) / 4096;
         // 1 bit represents 1 page in phys mem (4 KiB). We assign just enough memory to contain the bitmap of physical memory.
-        pageframe_bitmap = kmalloc_align(_pages_total_phys / 8, 4096);
-
-        /*_dbg_set_edi((unsigned int)_pages_total_phys);
-        _dbg_set_esi((unsigned int)pageframe_bitmap);
-        _dbg_break();*/
+        _pageframe_bitmap = kmalloc_align(_pages_total_phys / 8, 4096);
 
         // Reserved Kernel data area (1024 pages - 4 MiB) starting from 0x0.
         for (unsigned int i = 0; i < 1024; i++) {
             pageframe_alloc_set_page(i);
         }
+
+        /*_dbg_set_edi((unsigned int)_pages_total_phys);
+        _dbg_set_esi((unsigned int)_pageframe_bitmap);
+        _dbg_break();*/
 
         _is_initialized = 1;
     }
