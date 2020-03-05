@@ -1,16 +1,23 @@
-global asm_int_handler_33    ; keyboard
-global asm_int_handler_14    ; pagefault
 extern interrupt_handler 
 
-asm_int_handler_14:
-    push 0
-    push dword 14
-    jmp asm_int_handler_common
+; NASM template macro, from Little OS Book
+%macro no_error_code_interrupt_handler 1
+global asm_int_handler_%1
+asm_int_handler_%1:
+    push	dword 0                     ; push 0 as error code
+    push	dword %1                    ; push the interrupt number
+    jmp	    asm_int_handler_common      ; jump to the common handler
+%endmacro
 
-asm_int_handler_33:
-    push 0
-    push dword 33
-    jmp asm_int_handler_common
+%macro error_code_interrupt_handler 1
+global asm_int_handler_%1
+asm_int_handler_%1:
+    push    dword %1                    ; push the interrupt number
+    jmp     asm_int_handler_common      ; jump to the common handler
+%endmacro
+
+no_error_code_interrupt_handler	33	; create handler for interrupt 1 (keyboard)
+no_error_code_interrupt_handler 14	; create handler for interrupt 2 (paging)
 
 
 asm_int_handler_common:
