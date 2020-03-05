@@ -58,7 +58,9 @@ at 0x0 in virtual memory, so we should place the kernel somewhere else so they d
 - From now on, all absolute physical addresses must add 0xc0000000 to its address (e.g. the VGA 
 buffer must be at 0xc00b8000 instead of 0x000b8000). Everything that requires physical address 
 to work must also be translated before passed in as arguments(e.g. the Page Directory in paging_init).
-- All future user programs may easily make system calls as the kernel is in their address space.
+- After we set up Higher-Half, all functions and variables referenced in our kernel code are located 
+on higher half of virtual memory space. i.e. ISR_KEYBOARD routine is at 0xc0203d54.
+- Future user programs may easily make system calls as the kernel is in their address space.
 
 ```
 higher_half_init() -> kboot() -> kmain() -> paging_init()
