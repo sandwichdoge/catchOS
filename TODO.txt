@@ -1,3 +1,5 @@
+- Implement snprintf with va_list.
+
 - Improve syscall, put keyboard callback funcs in a queue.
 - Read up Paging.
 - Detect physical memory limits.
