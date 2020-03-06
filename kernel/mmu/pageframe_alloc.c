@@ -18,28 +18,24 @@ static void pageframe_alloc_set_page(unsigned int page_no) {
 	_pageframe_bitmap[byte_no] |= (1 << carry_bit);
 }
 
+static int pageframe_alloc_get_page(unsigned int page_no) {
+    unsigned int byte_no = page_no / 8;
+    unsigned int carry_bit = page_no % 8;
+    return (_pageframe_bitmap[byte_no] >> carry_bit) & 1;
+}
+
 static void pageframe_alloc_set_pages(unsigned int page_start, unsigned int pages) {
     for (unsigned int i = 0; i < pages; i++) {
-        if (page_start >= 0x400) {
-            //_dbg_set_edi(page_start + i);
-            //_dbg_break();
-        }
-
         pageframe_alloc_set_page(page_start + i);
     }
 }
 
 static void pageframe_alloc_clear_page(unsigned int page_no) {
 	unsigned int byte_no = page_no / 8;
-	unsigned int carry_bit = byte_no % 8;
+	unsigned int carry_bit = page_no % 8;
 	_pageframe_bitmap[byte_no] &= ~(1 << carry_bit);
 }
 
-static int pageframe_alloc_get_page(unsigned int page_no) {
-	unsigned int byte_no = page_no / 8;
-    unsigned int carry_bit = byte_no % 8;
-    return (_pageframe_bitmap[byte_no] >> carry_bit) & 1;
-}
 
 static unsigned int pageframe_addr_from_page(unsigned int page_no) {
     return (page_no * 4096);
@@ -156,18 +152,15 @@ void* pageframe_alloc(unsigned int pages) {
 void pageframe_free(void *phys_addr, unsigned int pages) {
     if (!_is_initialized) return;
 
-    for (int i = 0; i < (int)pages; i++) { // Free 1 page at a time (which represents 4KiB)
-        unsigned int page_no = page_from_addr((unsigned int)((char*)phys_addr + i * 4096));
+    unsigned int page_no = page_from_addr((unsigned int)((char*)phys_addr));
 
-        int page_status = pageframe_alloc_get_page(page_no);
-        if (i >= 6) {
-            //_dbg_set_edi((unsigned int)page_status);
-            //_dbg_break();
-        }
+    for (int i = 0; i < (int)pages; i++) { // Free 1 page at a time (which represents 4KiB)
+        int page_status = pageframe_alloc_get_page(page_no + i);
 
         if (page_status == 1) {
-            pageframe_alloc_clear_page(page_no);
+            pageframe_alloc_clear_page(page_no + i);
         } else {
+            _dbg_serial("Error trying to free already freed frame.\n");
             // Handle error trying to free an already freed page
         }
     }
@@ -187,7 +180,7 @@ void pageframe_alloc_init() {
         }
 
         /*_dbg_set_edi((unsigned int)_pages_total_phys);
-        _dbg_set_esi((unsigned int)_pageframe_bitmap);
+        _dbg_set_esi((unsigned int)_pageframe_bitmap + 0x50);
         _dbg_break();*/
 
         _is_initialized = 1;
