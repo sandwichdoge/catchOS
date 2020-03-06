@@ -1,6 +1,6 @@
 #include "kinfo.h"
 #include "kheap.h" // kmalloc_align()
-#include "stdtype.h"
+#include "stddef.h"
 #include "utils/string.h"
 #include "utils/debug.h"
 
@@ -10,7 +10,7 @@ static int _is_initialized = 0;
 // Bitmap representing allocated phys pages: 0 means available, 1 means already allocated
 static unsigned char *_pageframe_bitmap = NULL;
 static unsigned int _pages_total_phys = 0;                  // Total pages in the _pageframe_bitmap
-static unsigned int _pages_total_virt = 4294967296 / 4096;  // Total pages for a process in 4GiB virtual address space
+//static unsigned int _pages_total_virt = 4294967296 / 4096;  // Total pages for a process in 4GiB virtual address space
 
 static void pageframe_alloc_set_page(unsigned int page_no) {
     unsigned int byte_no = page_no / 8;
@@ -20,6 +20,11 @@ static void pageframe_alloc_set_page(unsigned int page_no) {
 
 static void pageframe_alloc_set_pages(unsigned int page_start, unsigned int pages) {
     for (unsigned int i = 0; i < pages; i++) {
+        if (page_start >= 0x400) {
+            //_dbg_set_edi(page_start + i);
+            //_dbg_break();
+        }
+
         pageframe_alloc_set_page(page_start + i);
     }
 }
@@ -33,7 +38,7 @@ static void pageframe_alloc_clear_page(unsigned int page_no) {
 static int pageframe_alloc_get_page(unsigned int page_no) {
 	unsigned int byte_no = page_no / 8;
     unsigned int carry_bit = byte_no % 8;
-    return ((_pageframe_bitmap[byte_no] & (1 << carry_bit)) >> carry_bit);
+    return (_pageframe_bitmap[byte_no] >> carry_bit) & 1;
 }
 
 static unsigned int pageframe_addr_from_page(unsigned int page_no) {
@@ -94,13 +99,13 @@ static void* pageframe_alloc_bestfit(unsigned int pages) {
 static char get_bit(unsigned char* bitstring, unsigned int bit_no) {
     unsigned int byte_no = bit_no / 8;
     unsigned int carry   = bit_no % 8;
-    return bitstring[byte_no] >> carry;
+    return (bitstring[byte_no] >> carry) & 1;
 }
 
 // Number of pages is always bigger than 8
 static void* pageframe_alloc_firstfit(unsigned int pages) {
     void* ret = NULL;
-    unsigned int page_no;
+    unsigned int page_no = 0;
 
     // Find the first available page quickly.
     for (unsigned int i = 0; i < _pages_total_phys / 8; i++) {
@@ -153,7 +158,13 @@ void pageframe_free(void *phys_addr, unsigned int pages) {
 
     for (int i = 0; i < (int)pages; i++) { // Free 1 page at a time (which represents 4KiB)
         unsigned int page_no = page_from_addr((unsigned int)((char*)phys_addr + i * 4096));
+
         int page_status = pageframe_alloc_get_page(page_no);
+        if (i >= 6) {
+            //_dbg_set_edi((unsigned int)page_status);
+            //_dbg_break();
+        }
+
         if (page_status == 1) {
             pageframe_alloc_clear_page(page_no);
         } else {

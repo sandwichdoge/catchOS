@@ -1,6 +1,7 @@
 #ifndef INCLUDE_STRING_H
 #define INCLUDE_STRING_H
-#include "stdtype.h"
+#include "stddef.h"
+#include "stdint.h"
 unsigned int _strlen(char *s);
 int _strncmp(char *s1, char *s2, unsigned int len);
 
