@@ -81,7 +81,6 @@ static void* pageframe_alloc_bestfit(unsigned int pages) {
                 unsigned int page_no = i * 8 + best_fit_pos;
                 // Mark pages as allocated in bitmap
                 pageframe_alloc_set_pages(page_no, pages);
-
                 ret = (void*)pageframe_addr_from_page(page_no);
                 break;
             }
@@ -91,14 +90,43 @@ static void* pageframe_alloc_bestfit(unsigned int pages) {
     return ret;
 }
 
+// Read nth bit in a bitstring. Return 1 or 0.
+static char get_bit(unsigned char* bitstring, unsigned int bit_no) {
+    unsigned int byte_no = bit_no / 8;
+    unsigned int carry   = bit_no % 8;
+    return bitstring[byte_no] >> carry;
+}
+
+// Number of pages is always bigger than 8
 static void* pageframe_alloc_firstfit(unsigned int pages) {
     void* ret = NULL;
+    unsigned int page_no;
 
+    // Find the first available page quickly.
     for (unsigned int i = 0; i < _pages_total_phys / 8; i++) {
-        if (_pageframe_bitmap[i] != 0x0) {
-            // Carry on to next byte
+        if (_pageframe_bitmap[i] == 0xff) {
+            page_no += 8;
         } else {
-            
+            break;
+        }
+    }
+
+    // Treat the whole pageframe bitmap as a long bitstring.
+    // Loop next bits to check for space for remaining pages.
+    // If not satisfy, skip to next available bit and start over.
+    // If reaches the end, that means no more space available.
+    unsigned int cur_len = 0;
+    for (unsigned int i = page_no; i < _pages_total_phys; i++) {
+        if (get_bit(_pageframe_bitmap, i) == 0) {
+            cur_len++;
+            if (cur_len == pages) {
+                pageframe_alloc_set_pages(page_no, pages);
+                ret = (void*)pageframe_addr_from_page(page_no);
+                break;
+            }
+        } else {
+            page_no = page_no + cur_len + 1;
+            cur_len = 0;
         }
     }
 
