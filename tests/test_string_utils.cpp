@@ -29,6 +29,12 @@ TEST(StringUtils, strlen) {
     EXPECT_EQ(len, 5);
 }
 
+TEST(StringUtils, strcpy) {
+    char *src = "obiwan";
+    char dest[16] = {0};
+    _strcpy_s(src, dest);
+    EXPECT_TRUE(0 == std::strcmp(dest, "obiwan"));
+}
 
 TEST(StringUtils, strncmp) {
     char *s1 = "abc\0";

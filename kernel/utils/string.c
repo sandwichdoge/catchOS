@@ -49,6 +49,18 @@ public void _memcpy_u(unsigned char *src, char *dst, unsigned int len) {
     }
 }
 
+public void _strcpy_s(char *src, char *dst) {
+    while (*src != '\0') {
+        *(dst++) = *(src++);
+    }
+}
+
+public void _strcpy_u(unsigned char *src, char *dst) {
+    while (*src != '\0') {
+        *(dst++) = *(src++);
+    }
+}
+
 public int _int_to_str_s(char *out, size_t bufsize, int n)
 {
     char *start;
