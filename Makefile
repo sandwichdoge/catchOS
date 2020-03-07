@@ -33,6 +33,10 @@ OBJECTS=$(KBOOT_DIR)/multiboot_header.o $(KBOOT_DIR)/kboot.o \
 
 all: kernel.elf program
 
+debug: CFLAGS+= -DDEBUG -g
+debug: LDFLAGS+= -g
+debug: all
+
 %.o: %.cpp
 	$(CXX) -c $(CFLAGS) $< -o $@
 
