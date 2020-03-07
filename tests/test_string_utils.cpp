@@ -36,6 +36,13 @@ TEST(StringUtils, strcpy) {
     EXPECT_TRUE(0 == std::strcmp(dest, "obiwan"));
 }
 
+TEST(StringUtils, strncpy) {
+    char *src = "obiwan";
+    char dest[16] = {0};
+    _strncpy_s(src, dest, 3);
+    EXPECT_TRUE(0 == std::strcmp(dest, "obi"));
+}
+
 TEST(StringUtils, strncmp) {
     char *s1 = "abc\0";
     char *s2 = "abc\0";

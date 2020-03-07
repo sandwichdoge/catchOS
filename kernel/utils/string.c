@@ -49,16 +49,40 @@ public void _memcpy_u(unsigned char *src, char *dst, unsigned int len) {
     }
 }
 
-public void _strcpy_s(char *src, char *dst) {
+public int _strcpy_s(char *src, char *dst) {
+    int ret = 0;
     while (*src != '\0') {
         *(dst++) = *(src++);
+        ret++;
     }
+    return ret;
 }
 
-public void _strcpy_u(unsigned char *src, char *dst) {
+public int _strcpy_u(unsigned char *src, char *dst) {
+    int ret = 0;
     while (*src != '\0') {
         *(dst++) = *(src++);
+        ret++;
     }
+    return ret;
+}
+
+public int _strncpy_s(char *src, char *dst, unsigned int maxlen) {
+    int ret = 0;
+    while (*src != '\0' && ret < maxlen) {
+        *(dst++) = *(src++);
+        ret++;
+    }
+    return ret;
+}
+
+public int _strncpy_u(unsigned char *src, unsigned char *dst, unsigned int maxlen) {
+    int ret = 0;
+    while (*src != '\0' && ret < maxlen) {
+        *(dst++) = *(src++);
+        ret++;
+    }
+    return ret;
 }
 
 public int _int_to_str_s(char *out, size_t bufsize, int n)
