@@ -1,3 +1,6 @@
+#ifdef __cplusplus
+extern "C" {
+#endif
 #include "utils/string.h"
 #include "builddef.h"
 
@@ -132,3 +135,7 @@ public int _int_to_str_u(char *out, size_t bufsize, unsigned int n)
 
     return 0;
 }
+
+#ifdef __cplusplus
+}
+#endif

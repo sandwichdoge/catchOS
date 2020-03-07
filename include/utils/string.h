@@ -1,3 +1,7 @@
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifndef INCLUDE_STRING_H
 #define INCLUDE_STRING_H
 #include "stddef.h"
@@ -25,4 +29,8 @@ int _int_to_str_u(char *out, size_t bufsize, unsigned int n);
 #define _int_to_str(out, bufsize, n) _Generic((n), int: _int_to_str_s, \
                                 default: _int_to_str_s, \
                                 unsigned int: _int_to_str_u)(out, bufsize, n)
+#endif
+
+#ifdef __cplusplus
+}
 #endif
