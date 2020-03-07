@@ -2,6 +2,7 @@
 #include "interrupt.h"
 #include "pic.h"
 #include "keyboard.h"
+#include "builddef.h"
 #include "utils/debug.h"
 
 extern void asm_int_handler_33(); // Handler for keyboard press
@@ -33,7 +34,7 @@ struct idt_entry idt_entries[IDT_SIZE] = {0}; // Main content of IDT
 void (*int_handler_table[IDT_SIZE])(void) = {0}; // Array of void func(void) pointers
 
 // https://wiki.osdev.org/Interrupt_Descriptor_Table
-void interrupt_encode_idt_entry(unsigned int interrupt_num, unsigned int f_ptr_handler) {
+private void interrupt_encode_idt_entry(unsigned int interrupt_num, unsigned int f_ptr_handler) {
     idt_entries[interrupt_num].offset_low = f_ptr_handler & 0xffff;
     idt_entries[interrupt_num].offset_high = (f_ptr_handler >> 16) & 0xffff;
 
@@ -46,12 +47,12 @@ void interrupt_encode_idt_entry(unsigned int interrupt_num, unsigned int f_ptr_h
                                                 0xe;        // 32-bit interrupt gate - 0b1110
 }
 
-void lidt (struct idt *idt_r)
+private void lidt (struct idt *idt_r)
 {
     asm ("lidt %0" :: "m"(*idt_r));
 }
 
-void ISR_KEYBOARD(void) {
+private void ISR_KEYBOARD(void) {
     static int is_shift_key_depressed = 0;
     unsigned char scan_code = read_scan_code();
     unsigned char ascii = scan_code_to_ascii(scan_code, is_shift_key_depressed);
@@ -62,7 +63,7 @@ void ISR_KEYBOARD(void) {
     }
 }
 
-void ISR_PAGEFAULT(void) {
+private void ISR_PAGEFAULT(void) {
     _dbg_set_edi_esi(0x555);
     _dbg_break();
 }

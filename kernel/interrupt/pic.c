@@ -1,5 +1,6 @@
 #include "pic.h"
 #include "io.h"
+#include "builddef.h"
 
 #define PIC1_PORT_A 0x20
 #define PIC2_PORT_A 0xa0
@@ -36,7 +37,7 @@ Arguments:
     offset2 - same for slave PIC: offset2..offset2+7
 This will remap all hw interrupt numbers to offset + IRQ
 */
-void pic_remap(int offset1, int offset2) {
+public void pic_remap(int offset1, int offset2) {
     outb(PIC1_COMMAND, ICW1_INIT + ICW1_ICW4);	// starts the initialization sequence (in cascade mode)
     outb(PIC2_COMMAND, ICW1_INIT + ICW1_ICW4);
     outb(PIC1_DATA, offset1);				// ICW2: Master PIC vector offset
@@ -48,7 +49,7 @@ void pic_remap(int offset1, int offset2) {
     outb(PIC2_DATA, ICW4_8086);
 }
 
-void pic_init() {
+public void pic_init() {
     pic_remap(PIC1_START_INTERRUPT, PIC2_START_INTERRUPT);
  
     /*
@@ -73,7 +74,7 @@ void pic_init() {
 }
 
 // Send acknowledge byte back to PIC, otherwise it will stop generating interrupts.
-void pic_ack(unsigned int pic_int_num) {
+public void pic_ack(unsigned int pic_int_num) {
     if (pic_int_num < PIC1_START_INTERRUPT || pic_int_num > PIC2_END_INTERRUPT) {
         return;
     }

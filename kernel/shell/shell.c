@@ -1,6 +1,7 @@
 #include "syscall.h"
 #include "shell.h"
 #include "keyboard.h" // For key defs
+#include "builddef.h"
 #include "utils/string.h"
 #include "utils/debug.h"
 
@@ -19,19 +20,8 @@ static unsigned char _cin_buf_[CIN_BUFSZ];
 unsigned char* _cin;
 int _cin_pos;
 
-void shell_init() {
-    _cin = _cin_buf_;
-    _receiving_user_input = 0;
-    _cur = 0;
-    SCREEN_WIDTH = syscall_fb_get_scr_w();
-    SCREEN_HEIGHT = syscall_fb_get_scr_h();
-    syscall_register_kb_handler(shell_handle_keypress);
-    syscall_fb_clr_scr();
-    syscall_fb_write_str(greeting, &_cur, sizeof(greeting));
-    _cur = 80 * 3;
-}
 
-void shell_handle_keypress(unsigned char ascii) {
+private void shell_handle_keypress(unsigned char ascii) {
     if (_receiving_user_input) {
         if (ascii == 0) return;
         if (ascii == '\n') {
@@ -57,11 +47,23 @@ void shell_handle_keypress(unsigned char ascii) {
     }
 }
 
-void shell_setpos(unsigned int scrpos){
+private void shell_init() {
+    _cin = _cin_buf_;
+    _receiving_user_input = 0;
+    _cur = 0;
+    SCREEN_WIDTH = syscall_fb_get_scr_w();
+    SCREEN_HEIGHT = syscall_fb_get_scr_h();
+    syscall_register_kb_handler(shell_handle_keypress);
+    syscall_fb_clr_scr();
+    syscall_fb_write_str(greeting, &_cur, sizeof(greeting));
+    _cur = 80 * 3;
+}
+
+private void shell_setpos(unsigned int scrpos){
     _cur = scrpos;
 }
 
-void shell_cout(const char* str, unsigned int len) {
+private void shell_cout(const char* str, unsigned int len) {
     // Print a string to screen, taking into account linebreaks because framebuffer doesn't know what a linebreak is.
     char *tmp = (char*)str;
     while (len--) {
@@ -79,7 +81,7 @@ void shell_cout(const char* str, unsigned int len) {
     syscall_fb_mov_cursr(_cur - 1);
 }
 
-void shell_cin(char* out) {
+private void shell_cin(char* out) {
     _cin_pos = 0;
     _receiving_user_input = 1;
     while (_receiving_user_input) {
@@ -97,7 +99,7 @@ void shell_cin(char* out) {
     _cin_pos = 0;
 }
 
-void shell_main() {
+public void shell_main() {
     shell_init();
 
     shell_cout(msg_hello, sizeof(msg_hello));

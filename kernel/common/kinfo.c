@@ -1,4 +1,5 @@
 #include "kinfo.h"
+#include "builddef.h"
 #include "utils/debug.h"
 
 // Kernel code section
@@ -13,7 +14,7 @@ struct kinfo* get_kernel_info() {
     return &_kinfo;
 }
 
-void kinfo_init(multiboot_info_t *mbinfo) {
+public void kinfo_init(multiboot_info_t *mbinfo) {
     if (mbinfo) {
         _kinfo.phys_mem_lower = mbinfo->mem_lower;
         _kinfo.phys_mem_upper = mbinfo->mem_upper;
@@ -38,10 +39,10 @@ void kinfo_init(multiboot_info_t *mbinfo) {
     }
 }
 
-void kinfo_set_phys_mem_lower(unsigned int phys_mem_lower) {
+public void kinfo_set_phys_mem_lower(unsigned int phys_mem_lower) {
     _kinfo.phys_mem_lower = phys_mem_lower;
 }
 
-void kinfo_set_phys_mem_upper(unsigned int phys_mem_upper) {
+public void kinfo_set_phys_mem_upper(unsigned int phys_mem_upper) {
     _kinfo.phys_mem_upper = phys_mem_upper;
 }

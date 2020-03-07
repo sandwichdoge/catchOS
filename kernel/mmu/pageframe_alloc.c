@@ -134,7 +134,7 @@ private void* pageframe_alloc_firstfit(unsigned int pages) {
     return ret;
 }
 
-void* pageframe_alloc(unsigned int pages) {
+public void* pageframe_alloc(unsigned int pages) {
     if (!_is_initialized) return NULL;
 
     void *ret = NULL;
@@ -149,7 +149,7 @@ void* pageframe_alloc(unsigned int pages) {
     return ret;
 }
 
-void pageframe_free(void *phys_addr, unsigned int pages) {
+public void pageframe_free(void *phys_addr, unsigned int pages) {
     if (!_is_initialized) return;
 
     unsigned int page_no = page_from_addr((unsigned int)((char*)phys_addr));
@@ -167,7 +167,7 @@ void pageframe_free(void *phys_addr, unsigned int pages) {
 }
 
 // Allocate and init _pageframe_bitmap
-void pageframe_alloc_init() {
+public void pageframe_alloc_init() {
     if (!_is_initialized) {
         struct kinfo *kinfo = get_kernel_info();
         _pages_total_phys = (kinfo->phys_mem_upper * 1024) / 4096;

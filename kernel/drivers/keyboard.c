@@ -1,10 +1,11 @@
 #include "io.h"
 #include "keyboard.h"
+#include "builddef.h"
 #include "utils/debug.h"
 
 #define KBD_DATA_PORT 0x60
 
-unsigned char read_scan_code() {
+public unsigned char read_scan_code() {
     return inb(KBD_DATA_PORT);
 }
 
@@ -37,7 +38,7 @@ unsigned char sc_table_shift[256] = {
 };
 
 // https://www.win.tue.nl/~aeb/linux/kbd/scancodes-1.html
-unsigned char scan_code_to_ascii(unsigned char scan_code, int is_shift_depressed) {
+public unsigned char scan_code_to_ascii(unsigned char scan_code, int is_shift_depressed) {
     if (scan_code & (1 << 7)) { // Key release
         // Ignore key release, unless it's SHIFT (sc_table_noshift[42]) then return another SHIFT
         if (scan_code == 170 || scan_code == 182) {

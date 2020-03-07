@@ -1,6 +1,7 @@
 #include "utils/string.h"
+#include "builddef.h"
 
-unsigned int _strlen(char *s) {
+public unsigned int _strlen(char *s) {
     unsigned int ret = 0;
     while (*(s++)) {
         ret++;
@@ -8,7 +9,7 @@ unsigned int _strlen(char *s) {
     return ret;
 }
 
-int _strncmp(char *s1, char *s2, unsigned int len) {
+public int _strncmp(char *s1, char *s2, unsigned int len) {
     // Probably gonna hate myself for this later.
     while (len--) {
         if (*s1 == 0 || *s2 == 0) break;
@@ -21,31 +22,31 @@ int _strncmp(char *s1, char *s2, unsigned int len) {
     return (*s1 - *s2);
 }
 
-void _memset_s(char *dst, char c, unsigned int len) {
+public void _memset_s(char *dst, char c, unsigned int len) {
     while (len--) {
         *(dst++) = c;
     }
 }
 
-void _memset_u(unsigned char *dst, char c, unsigned int len) {
+public void _memset_u(unsigned char *dst, char c, unsigned int len) {
     while (len--) {
         *(dst++) = c;
     }
 }
 
-void _memcpy_s(char *src, char *dst, unsigned int len) {
+public void _memcpy_s(char *src, char *dst, unsigned int len) {
     while (len--) {
         *(dst++) = *(src++);
     }
 }
 
-void _memcpy_u(unsigned char *src, char *dst, unsigned int len) {
+public void _memcpy_u(unsigned char *src, char *dst, unsigned int len) {
     while (len--) {
         *(dst++) = *(src++);
     }
 }
 
-int _int_to_str_s(char *out, size_t bufsize, int n)
+public int _int_to_str_s(char *out, size_t bufsize, int n)
 {
     char *start;
 
@@ -93,7 +94,7 @@ int _int_to_str_s(char *out, size_t bufsize, int n)
     return 0;
 }
 
-int _int_to_str_u(char *out, size_t bufsize, unsigned int n)
+public int _int_to_str_u(char *out, size_t bufsize, unsigned int n)
 {
     char *start;
 

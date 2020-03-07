@@ -1,5 +1,6 @@
 #include "kinfo.h"
 #include "kheap.h"
+#include "builddef.h"
 #include "utils/debug.h"
 extern void load_page_directory(void* page_directory);
 extern void enable_paging();
@@ -11,12 +12,12 @@ extern void enable_paging();
 
 unsigned int kernel_page_directory[1024] __attribute__((aligned(4096))); // 1024 page tables in page directory
 
-static unsigned int virtual_addr_to_pde(unsigned int virtual_addr) {
+private unsigned int virtual_addr_to_pde(unsigned int virtual_addr) {
 	return virtual_addr >> 22;
 }
 
 // Map 1 page table (4MiB) from virtual address to phys_addr.
-void paging_map(unsigned int virtual_addr, unsigned int phys_addr, unsigned int *page_dir, unsigned int *page_table) {
+public void paging_map(unsigned int virtual_addr, unsigned int phys_addr, unsigned int *page_dir, unsigned int *page_table) {
 	// Populate the page table. Fill each entry with corresponding physical address (increased by 0x1000 bytes each entry).
     for (unsigned int i = 0; i < 1024; i++) {
 		// We can fit all addreses of 4GB physical memory into a PTE.
@@ -29,7 +30,7 @@ void paging_map(unsigned int virtual_addr, unsigned int phys_addr, unsigned int 
 }
 
 // We're already in high-half kernel after kboot. So all addresses below are virtual.
-void paging_init() {
+public void paging_init() {
 	// Allocate memory for 1 page table
 	unsigned int *page_tables = kmalloc_align(4096, 4096);
 
