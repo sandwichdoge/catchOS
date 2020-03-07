@@ -1,4 +1,4 @@
-CFLAGS=-I../include -I./googletest/googletest/include
+CFLAGS=-I../include -I./googletest/googletest/include -Wno-write-strings -DDEBUG
 OBJECTS=main.o \
 		test_string_utils.o \
 		../kernel/utils/string.c
