@@ -1,7 +1,9 @@
 CFLAGS=-I../include -I./googletest/googletest/include -Wno-write-strings -DDEBUG
 OBJECTS=main.o \
 		test_string_utils.o \
-		../kernel/utils/string.c
+		test_printf_utils.o \
+		../kernel/utils/string.c \
+		../kernel/utils/printf.o
 GTEST_DIR=./googletest/googletest
 
 all: buildlib main.out
