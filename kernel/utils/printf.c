@@ -5,25 +5,6 @@ extern "C" {
 #include "builddef.h"
 #include "utils/printf.h"
 #include "utils/string.h"
-#ifdef DEBUG
-#include <stdio.h>
-#endif
-
-private char *convert(unsigned int num, int base) {
-    static char Representation[] = "0123456789ABCDEF";
-    static char buffer[64] = {0};
-    char *ptr;
-
-    ptr = &buffer[63];
-    *ptr = '\0';
-
-    do {
-        *--ptr = Representation[num % base];
-        num /= base;
-    } while (num != 0);
-
-    return (ptr);
-}
 
 // req: total output char must be smaller than maxlen
 public void _snprintf(char* buf, unsigned int maxlen, char* format,...) {
@@ -63,7 +44,7 @@ public void _snprintf(char* buf, unsigned int maxlen, char* format,...) {
                     if (len >= maxlen) return;
                 }
 
-                char *s = convert(i, 10);
+                char *s = _int_to_str_static(i, 10);
                 unsigned l = _strlen(s);
                 if (len + l > maxlen) {
                     l = maxlen - len;
@@ -78,7 +59,7 @@ public void _snprintf(char* buf, unsigned int maxlen, char* format,...) {
             }
             case 'x': {
                 i = va_arg(arg, unsigned int);  // Fetch Hexadecimal representation
-                char *s = convert(i, 16);
+                char *s = _int_to_str_static(i, 16);
                 unsigned l = _strlen(s);
                 if (len + l > maxlen) {
                     l = maxlen - len;

@@ -58,7 +58,7 @@ private void ISR_KEYBOARD(void) {
     unsigned char ascii = scan_code_to_ascii(scan_code, is_shift_key_depressed);
     if (ascii == KEY_LSHIFT || ascii == KEY_RSHIFT) {
         is_shift_key_depressed ^= 1;
-    } else {
+    } else if (_kb_handler_cb) {
         _kb_handler_cb(ascii);
     }
 }

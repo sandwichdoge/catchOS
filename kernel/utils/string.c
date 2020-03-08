@@ -172,6 +172,22 @@ public int _int_to_str_u(char *out, size_t bufsize, unsigned int n)
     return 0;
 }
 
+public char *_int_to_str_static(unsigned int num, int base) {
+    static char Representation[] = "0123456789ABCDEF";
+    static char buffer[64] = {0};
+    char *ptr;
+
+    ptr = &buffer[63];
+    *ptr = '\0';
+
+    do {
+        *--ptr = Representation[num % base];
+        num /= base;
+    } while (num != 0);
+
+    return (ptr);
+}
+
 #ifdef __cplusplus
 }
 #endif

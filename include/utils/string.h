@@ -24,6 +24,8 @@ int _strncpy_u(unsigned char *dst, unsigned char *src, unsigned int maxlen);
 int _int_to_str_s(char *out, size_t bufsize, int n);
 int _int_to_str_u(char *out, size_t bufsize, unsigned int n);
 
+char *_int_to_str_static(unsigned int num, int base);
+
 #define _strcpy(dst, src) _Generic((src), char*: _strcpy_s, \
                                 default: _strcpy_s, \
                                 unsigned char*: _strcpy_u)(dst, src)

@@ -1,7 +1,9 @@
 #ifndef INCLUDE_DEBUG_H
 #define INCLUDE_DEBUG_H
 #include "serial.h"
+#include "stdarg.h"
 #include "utils/string.h"
+
 #define _dbg_set_edi_esi(val) {     \
     unsigned int tmp;               \
                                     \
@@ -58,5 +60,6 @@
     serial_write(SERIAL_COM1_BASE, str, _strlen(str)); \
 }
 
+void _dbg_log(char *format, ...);
 
 #endif
