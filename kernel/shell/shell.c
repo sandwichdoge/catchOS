@@ -89,7 +89,7 @@ private void shell_cin(char* out) {
     }
 
     if ((unsigned long)_cin_pos <= sizeof(_cin_buf_)) {
-        _memcpy(_cin, out, _cin_pos);
+        _memcpy(out, (char*)_cin, _cin_pos);
         _memset(_cin, 0, sizeof(_cin_buf_));
     } else {
         // Handle stdin overflow (user enters more than 256 chars)

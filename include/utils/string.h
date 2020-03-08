@@ -12,29 +12,29 @@ int _strncmp(char *s1, char *s2, unsigned int len);
 void _memset_s(char *dst, char c, unsigned int len);
 void _memset_u(unsigned char *dst, char c, unsigned int len);
 
-void _memcpy_s(char *src, char *dst, unsigned int len);
-void _memcpy_u(unsigned char *src, char *dst, unsigned int len);
+void _memcpy_s(char *dst, char *src, unsigned int len);
+void _memcpy_u(unsigned char *dst, char *src, unsigned int len);
 
-int _strcpy_s(char *src, char *dst);
-int _strcpy_u(unsigned char *src, char *dst);
+int _strcpy_s(char *dst, char *src);
+int _strcpy_u(unsigned char *dst, char *src);
 
-int _strncpy_s(char *src, char *dst, unsigned int maxlen);
-int _strncpy_u(unsigned char *src, unsigned char *dst, unsigned int maxlen);
+int _strncpy_s(char *dst, char *src, unsigned int maxlen);
+int _strncpy_u(unsigned char *dst, unsigned char *src, unsigned int maxlen);
 
 int _int_to_str_s(char *out, size_t bufsize, int n);
 int _int_to_str_u(char *out, size_t bufsize, unsigned int n);
 
-#define _strcpy(src, dst) _Generic((src), char*: _strcpy_s, \
+#define _strcpy(dst, src) _Generic((src), char*: _strcpy_s, \
                                 default: _strcpy_s, \
-                                unsigned char*: _strcpy_u)(src, dst)
+                                unsigned char*: _strcpy_u)(dst, src)
 
-#define _strncpy(src, dst, len) _Generic((src), char*: _strncpy_s, \
+#define _strncpy(dst, src, len) _Generic((src), char*: _strncpy_s, \
                                 default: _strncpy_s, \
-                                unsigned char*: _strncpy_u)(src, dst, len)
+                                unsigned char*: _strncpy_u)(dst, src, len)
 
-#define _memcpy(src, dst, len) _Generic((src), char*: _memcpy_s, \
+#define _memcpy(dst, src, len) _Generic((src), char*: _memcpy_s, \
                                 default: _memcpy_s, \
-                                unsigned char*: _memcpy_u)(src, dst, len)
+                                unsigned char*: _memcpy_u)(dst, src, len)
 
 #define _memset(dst, c, len) _Generic((dst), char*: _memset_s, \
                                 default: _memset_s, \

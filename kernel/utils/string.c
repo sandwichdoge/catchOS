@@ -37,19 +37,19 @@ public void _memset_u(unsigned char *dst, char c, unsigned int len) {
     }
 }
 
-public void _memcpy_s(char *src, char *dst, unsigned int len) {
+public void _memcpy_s(char *dst, char *src, unsigned int len) {
     while (len--) {
         *(dst++) = *(src++);
     }
 }
 
-public void _memcpy_u(unsigned char *src, char *dst, unsigned int len) {
+public void _memcpy_u(unsigned char *dst, char *src, unsigned int len) {
     while (len--) {
         *(dst++) = *(src++);
     }
 }
 
-public int _strcpy_s(char *src, char *dst) {
+public int _strcpy_s(char *dst, char *src) {
     int ret = 0;
     while (*src != '\0') {
         *(dst++) = *(src++);
@@ -58,7 +58,7 @@ public int _strcpy_s(char *src, char *dst) {
     return ret;
 }
 
-public int _strcpy_u(unsigned char *src, char *dst) {
+public int _strcpy_u(unsigned char *dst, char *src) {
     int ret = 0;
     while (*src != '\0') {
         *(dst++) = *(src++);
@@ -67,18 +67,18 @@ public int _strcpy_u(unsigned char *src, char *dst) {
     return ret;
 }
 
-public int _strncpy_s(char *src, char *dst, unsigned int maxlen) {
+public int _strncpy_s(char *dst, char *src, unsigned int maxlen) {
     int ret = 0;
-    while (*src != '\0' && ret < maxlen) {
+    while (*src != '\0' && ret < (int)maxlen) {
         *(dst++) = *(src++);
         ret++;
     }
     return ret;
 }
 
-public int _strncpy_u(unsigned char *src, unsigned char *dst, unsigned int maxlen) {
+public int _strncpy_u(unsigned char *dst, unsigned char *src, unsigned int maxlen) {
     int ret = 0;
-    while (*src != '\0' && ret < maxlen) {
+    while (*src != '\0' && ret < (int)maxlen) {
         *(dst++) = *(src++);
         ret++;
     }

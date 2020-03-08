@@ -6,7 +6,6 @@
 #include "framebuffer.h"
 #include "serial.h"
 #include "builddef.h"
-#include "utils/string.h"
 #include "utils/debug.h"
 
 void syscall_register_kb_handler(void (*kb_handler)(unsigned char c)) {

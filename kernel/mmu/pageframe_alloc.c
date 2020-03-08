@@ -2,7 +2,6 @@
 #include "kheap.h" // kmalloc_align()
 #include "stddef.h"
 #include "builddef.h"
-#include "utils/string.h"
 #include "utils/debug.h"
 
 #define VIRTUAL_ADDR_SIZE 4294967296 // 4GiB

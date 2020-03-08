@@ -12,14 +12,14 @@ TEST(StringUtils, memset)
 
 TEST(StringUtils, memcpy) {
     char s[] = "hello, world";
-    _memcpy_s("adios", s, 5);
+    _memcpy_s(s, "adios", 5);
     EXPECT_TRUE(0 == std::memcmp(s, "adios, world", sizeof(s)));
 }
 
 TEST(StringUtils, memcpy2) {
     char s[] = "hello, world";
     char *prev = s;
-    _memcpy_s("adios", s, 5);
+    _memcpy_s(s,"adios", 5);
     EXPECT_EQ(prev, s);
 }
 
@@ -32,14 +32,14 @@ TEST(StringUtils, strlen) {
 TEST(StringUtils, strcpy) {
     char *src = "obiwan";
     char dest[16] = {0};
-    _strcpy_s(src, dest);
+    _strcpy_s(dest, src);
     EXPECT_TRUE(0 == std::strcmp(dest, "obiwan"));
 }
 
 TEST(StringUtils, strncpy) {
     char *src = "obiwan";
     char dest[16] = {0};
-    _strncpy_s(src, dest, 3);
+    _strncpy_s(dest, src, 3);
     EXPECT_TRUE(0 == std::strcmp(dest, "obi"));
 }
 

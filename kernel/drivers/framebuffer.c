@@ -33,8 +33,8 @@ public void scroll_down(unsigned int line_count) {
     static char buf[SCR_SIZE * 2];
     _memset(buf, '\0', sizeof(buf));
 
-    _memcpy(fb + (line_count * SCR_W) * 2, buf, sizeof(buf));
-    _memcpy(buf, fb, sizeof(buf));
+    _memcpy(buf, fb + (line_count * SCR_W) * 2, sizeof(buf));
+    _memcpy(fb, buf, sizeof(buf));
 }
 
 // Framebuffer doesn't have the concept of linebreak, we have to implement it in the shell/stdin.
