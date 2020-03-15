@@ -2,6 +2,7 @@
 #include "kheap.h" // kmalloc_align()
 #include "stddef.h"
 #include "builddef.h"
+#include "utils/bitmap.h"
 #include "utils/debug.h"
 
 #define VIRTUAL_ADDR_SIZE 4294967296 // 4GiB
@@ -12,29 +13,20 @@ static unsigned char *_pageframe_bitmap = NULL;
 static unsigned int _pages_total_phys = 0;                  // Total pages in the _pageframe_bitmap
 
 private void pageframe_alloc_set_page(unsigned int page_no) {
-    unsigned int byte_no = page_no / 8;
-	unsigned int carry_bit = page_no % 8;
-	_pageframe_bitmap[byte_no] |= (1 << carry_bit);
+    bitmap_set_bit(_pageframe_bitmap, page_no);
 }
 
 private int pageframe_alloc_get_page(unsigned int page_no) {
-    unsigned int byte_no = page_no / 8;
-    unsigned int carry_bit = page_no % 8;
-    return (_pageframe_bitmap[byte_no] >> carry_bit) & 1;
+    return bitmap_get_bit(_pageframe_bitmap, page_no);
 }
 
 private void pageframe_alloc_set_pages(unsigned int page_start, unsigned int pages) {
-    for (unsigned int i = 0; i < pages; i++) {
-        pageframe_alloc_set_page(page_start + i);
-    }
+    bitmap_set_bits(_pageframe_bitmap, page_start, pages);
 }
 
 private void pageframe_alloc_clear_page(unsigned int page_no) {
-	unsigned int byte_no = page_no / 8;
-	unsigned int carry_bit = page_no % 8;
-	_pageframe_bitmap[byte_no] &= ~(1 << carry_bit);
+	bitmap_clear_bit(_pageframe_bitmap, page_no);
 }
-
 
 private unsigned int pageframe_addr_from_page(unsigned int page_no) {
     return (page_no * 4096);
@@ -90,13 +82,6 @@ private void* pageframe_alloc_bestfit(unsigned int pages) {
     return ret;
 }
 
-// Read nth bit in a bitstring. Return 1 or 0.
-private char get_bit(unsigned char* bitstring, unsigned int bit_no) {
-    unsigned int byte_no = bit_no / 8;
-    unsigned int carry   = bit_no % 8;
-    return (bitstring[byte_no] >> carry) & 1;
-}
-
 // Number of pages is always bigger than 8
 private void* pageframe_alloc_firstfit(unsigned int pages) {
     void* ret = NULL;
@@ -117,7 +102,7 @@ private void* pageframe_alloc_firstfit(unsigned int pages) {
     // If reaches the end, that means no more space available.
     unsigned int cur_len = 0;
     for (unsigned int i = page_no; i < _pages_total_phys; i++) {
-        if (get_bit(_pageframe_bitmap, i) == 0) {
+        if (pageframe_alloc_get_page(i) == 0) {
             cur_len++;
             if (cur_len == pages) {
                 pageframe_alloc_set_pages(page_no, pages);

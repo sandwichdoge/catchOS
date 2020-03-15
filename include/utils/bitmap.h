@@ -4,9 +4,12 @@
 extern "C" {
 #endif
 
-void bitmap_set_bit(char* bitstring, unsigned int bitno);
-void bitmap_clear_bit(char* bitstring, unsigned int bitno);
-int bitmap_get_bit(char* bitstring, unsigned int bitno);
+void bitmap_set_bit(unsigned char* bitstring, unsigned int bitno);
+void bitmap_clear_bit(unsigned char* bitstring, unsigned int bitno);
+int bitmap_get_bit(unsigned char* bitstring, unsigned int bitno);
+void bitmap_toggle_bit(unsigned char* bitstring, unsigned int bitno);
+
+void bitmap_set_bits(unsigned char* bitstring, unsigned int startbit, unsigned int count);
 
 #ifdef __cplusplus
 }
