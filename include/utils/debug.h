@@ -3,6 +3,9 @@
 #include "serial.h"
 #include "stdarg.h"
 #include "utils/string.h"
+#ifdef TARGET_HOST // For unit test and debugging on x64 host
+#include <stdio.h>
+#endif
 
 #define _dbg_set_edi_esi(val) {     \
     unsigned int tmp;               \
@@ -56,9 +59,15 @@
 }
 #endif // TARGET_BOCHS
 
+#ifdef TARGET_HOST
+#define _dbg_serial(str) { \
+    puts(str); \
+}
+#else
 #define _dbg_serial(str) { \
     serial_write(SERIAL_COM1_BASE, str, _strlen(str)); \
 }
+#endif
 
 void _dbg_log(char *format, ...);
 

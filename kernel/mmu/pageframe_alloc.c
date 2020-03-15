@@ -7,10 +7,10 @@
 
 #define VIRTUAL_ADDR_SIZE 4294967296 // 4GiB
 
-static int _is_initialized = 0;
+private int _is_initialized = 0;
 // Bitmap representing allocated phys pages: 0 means available, 1 means already allocated
-static unsigned char *_pageframe_bitmap = NULL;
-static unsigned int _pages_total_phys = 0;                  // Total pages in the _pageframe_bitmap
+private unsigned char *_pageframe_bitmap = NULL;
+private unsigned int _pages_total_phys = 0;                  // Total pages in the _pageframe_bitmap
 
 private void pageframe_alloc_set_page(unsigned int page_no) {
     bitmap_set_bit(_pageframe_bitmap, page_no);
@@ -120,7 +120,6 @@ private void* pageframe_alloc_firstfit(unsigned int pages) {
 
 public void* pageframe_alloc(unsigned int pages) {
     if (!_is_initialized) return NULL;
-
     void *ret = NULL;
 
     if (pages > 8) { // First fit algo if more than 8 pages requested

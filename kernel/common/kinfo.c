@@ -15,6 +15,7 @@ struct kinfo* get_kernel_info() {
 }
 
 public void kinfo_init(multiboot_info_t *mbinfo) {
+#ifndef TARGET_HOST
     if (mbinfo) {
         _kinfo.phys_mem_lower = mbinfo->mem_lower;
         _kinfo.phys_mem_upper = mbinfo->mem_upper;
@@ -37,6 +38,7 @@ public void kinfo_init(multiboot_info_t *mbinfo) {
             _kinfo.kernel_end_virtual = (void*)(mods->mod_end + mods->pad + 0xc0000000);
         }
     }
+#endif
 }
 
 public void kinfo_set_phys_mem_lower(unsigned int phys_mem_lower) {
