@@ -37,6 +37,9 @@ debug: CFLAGS+= -DDEBUG -g
 debug: LDFLAGS+= -g
 debug: all
 
+test:
+	cd tests && make
+
 %.o: %.cpp
 	$(CXX) -c $(CFLAGS) $< -o $@
 

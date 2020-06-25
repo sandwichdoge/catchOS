@@ -4,6 +4,7 @@
 public void _dbg_log(char *format, ...) {
     char *traverse;
     int i;
+    unsigned int u;
     char *s;
 
     va_list arg;
@@ -25,6 +26,11 @@ public void _dbg_log(char *format, ...) {
             case 'c':
                 i = va_arg(arg, int);  // Fetch char argument
                 serial_write(SERIAL_COM1_BASE, (char*)&i, 1);
+                break;
+            case 'u':
+                u = va_arg(arg, unsigned int);
+                s = _int_to_str_static(u, 10);
+                serial_write(SERIAL_COM1_BASE, s, _strlen(s));
                 break;
             case 'd':
                 i = va_arg(arg, int);  // Fetch Decimal/Integer argument

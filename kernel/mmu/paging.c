@@ -33,6 +33,7 @@ public void paging_map(unsigned int virtual_addr, unsigned int phys_addr, unsign
 public void paging_init() {
 	// Allocate memory for 1 page table
 	unsigned int *page_tables = kmalloc_align(4096, 4096);
+	_dbg_log("[MMU]Page Table at: 0x%x\n", page_tables);
 
 	// Map 1st page to 3GiB (kernel page)
     paging_map(0xc0000000, 0, kernel_page_directory, page_tables + 1024 * 0);
