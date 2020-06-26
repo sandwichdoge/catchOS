@@ -113,4 +113,6 @@ TEST(pageframe_alloc, allocate_zero) {
     init_pageframe();
     void *p = pageframe_alloc(0);
     printf("%p\n", p);
+    void *p2 = pageframe_alloc(0);
+    printf("%p\n", p2);
 }
