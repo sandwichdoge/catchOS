@@ -143,7 +143,7 @@ public void pageframe_free(void *phys_addr, unsigned int pages) {
         if (page_status == 1) {
             pageframe_alloc_clear_page(page_no + i);
         } else {
-            _dbg_serial("Error trying to free already freed frame.\n");
+            _dbg_log("Error trying to free already freed frame.\n");
             // Handle error trying to free an already freed page
         }
     }
@@ -162,10 +162,7 @@ public void pageframe_alloc_init() {
             pageframe_alloc_set_page(i);
         }
 
-        /*_dbg_set_edi((unsigned int)_pages_total_phys);
-        _dbg_set_esi((unsigned int)_pageframe_bitmap + 0x50);
-        _dbg_break();*/
-
+        _dbg_log("Total pageframes: %u\n", _pages_total_phys);
         _is_initialized = 1;
     }
 }

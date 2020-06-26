@@ -5,9 +5,11 @@
 extern void load_page_directory(void* page_directory);
 extern void enable_paging();
 
+// Divide these 2 and we get 1024 pages each PDE.
 #define PAGE_SIZE 0x1000 // 4096
 #define PDE_SIZE 0x400000
 
+// A page directory can represent all 4GiB of memory, if it has 1024 entries.
 // Page index 123 in table index 456 will be mapped to (456 * 1024) + 123 = 467067. 467067 * 4 = 1868268 KiB.
 
 unsigned int kernel_page_directory[1024] __attribute__((aligned(4096))); // 1024 page tables in page directory
@@ -16,12 +18,12 @@ private unsigned int virtual_addr_to_pde(unsigned int virtual_addr) {
 	return virtual_addr >> 22;
 }
 
-// Map 1 page table (4MiB) from virtual address to phys_addr.
+// Map 1 page table (4MiB) from virtual address to phys_addr. Page table must persist in memory at all times.
 public void paging_map(unsigned int virtual_addr, unsigned int phys_addr, unsigned int *page_dir, unsigned int *page_table) {
 	// Populate the page table. Fill each entry with corresponding physical address (increased by 0x1000 bytes each entry).
     for (unsigned int i = 0; i < 1024; i++) {
-		// We can fit all addreses of 4GB physical memory into a PTE.
-		// Since the page must be 4kB aligned, last 12 bits are always zeroes, so x86 uses them as access bits cleverly.
+		// A PTE can contain any address of 4GB physical memory.
+		// Since the page must be 4kB aligned, last 12 bits are always zeroes, x86 uses them as access bits cleverly.
 		page_table[i] = (phys_addr + (i * 0x1000)) | 3;
 	}
 	
@@ -33,7 +35,7 @@ public void paging_map(unsigned int virtual_addr, unsigned int phys_addr, unsign
 public void paging_init() {
 	// Allocate memory for 1 page table
 	unsigned int *page_tables = kmalloc_align(4096, 4096);
-	_dbg_log("[MMU]Page Table at: 0x%x\n", page_tables);
+	_dbg_log("[MMU]Page Table at 0x%x in kheap.\n", page_tables);
 
 	// Map 1st page to 3GiB (kernel page)
     paging_map(0xc0000000, 0, kernel_page_directory, page_tables + 1024 * 0);

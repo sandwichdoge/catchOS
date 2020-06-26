@@ -73,6 +73,7 @@ void kmain(unsigned int ebx) {
 // Call user program
 #ifdef WITH_GRUB_MB
     call_user_module(mbinfo);
+    _dbg_break();
 #endif
 
     _dbg_log("Hello, world\n\0");
