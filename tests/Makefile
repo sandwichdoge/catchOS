@@ -14,6 +14,7 @@ OBJECTS=main.o \
 		../kernel/mmu/pageframe_alloc.o \
 		../kernel/mmu/kheap.o \
 		../kernel/common/kinfo.o \
+		../kernel/utils/debug.o
 
 GTEST_DIR=./googletest/googletest
 

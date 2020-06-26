@@ -108,3 +108,9 @@ TEST(pageframe_alloc, bestfit_behaviour3) {
     pageframe_free(p, 1);
     pageframe_free(p2, 1);
 }
+
+TEST(pageframe_alloc, allocate_zero) {
+    init_pageframe();
+    void *p = pageframe_alloc(0);
+    printf("%p\n", p);
+}

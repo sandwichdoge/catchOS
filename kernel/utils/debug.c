@@ -2,6 +2,9 @@
 #include "builddef.h"
 
 public void _dbg_log(char *format, ...) {
+#ifdef TARGET_HOST
+    printf(format);
+#else
     char *traverse;
     int i;
     unsigned int u;
@@ -62,4 +65,5 @@ public void _dbg_log(char *format, ...) {
 
     // Module 3: Closing argument list to necessary clean-up
     va_end(arg);
+#endif
 }
