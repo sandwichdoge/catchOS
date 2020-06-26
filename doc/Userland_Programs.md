@@ -8,6 +8,7 @@ into an executable memory image. This means we can't run C++ programs because th
 - We allocate one page for user stack.
 - User stack starts at 0xBFFFFFFF (just below Kernel Program) and grows downwards.
 - Data and code will be mapped at 0x0.
+- Heap is located right after data and code section.
 - So at least 2 pages are needed.
 - We will store these info in a struct representing a process. This struct can be dynamically allocated 
 with the kernel's malloc function.

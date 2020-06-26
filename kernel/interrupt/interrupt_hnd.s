@@ -4,6 +4,7 @@ extern interrupt_handler
 %macro no_error_code_interrupt_handler 1
 global asm_int_handler_%1
 asm_int_handler_%1:
+    ; TODO: Save stack pointer, syscalls may modify registers
     push	dword 0                     ; push 0 as error code
     push	dword %1                    ; push the interrupt number
     jmp	    asm_int_handler_common      ; jump to the common handler
