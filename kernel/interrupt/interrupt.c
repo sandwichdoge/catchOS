@@ -70,10 +70,19 @@ private void ISR_PAGEFAULT(struct cpu_state* unused) {
     _dbg_break();
 }
 
-// 0x80
+// 128 (or 0x80). Syscalls may modify eax, ecx, e11.
 private void ISR_SYSCALL(struct cpu_state* regs) {
-    _dbg_log("[Syscall]eax:%x\n", regs->eax);
-    //_dbg_break();
+    register int esp asm("esp");
+    int *eax_on_stack = (int*)(esp + 0x58); // Bruteforced value 0x58, TODO something better?
+    int syscall_no = regs->eax;
+    _dbg_log("EAX on stack:[%x]\n", eax_on_stack);
+    _dbg_log("Saved EAX value on stack:[%x]\n", *eax_on_stack);
+    _dbg_log("[Syscall]:0x%x\n", syscall_no);
+    switch (syscall_no) {
+        case SYSCALL_SBRK:
+            *eax_on_stack = 0xabababab;
+            break;
+    }
 }
 
 void interrupt_init_idt(void) {

@@ -1,6 +1,8 @@
 #ifndef INCLUDE_SYSCALL_H
 #define INCLUDE_SYSCALL_H
 
+enum SYSCALL_NUM {SYSCALL_SBRK = 1};
+
 // Global keyboard press handler. Userland will register with this.
 void (*_kb_handler_cb)(unsigned char c);
 
