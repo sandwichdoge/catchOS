@@ -32,8 +32,7 @@ private void interrupt_encode_idt_entry(unsigned int interrupt_num, unsigned int
                                                 0xe;        // 32-bit interrupt gate - 0b1110
 }
 
-private void lidt (struct idt *idt_r)
-{
+private void lidt (struct idt *idt_r) {
     asm ("lidt %0" :: "m"(*idt_r));
 }
 
@@ -90,7 +89,7 @@ public void interrupt_init_idt(void) {
     lidt(&IDT); // ASM wrapper
 }
 
-void interrupt_handler(int* return_reg, struct cpu_state cpu_state, unsigned int interrupt_num, struct stack_state stack_state) {
+public void interrupt_handler(int* return_reg, struct cpu_state cpu_state, unsigned int interrupt_num, struct stack_state stack_state) {
     _dbg_log("[Interrupt]num:[%u], eax:[%x]\n", interrupt_num, cpu_state.eax);
 
     if (interrupt_num >= sizeof(int_handler_table) / sizeof(*int_handler_table)) {
