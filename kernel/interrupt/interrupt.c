@@ -14,23 +14,6 @@ extern void asm_int_handler_128(); // Handler for syscall
 #define INT_KEYBOARD 33 // 0x20 + 1
 #define INT_SYSCALL 0x80
 
-struct cpu_state {
-    unsigned int edi;
-    unsigned int esi;
-    unsigned int ebp;
-    unsigned int edx;
-    unsigned int ecx;
-    unsigned int ebx;
-    unsigned int eax;
-} __attribute__((packed));
-
-struct stack_state {
-    unsigned int error_code;
-    unsigned int eip;
-    unsigned int cs;
-    unsigned int eflags;
-} __attribute__((packed));
-
 struct idt IDT; // To be loaded into the CPU
 struct idt_entry idt_entries[IDT_SIZE] = {0}; // Main content of IDT
 void (*int_handler_table[IDT_SIZE])(struct cpu_state*) = {0}; // Array of void func(void) pointers
@@ -74,15 +57,7 @@ private void ISR_PAGEFAULT(struct cpu_state* unused) {
 private void ISR_SYSCALL(struct cpu_state* regs) {
     register int esp asm("esp");
     int *eax_on_stack = (int*)(esp + 0x58); // Bruteforced value 0x58, TODO something better?
-    int syscall_no = regs->eax;
-    _dbg_log("EAX on stack:[%x]\n", eax_on_stack);
-    _dbg_log("Saved EAX value on stack:[%x]\n", *eax_on_stack);
-    _dbg_log("[Syscall]:0x%x\n", syscall_no);
-    switch (syscall_no) {
-        case SYSCALL_SBRK:
-            *eax_on_stack = 0xabababab;
-            break;
-    }
+    syscall_handler(regs, eax_on_stack);
 }
 
 void interrupt_init_idt(void) {

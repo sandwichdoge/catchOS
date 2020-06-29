@@ -8,6 +8,18 @@
 #include "builddef.h"
 #include "utils/debug.h"
 
+int syscall_handler(struct cpu_state* cpu, int* return_reg) {
+    int syscall_no = cpu->eax;
+    _dbg_log("syscall_no:%d, return register:%x\n", syscall_no, return_reg);
+    switch (syscall_no) {
+        case SYSCALL_SBRK:
+            *return_reg = 0xabababab;
+            break;
+    }
+
+    return 0;
+}
+
 void syscall_register_kb_handler(void (*kb_handler)(unsigned char c)) {
     _kb_handler_cb = kb_handler;
 }

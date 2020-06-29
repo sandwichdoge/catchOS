@@ -1,5 +1,23 @@
 #ifndef INCLUDE_INTERRUPT_H
 #define INCLUDE_INTERRUPT_H
+
+struct cpu_state {
+    unsigned int edi;
+    unsigned int esi;
+    unsigned int ebp;
+    unsigned int edx;
+    unsigned int ecx;
+    unsigned int ebx;
+    unsigned int eax;
+} __attribute__((packed));
+
+struct stack_state {
+    unsigned int error_code;
+    unsigned int eip;
+    unsigned int cs;
+    unsigned int eflags;
+} __attribute__((packed));
+
 struct idt_entry {
     /* The lowest 32 bits */
     unsigned short offset_low; // offset bits 0..15
