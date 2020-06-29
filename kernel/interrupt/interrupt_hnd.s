@@ -29,14 +29,17 @@ asm_int_handler_common:
     push ebp
     push esi
     push edi
+    lea eax, [esp+24]   ; modifying value in this address will change (1), return reg
+    push eax
     call interrupt_handler
+    pop eax
     pop	edi
     pop	esi
     pop	ebp
     pop	edx
     pop	ecx
     pop	ebx
-    pop eax
+    pop eax             ; (1) this
     add esp, 8  ; restore esp from int_handler_33 arg push
     iret        ; return from interrupt
 

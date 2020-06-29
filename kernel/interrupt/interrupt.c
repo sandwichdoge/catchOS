@@ -16,7 +16,7 @@ extern void asm_int_handler_128(); // Handler for syscall
 
 struct idt IDT; // To be loaded into the CPU
 struct idt_entry idt_entries[IDT_SIZE] = {0}; // Main content of IDT
-void (*int_handler_table[IDT_SIZE])(struct cpu_state*) = {0}; // Array of void func(void) pointers
+void (*int_handler_table[IDT_SIZE])(int* return_reg, struct cpu_state*) = {0}; // Array of void func(void) pointers
 
 // https://wiki.osdev.org/Interrupt_Descriptor_Table
 private void interrupt_encode_idt_entry(unsigned int interrupt_num, unsigned int f_ptr_handler) {
@@ -37,7 +37,7 @@ private void lidt (struct idt *idt_r)
     asm ("lidt %0" :: "m"(*idt_r));
 }
 
-private void ISR_KEYBOARD(struct cpu_state* unused) {
+private void ISR_KEYBOARD(int* return_reg, struct cpu_state* unused) {
     static int is_shift_key_depressed = 0;
     unsigned char scan_code = read_scan_code();
     unsigned char ascii = scan_code_to_ascii(scan_code, is_shift_key_depressed);
@@ -48,19 +48,17 @@ private void ISR_KEYBOARD(struct cpu_state* unused) {
     }
 }
 
-private void ISR_PAGEFAULT(struct cpu_state* unused) {
-    _dbg_set_edi_esi(0x555);
+private void ISR_PAGEFAULT(int* return_reg, struct cpu_state* unused) {
+    _dbg_log("Error. Pagefault!\n");
     _dbg_break();
 }
 
-// 128 (or 0x80). Syscalls may modify eax, ecx, e11.
-private void ISR_SYSCALL(struct cpu_state* regs) {
-    register int esp asm("esp");
-    int *eax_on_stack = (int*)(esp + 0x58); // Bruteforced value 0x58, TODO something better?
-    syscall_handler(regs, eax_on_stack);
+// int 128 (or 0x80). Syscalls may modify eax, ecx, e11.
+private void ISR_SYSCALL(int* return_reg, struct cpu_state* regs) {
+    syscall_handler(return_reg, regs);
 }
 
-void interrupt_init_idt(void) {
+public void interrupt_init_idt(void) {
     /*
     IRQ 0 ‒ system timer
     IRQ 1 — keyboard controller
@@ -92,7 +90,7 @@ void interrupt_init_idt(void) {
     lidt(&IDT); // ASM wrapper
 }
 
-void interrupt_handler(struct cpu_state cpu_state, unsigned int interrupt_num, struct stack_state stack_state) {
+void interrupt_handler(int* return_reg, struct cpu_state cpu_state, unsigned int interrupt_num, struct stack_state stack_state) {
     _dbg_log("[Interrupt]num:[%u], eax:[%x]\n", interrupt_num, cpu_state.eax);
 
     if (interrupt_num >= sizeof(int_handler_table) / sizeof(*int_handler_table)) {
@@ -101,7 +99,7 @@ void interrupt_handler(struct cpu_state cpu_state, unsigned int interrupt_num, s
     }
 
     if (int_handler_table[interrupt_num]) {
-        (*int_handler_table[interrupt_num])(&cpu_state);
+        (*int_handler_table[interrupt_num])(return_reg, &cpu_state);
         pic_ack(interrupt_num);
     }
 }

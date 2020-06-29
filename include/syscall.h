@@ -8,7 +8,7 @@ enum SYSCALL_NUM {SYSCALL_SBRK = 2};
 void (*_kb_handler_cb)(unsigned char c);
 
 void syscall_init();
-int syscall_handler(struct cpu_state*, int* return_value);
+int syscall_handler(int* return_reg, struct cpu_state*);
 
 // Get VGA size
 int syscall_fb_get_scr_w();
