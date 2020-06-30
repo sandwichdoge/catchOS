@@ -13,7 +13,6 @@ private void test_pageframe_firstpage() {
 
 public void mmu_init() {
     paging_init();
-    pageframe_alloc_init();
     test_pageframe_firstpage();
 }
 

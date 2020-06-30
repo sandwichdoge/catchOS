@@ -121,8 +121,26 @@ private void* pageframe_alloc_firstfit(unsigned int pages) {
     return ret;
 }
 
+// Allocate and init _pageframe_bitmap
+private void pageframe_alloc_init() {
+    struct kinfo *kinfo = get_kernel_info();
+    _pages_total_phys = (kinfo->phys_mem_upper * 1024) / 4096;
+    // 1 bit represents 1 page in phys mem (4 KiB). We assign just enough memory to contain the bitmap of physical memory.
+    _pageframe_bitmap = kmalloc_align(_pages_total_phys / 8, 4096);
+
+    // Reserved Kernel data area (1024 pages - 4 MiB) starting from 0x0.
+    for (unsigned int i = 0; i < 1024; i++) {
+        pageframe_alloc_set_page(i);
+    }
+
+    _dbg_log("Total pageframes: %u\n", _pages_total_phys);
+    _is_initialized = 1;
+}
+
 public void* pageframe_alloc(unsigned int pages) {
-    if (!_is_initialized) return NULL;
+    if (!_is_initialized) {
+        pageframe_alloc_init();
+    }
     void *ret = NULL;
 
     if (pages > 8) { // First fit algo if more than 8 pages requested
@@ -134,7 +152,7 @@ public void* pageframe_alloc(unsigned int pages) {
     // 1-1 map
     unsigned int *page_tables = kmalloc_align(4096 * pages, 4096);
     for (unsigned int i = 0; i < pages; ++i) {
-        paging_map(ret + 0xc0000000 + i * PDE_SIZE, ret + i * PDE_SIZE, kernel_page_directory, page_tables + 1024 * i);
+        paging_map((unsigned int)ret + 0xc0000000 + i * PDE_SIZE, (unsigned int)ret + i * PDE_SIZE, kernel_page_directory, page_tables + 1024 * i);
     }
     ret += 0xc0000000;
     _dbg_log("%u pages requested. Return: [0x%x]\n", pages, ret);
@@ -156,23 +174,5 @@ public void pageframe_free(void *phys_addr, unsigned int pages) {
             _dbg_log("Error trying to free already freed frame.\n");
             // Handle error trying to free an already freed page
         }
-    }
-}
-
-// Allocate and init _pageframe_bitmap
-public void pageframe_alloc_init() {
-    if (!_is_initialized) {
-        struct kinfo *kinfo = get_kernel_info();
-        _pages_total_phys = (kinfo->phys_mem_upper * 1024) / 4096;
-        // 1 bit represents 1 page in phys mem (4 KiB). We assign just enough memory to contain the bitmap of physical memory.
-        _pageframe_bitmap = kmalloc_align(_pages_total_phys / 8, 4096);
-
-        // Reserved Kernel data area (1024 pages - 4 MiB) starting from 0x0.
-        for (unsigned int i = 0; i < 1024; i++) {
-            pageframe_alloc_set_page(i);
-        }
-
-        _dbg_log("Total pageframes: %u\n", _pages_total_phys);
-        _is_initialized = 1;
     }
 }
