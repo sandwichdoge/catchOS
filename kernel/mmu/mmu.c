@@ -17,9 +17,9 @@ public void mmu_init() {
 }
 
 public void* mmu_mmap(unsigned int size) {
-    _dbg_log("[MMU]sbrk [%u]\n", size);
     // return out + 0xc0000000;
     void* ret = malloc(size);
+    _dbg_log("[MMU]sbrk [%u], ret [0x%x]\n", size, ret);
     return ret;
 }
 
