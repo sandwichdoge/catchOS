@@ -20,8 +20,8 @@ unsigned int virtual_addr_to_pde(unsigned int virtual_addr) { return virtual_add
 public
 void paging_map(unsigned int virtual_addr, unsigned int phys_addr, unsigned int *page_dir, unsigned int *page_table) {
     _dbg_log("Mapping 0x%x to 0x%x\n", phys_addr, virtual_addr);
-    // Populate the page table. Fill each entry with corresponding physical address (increased by 0x1000 bytes each
-    // entry).
+    
+    // Populate the page table. Fill each entry with corresponding physical address (increased by 0x1000 bytes each entry).
     for (unsigned int i = 0; i < 1024; i++) {
         // A PTE can contain any address of 4GB physical memory.
         // Since the page must be 4kB aligned, last 12 bits are always zeroes, x86 uses them as access bits cleverly.

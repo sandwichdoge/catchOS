@@ -7,8 +7,6 @@
 #include "utils/debug.h"
 
 #define VIRTUAL_ADDR_SIZE 4294967296  // 4GiB
-#define PDE_SIZE 0x400000
-extern unsigned int kernel_page_directory[1024];
 
 private
 int _is_initialized = 0;
@@ -151,17 +149,6 @@ void *pageframe_alloc(unsigned int pages) {
         ret = pageframe_alloc_firstfit(pages);
     } else {  // Fewer than 8 pages requested
         ret = pageframe_alloc_bestfit(pages);
-    }
-
-    if (ret) {
-        // 1-1 map
-        unsigned int *page_tables = kmalloc_align(4096 * pages, 4096);
-        for (unsigned int i = 0; i < pages; ++i) {
-            paging_map((unsigned int)ret + 0xc0000000 + i * PDE_SIZE, (unsigned int)ret + i * PDE_SIZE, kernel_page_directory, page_tables + 1024 * i);
-        }
-        ret += 0xc0000000;
-    } else { // Out of memory
-        _dbg_log("[MMU]Out of pages.\n");
     }
 
     _dbg_log("[MMU]%u pages requested. Return: [0x%x]\n", pages, ret);
