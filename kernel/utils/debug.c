@@ -1,7 +1,9 @@
 #include "utils/debug.h"
+
 #include "builddef.h"
 
-public void _dbg_log(char *format, ...) {
+public
+void _dbg_log(char *format, ...) {
 #ifdef TARGET_HOST
     printf(format);
 #else
@@ -28,7 +30,7 @@ public void _dbg_log(char *format, ...) {
         switch (*traverse) {
             case 'c':
                 i = va_arg(arg, int);  // Fetch char argument
-                serial_write(SERIAL_COM1_BASE, (char*)&i, 1);
+                serial_write(SERIAL_COM1_BASE, (char *)&i, 1);
                 break;
             case 'u':
                 u = va_arg(arg, unsigned int);

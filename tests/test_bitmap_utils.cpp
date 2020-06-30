@@ -1,5 +1,5 @@
-#include "utils/bitmap.h"
 #include "gtest/gtest.h"
+#include "utils/bitmap.h"
 
 TEST(Bitmap, bitset) {
     unsigned char bitmap[32] = {0};
@@ -27,7 +27,7 @@ TEST(Bitmap, bitclear) {
 TEST(Bitmap, bitset_multi) {
     unsigned char bitmap[32] = {0};
     bitmap_set_bits(bitmap, 35, 7);
-    for (int i = 35; i < 35 +7; ++i) {
+    for (int i = 35; i < 35 + 7; ++i) {
         int bit = bitmap_get_bit(bitmap, i);
         EXPECT_EQ(bit, 1);
     }

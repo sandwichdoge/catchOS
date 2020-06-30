@@ -4,9 +4,9 @@
 extern "C" {
 #endif
 
-void _snprintf(char* buf, unsigned int maxlen, char* format,...);
+void _snprintf(char* buf, unsigned int maxlen, char* format, ...);
 
 #ifdef __cplusplus
 }
 #endif
-#endif // INCLUDE_PRINTF_H
+#endif  // INCLUDE_PRINTF_H

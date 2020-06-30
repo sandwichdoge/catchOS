@@ -1,16 +1,18 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-#include "stdarg.h"
-#include "builddef.h"
 #include "utils/printf.h"
+
+#include "builddef.h"
+#include "stdarg.h"
 #include "utils/string.h"
 
 // req: total output char must be smaller than maxlen
-public void _snprintf(char* buf, unsigned int maxlen, char* format,...) {
+public
+void _snprintf(char *buf, unsigned int maxlen, char *format, ...) {
     char *traverse;
     int i;
-    unsigned int len = 0; // number of chars printed
+    unsigned int len = 0;  // number of chars printed
     char *s;
 
     va_list arg;

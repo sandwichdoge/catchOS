@@ -1,31 +1,35 @@
-#include "io.h"
 #include "framebuffer.h"
+
 #include "builddef.h"
-#include "utils/string.h"
+#include "io.h"
 #include "utils/debug.h"
+#include "utils/string.h"
 
 #define FB_COMMAND_PORT 0x3d4
 #define FB_DATA_PORT 0x3d5
 #define FB_HIGH_BYTE_CMD 14
 #define FB_LOW_BYTE_CMD 15
 
-char *fb = (char*)0xC00B8000; // Video memory address
+char *fb = (char *)0xC00B8000;  // Video memory address
 
 // Write character to a cell in 80x24 framebuffer
-public void write_cell(unsigned int scrpos, unsigned char c, unsigned char fg, unsigned char bg) {
+public
+void write_cell(unsigned int scrpos, unsigned char c, unsigned char fg, unsigned char bg) {
     fb[scrpos] = c;
     fb[scrpos + 1] = ((fg & 0xf) << 4) | (bg & 0xf);
 }
 
-public void move_cursor(unsigned int scrpos) {
+public
+void move_cursor(unsigned int scrpos) {
     outb(FB_COMMAND_PORT, FB_HIGH_BYTE_CMD);
-    outb(FB_DATA_PORT, (scrpos >> 8) & 0x00ff); // High bytes
+    outb(FB_DATA_PORT, (scrpos >> 8) & 0x00ff);  // High bytes
     outb(FB_COMMAND_PORT, FB_LOW_BYTE_CMD);
-    outb(FB_DATA_PORT, scrpos & 0x00ff);        // Low bytes
+    outb(FB_DATA_PORT, scrpos & 0x00ff);  // Low bytes
 }
 
 // Scroll screen down some lines
-public void scroll_down(unsigned int line_count) {
+public
+void scroll_down(unsigned int line_count) {
     if (line_count > SCR_H) {
         line_count = SCR_H;
     }
@@ -38,10 +42,11 @@ public void scroll_down(unsigned int line_count) {
 }
 
 // Framebuffer doesn't have the concept of linebreak, we have to implement it in the shell/stdin.
-public void write_chr(const char c, unsigned int *scrpos) {
+public
+void write_chr(const char c, unsigned int *scrpos) {
     if (*scrpos + 1 > SCR_SIZE) {
         scroll_down(1);
-        *scrpos -= SCR_W; // Go back 1 line
+        *scrpos -= SCR_W;  // Go back 1 line
     }
 
     write_cell((*scrpos) * 2, c, FB_BLACK, FB_WHITE);
@@ -49,14 +54,15 @@ public void write_chr(const char c, unsigned int *scrpos) {
 }
 
 // Write a string to framebuffer.
-public void write_str(const char *str, unsigned int *scrpos, unsigned int len) {
+public
+void write_str(const char *str, unsigned int *scrpos, unsigned int len) {
     // If next string overflows screen, scroll screen to make space for OF text
     unsigned int lines_to_scroll = 0;
     if (*scrpos + len > SCR_SIZE) {
-        lines_to_scroll = ((*scrpos + len - SCR_SIZE) / SCR_W) + 1; // Divide rounded down, so we add 1
+        lines_to_scroll = ((*scrpos + len - SCR_SIZE) / SCR_W) + 1;  // Divide rounded down, so we add 1
 
         scroll_down(lines_to_scroll);
-        *scrpos -= lines_to_scroll * SCR_W; // Go back the same number of lines
+        *scrpos -= lines_to_scroll * SCR_W;  // Go back the same number of lines
         write_cell(*scrpos * 2, 'x', FB_BLACK, FB_WHITE);
     }
 
@@ -71,7 +77,8 @@ public void write_str(const char *str, unsigned int *scrpos, unsigned int len) {
 }
 
 // Write a string until NULL encountered
-public void write_cstr(const char *str, unsigned int scrpos) {
+public
+void write_cstr(const char *str, unsigned int scrpos) {
     // TODO Handle scrolling
     scrpos *= 2;
 
@@ -82,15 +89,14 @@ public void write_cstr(const char *str, unsigned int scrpos) {
     }
 }
 
-public int fb_get_scr_w() {
-    return SCR_W;
-}
+public
+int fb_get_scr_w() { return SCR_W; }
 
-public int fb_get_scr_h() {
-    return SCR_H;
-}
+public
+int fb_get_scr_h() { return SCR_H; }
 
-public void clr_screen(unsigned char bg) {
+public
+void clr_screen(unsigned char bg) {
     for (unsigned int i = 0; i < SCR_W * SCR_H; i += 2) {
         write_cell(i, '\0', bg, bg);
     }

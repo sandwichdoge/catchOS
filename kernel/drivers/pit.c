@@ -5,6 +5,4 @@
 #define PIT_DATA_CH2_PORT 0x42
 #define PIT_COMMAND_PORT 0x43
 
-void pit_defconfig() {
-
-}
+void pit_defconfig() {}
