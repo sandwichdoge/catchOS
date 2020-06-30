@@ -7,7 +7,6 @@ extern void enable_paging();
 
 // Divide these 2 and we get 1024 pages each PDE.
 #define PAGE_SIZE 0x1000 // 4096
-#define PDE_SIZE 0x400000
 
 // A page directory can represent all 4GiB of memory, if it has 1024 entries.
 // Page index 123 in table index 456 will be mapped to (456 * 1024) + 123 = 467067. 467067 * 4 = 1868268 KiB.
@@ -20,6 +19,7 @@ private unsigned int virtual_addr_to_pde(unsigned int virtual_addr) {
 
 // Map 1 page table (4MiB) from virtual address to phys_addr. Page table must persist in memory at all times.
 public void paging_map(unsigned int virtual_addr, unsigned int phys_addr, unsigned int *page_dir, unsigned int *page_table) {
+	_dbg_log("Mapping 0x%x to 0x%x\n", phys_addr, virtual_addr);
 	// Populate the page table. Fill each entry with corresponding physical address (increased by 0x1000 bytes each entry).
     for (unsigned int i = 0; i < 1024; i++) {
 		// A PTE can contain any address of 4GB physical memory.

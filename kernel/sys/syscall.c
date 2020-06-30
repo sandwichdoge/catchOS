@@ -13,9 +13,13 @@ int syscall_handler(unsigned int* return_reg, struct cpu_state* cpu) {
     int syscall_no = cpu->eax;
     _dbg_log("syscall_no:%d, return register:%x\n", syscall_no, return_reg);
     switch (syscall_no) {
-        case SYSCALL_SBRK: {
-            void* p = mmu_sbrk(cpu->ecx);
+        case SYSCALL_MMAP: {
+            void* p = mmu_mmap(cpu->ecx);
             *return_reg = (unsigned int)p;
+            break;
+        }
+        case SYSCALL_MUNMAP: {
+            mmu_munmap((void*)cpu->ecx);
             break;
         }
     }

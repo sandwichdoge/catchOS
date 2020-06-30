@@ -2,7 +2,7 @@
 #define INCLUDE_SYSCALL_H
 #include "interrupt.h" // struct cpu_state
 
-enum SYSCALL_NUM {SYSCALL_SBRK = 2};
+enum SYSCALL_NUM {SYSCALL_MMAP = 2, SYSCALL_MUNMAP = 3};
 
 // Global keyboard press handler. Userland will register with this.
 void (*_kb_handler_cb)(unsigned char c);

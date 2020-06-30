@@ -26,7 +26,7 @@ OBJECTS=$(KBOOT_DIR)/multiboot_header.o $(KBOOT_DIR)/kboot.o \
 		$(DRIVERS_DIR)/framebuffer.o $(DRIVERS_DIR)/keyboard.o \
 		$(INTERRUPT_DIR)/interrupt.o $(INTERRUPT_DIR)/interrupt_hnd.o $(INTERRUPT_DIR)/pic.o \
 		$(MMU_DIR)/paging.o $(MMU_DIR)/paging_en.o $(MMU_DIR)/kheap.o \
-		$(MMU_DIR)/pageframe_alloc.o $(MMU_DIR)/mmu.o \
+		$(MMU_DIR)/pageframe_alloc.o $(MMU_DIR)/mmu.o $(MMU_DIR)/liballoc.o $(MMU_DIR)/liballoc_hooks.o \
 		$(SYS_DIR)/syscall.o \
 		$(COMMON_DIR)/kinfo.o \
 		$(UTILS_DIR)/string.o $(UTILS_DIR)/debug.o $(UTILS_DIR)/printf.o $(UTILS_DIR)/bitmap.o

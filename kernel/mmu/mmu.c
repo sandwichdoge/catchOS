@@ -2,6 +2,7 @@
 #include "paging.h"
 #include "builddef.h"
 #include "mmu.h"
+#include "liballoc.h"
 #include "utils/debug.h"
 
 private void test_pageframe_firstpage() {
@@ -14,14 +15,15 @@ public void mmu_init() {
     paging_init();
     pageframe_alloc_init();
     test_pageframe_firstpage();
-
 }
 
-public void* mmu_sbrk(unsigned int size) {
-    _dbg_log("sbrk [%u]\n", size);
-    return NULL;
+public void* mmu_mmap(unsigned int size) {
+    _dbg_log("[MMU]sbrk [%u]\n", size);
+    // return out + 0xc0000000;
+    void* ret = malloc(size);
+    return ret;
 }
 
-public void mmu_free(void* mem) {
-
+public void mmu_munmap(void* mem) {
+    free(mem);
 }

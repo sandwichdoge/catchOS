@@ -4,8 +4,11 @@
 #include "builddef.h"
 #include "utils/bitmap.h"
 #include "utils/debug.h"
+#include "paging.h"
 
 #define VIRTUAL_ADDR_SIZE 4294967296 // 4GiB
+#define PDE_SIZE 0x400000
+extern unsigned int kernel_page_directory[1024];
 
 private int _is_initialized = 0;
 // Bitmap representing allocated phys pages: 0 means available, 1 means already allocated
@@ -128,6 +131,13 @@ public void* pageframe_alloc(unsigned int pages) {
         ret = pageframe_alloc_bestfit(pages);
     }
 
+    // 1-1 map
+    unsigned int *page_tables = kmalloc_align(4096 * pages, 4096);
+    for (unsigned int i = 0; i < pages; ++i) {
+        paging_map(ret + 0xc0000000 + i * PDE_SIZE, ret + i * PDE_SIZE, kernel_page_directory, page_tables + 1024 * i);
+    }
+    ret += 0xc0000000;
+    _dbg_log("%u pages requested. Return: [0x%x]\n", pages, ret);
     // If out of memory (not enough pages), ret is NULL
     return ret;
 }
