@@ -1,7 +1,20 @@
 #include "utils/debug.h"
 #include "builddef.h"
 
+private void __log_info() {
+#ifdef TARGET_HOST
+    printf("%s:%d ", __FILE__, __LINE__);
+#else
+    serial_write(SERIAL_COM1_BASE, __FILE__, _strlen(__FILE__));
+    serial_write(SERIAL_COM1_BASE, ":", 1);
+    char *s = _int_to_str_static(__LINE__, 10);
+    serial_write(SERIAL_COM1_BASE, s, _strlen(s));
+    serial_write(SERIAL_COM1_BASE, " ", 1);
+#endif
+}
+
 public void _dbg_log(char *format, ...) {
+    __log_info();
 #ifdef TARGET_HOST
     printf(format);
 #else
