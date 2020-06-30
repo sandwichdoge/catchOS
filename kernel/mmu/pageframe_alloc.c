@@ -153,14 +153,18 @@ void *pageframe_alloc(unsigned int pages) {
         ret = pageframe_alloc_bestfit(pages);
     }
 
-    // 1-1 map
-    unsigned int *page_tables = kmalloc_align(4096 * pages, 4096);
-    for (unsigned int i = 0; i < pages; ++i) {
-        paging_map((unsigned int)ret + 0xc0000000 + i * PDE_SIZE, (unsigned int)ret + i * PDE_SIZE,
-                   kernel_page_directory, page_tables + 1024 * i);
+    if (ret) {
+        // 1-1 map
+        unsigned int *page_tables = kmalloc_align(4096 * pages, 4096);
+        for (unsigned int i = 0; i < pages; ++i) {
+            paging_map((unsigned int)ret + 0xc0000000 + i * PDE_SIZE, (unsigned int)ret + i * PDE_SIZE, kernel_page_directory, page_tables + 1024 * i);
+        }
+        ret += 0xc0000000;
+    } else { // Out of memory
+        _dbg_log("[MMU]Out of pages.\n");
     }
-    ret += 0xc0000000;
-    _dbg_log("%u pages requested. Return: [0x%x]\n", pages, ret);
+
+    _dbg_log("[MMU]%u pages requested. Return: [0x%x]\n", pages, ret);
     // If out of memory (not enough pages), ret is NULL
     return ret;
 }
