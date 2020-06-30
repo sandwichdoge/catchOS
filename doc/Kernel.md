@@ -145,3 +145,15 @@ Key press -> keyboard controller recognizes press -> stores keypress until USB p
 
 - Transition between threads, the content of EIP, SS, general registers of each thread are saved and restored accordingly.
 - Context switching is not related to mode switching (aka transitioning between user mode and kernel mode or vice-versa).
+
+
+### 4.4 System Calls
+- User applications may call kernel by executing interrupt 0x80: ```int 80h```.
+- The number in EAX register at the moment of interrupt is the syscall number.
+
+#### 4.4.1 sbrk
+- Request heap allocation.
+  + ECX: Number of bytes to request.
+- Return value:
+  + EAX: Pointer to allocated memory.
+

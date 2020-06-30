@@ -7,14 +7,17 @@
 #include "serial.h"
 #include "builddef.h"
 #include "utils/debug.h"
+#include "mmu.h"
 
 int syscall_handler(int* return_reg, struct cpu_state* cpu) {
     int syscall_no = cpu->eax;
     _dbg_log("syscall_no:%d, return register:%x\n", syscall_no, return_reg);
     switch (syscall_no) {
-        case SYSCALL_SBRK:
-            *return_reg = 0xabababab;
+        case SYSCALL_SBRK: {
+            void* p = mmu_sbrk(cpu->ecx);
+            *return_reg = (int)p;
             break;
+        }
     }
 
     return 0;
