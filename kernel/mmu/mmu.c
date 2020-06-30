@@ -18,11 +18,19 @@ public void mmu_init() {
 
 public void* mmu_mmap(unsigned int size) {
     // return out + 0xc0000000;
-    void* ret = malloc(size);
+    void* ret = _malloc(size);
     _dbg_log("[MMU]sbrk [%u], ret [0x%x]\n", size, ret);
     return ret;
 }
 
 public void mmu_munmap(void* mem) {
-    free(mem);
+    _free(mem);
 }
+
+/*
+[malloc()]
+[mmap]    <- Userland, need to modify process' page tables.
+[lib_malloc] <- library
+
+[kmalloc] <- Kernel use, when allocated, add 0xc0000000, use kernel_page_directory.
+*/

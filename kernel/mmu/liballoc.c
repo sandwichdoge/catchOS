@@ -25,7 +25,7 @@ int 				 l_completePages[MAXEXP];	//< Allowing for 2^MAXEXP blocks
 
 #ifdef DEBUG
 unsigned int l_allocated = 0;		//< The real amount of memory allocated.
-unsigned int l_inuse = 0;			//< The amount of memory in use (malloc'ed). 
+unsigned int l_inuse = 0;			//< The amount of memory in use (_malloc'ed). 
 #endif
 
 
@@ -111,7 +111,7 @@ static void dump_array()
 
 	_dbg_log("------ Free pages array ---------\n");
 	_dbg_log("System memory allocated: %d\n", l_allocated );
-	_dbg_log("Memory in used (malloc'ed): %d\n", l_inuse );
+	_dbg_log("Memory in used (_malloc'ed): %d\n", l_inuse );
 
 		for ( i = 0; i < MAXEXP; i++ )
 		{
@@ -276,7 +276,7 @@ static struct boundary_tag* allocate_new_tag( unsigned int size )
 
 
 
-void *malloc(size_t size)
+void *_malloc(size_t size)
 {
 	int index;
 	void *ptr;
@@ -376,7 +376,7 @@ void *malloc(size_t size)
 	
 	#ifdef DEBUG
 	l_inuse += size;
-	_dbg_log("malloc: %x,  %d, %d\n", ptr, (int)l_inuse / 1024, (int)l_allocated / 1024 );
+	_dbg_log("_malloc: %x,  %d, %d\n", ptr, (int)l_inuse / 1024, (int)l_allocated / 1024 );
 	dump_array();
 	#endif
 
@@ -389,7 +389,7 @@ void *malloc(size_t size)
 
 
 
-void free(void *ptr)
+void _free(void *ptr)
 {
 	int index;
 	struct boundary_tag *tag;
@@ -411,7 +411,7 @@ void free(void *ptr)
 
 		#ifdef DEBUG
 		l_inuse -= tag->size;
-		_dbg_log("free: %x, %d, %d\n", ptr, (int)l_inuse / 1024, (int)l_allocated / 1024 );
+		_dbg_log("_free: %x, %d, %d\n", ptr, (int)l_inuse / 1024, (int)l_allocated / 1024 );
 		#endif
 		
 
@@ -484,14 +484,14 @@ void free(void *ptr)
 
 
 
-void* calloc(size_t nobj, size_t size)
+void* _calloc(size_t nobj, size_t size)
 {
        int real_size;
        void *p;
 
        real_size = nobj * size;
        
-       p = malloc( real_size );
+       p = _malloc( real_size );
 
        liballoc_memset( p, 0, real_size );
 
@@ -500,7 +500,7 @@ void* calloc(size_t nobj, size_t size)
 
 
 
-void*   realloc(void *p, size_t size)
+void*   _realloc(void *p, size_t size)
 {
 	void *ptr;
 	struct boundary_tag *tag;
@@ -508,10 +508,10 @@ void*   realloc(void *p, size_t size)
 	
 	if ( size == 0 )
 	{
-		free( p );
+		_free( p );
 		return NULL;
 	}
-	if ( p == NULL ) return malloc( size );
+	if ( p == NULL ) return _malloc( size );
 
 	if ( liballoc_lock != NULL ) liballoc_lock();		// lockit
 		tag = (struct boundary_tag*)((unsigned int)p - sizeof( struct boundary_tag ));
@@ -520,9 +520,9 @@ void*   realloc(void *p, size_t size)
 
 	if ( real_size > size ) real_size = size;
 
-	ptr = malloc( size );
+	ptr = _malloc( size );
 	liballoc_memcpy( ptr, p, real_size );
-	free( p );
+	_free( p );
 
 	return ptr;
 }
