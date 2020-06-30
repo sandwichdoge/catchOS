@@ -1,7 +1,6 @@
-#### [Home](README.md)
-
++ [[Home](README.md)](#-home--readmemd-)
 - [4. Kernel](#4-kernel)
-* [4.1 Memory](#41-memory)
+  * [4.1 Memory](#41-memory)
     + [4.1.1 Detecting Memory's Limits](#411-detecting-memory-s-limits)
     + [4.1.2 Global Descriptor Table](#412-global-descriptor-table)
     + [4.1.3 Physical Memory Map](#413-physical-memory-map)
@@ -9,18 +8,21 @@
     + [4.1.5 Paging](#415-paging)
     + [4.1.6 Higher-Half Kernel](#416-higher-half-kernel)
     + [4.1.7 Memory Management Unit](#417-memory-management-unit)
-* [4.2 Interrupts](#42-interrupts)
+  * [4.2 Interrupts](#42-interrupts)
     + [4.2.1 Interrupt Descriptor Table](#421-interrupt-descriptor-table)
     + [4.2.2 Programmable Interrupt Controller](#422-programmable-interrupt-controller)
     + [4.2.3 Interrupt Handler Implementation](#423-interrupt-handler-implementation)
     + [4.2.4 Hardware Interrupts](#424-hardware-interrupts)
-    - [4.2.4.1 Keyboard](#4241-keyboard)
-    - [4.2.4.2 Pagefault](#4242-pagefault)
+      - [4.2.4.1 Keyboard](#4241-keyboard)
+      - [4.2.4.2 Pagefault](#4242-pagefault)
     + [4.2.5 Software Interrupts](#425-software-interrupts)
-    - [4.2.5.1 Mode Switching](#4251-mode-switching)
-* [4.3 I/O](#43-i-o)
+      - [4.2.5.1 Mode Switching](#4251-mode-switching)
+  * [4.3 I/O](#43-i-o)
     + [4.3.1 stdin](#431-stdin)
-* [4.3 Context Switching](#43-context-switching)
+  * [4.3 Context Switching](#43-context-switching)
+  * [4.4 System Calls](#44-system-calls)
+    + [4.4.1 mmap](#441-mmap)
+
 
 ## 4. Kernel
 
@@ -151,9 +153,11 @@ Key press -> keyboard controller recognizes press -> stores keypress until USB p
 - User applications may call kernel by executing interrupt 0x80: ```int 80h```.
 - The number in EAX register at the moment of interrupt is the syscall number.
 
-#### 4.4.1 sbrk
-- Request heap allocation.
-  + ECX: Number of bytes to request.
-- Return value:
-  + EAX: Pointer to allocated memory.
 
+| Syscall |           Description          |             Arguments            |           Return Values          |
+|:-------:|:------------------------------:|:--------------------------------:|:--------------------------------:|
+|   0x2   | mmap. Request heap allocation. | ECX: Number of bytes             | EAX: Address of allocated memory |
+|   0x3   | munmap. Free allocated memory. | ECX: Address of allocated memory |                                  |
+|         |                                |                                  |                                  |
+
+https://www.tablesgenerator.com/markdown_tables
