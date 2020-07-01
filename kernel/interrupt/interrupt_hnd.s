@@ -16,6 +16,7 @@ asm_int_handler_%1:
     jmp     asm_int_handler_common      ; jump to the common handler
 %endmacro
 
+no_error_code_interrupt_handler 32      ; create handler for interrupt 0 (system timer)
 no_error_code_interrupt_handler	33	    ; create handler for interrupt 1 (keyboard)
 no_error_code_interrupt_handler 14	    ; create handler for interrupt 2 (paging)
 no_error_code_interrupt_handler 128     ; create handler for interrupt 2 (syscall)

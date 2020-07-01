@@ -70,7 +70,7 @@ void pic_init() {
     IRQ 15 — ATA channel 2
     */
     // IMR
-    outb(PIC1_DATA, 0xfd);  // IRQ1 for keyboard interrupt (0b11111101)
+    outb(PIC1_DATA, 0xfc);  // (0b11111100) - PIT, keyboard IRQ
     outb(PIC2_DATA, 0xff);
 
     asm("sti");  // Enable interrupts

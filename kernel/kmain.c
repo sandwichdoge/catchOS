@@ -11,6 +11,7 @@
 #include "stddef.h"
 #include "stdint.h"
 #include "syscall.h"
+#include "pit.h"
 #include "utils/debug.h"
 #include "utils/string.h"
 
@@ -64,6 +65,7 @@ void kmain(unsigned int ebx) {
     write_cstr("Setting up interrupts..", 0);
     interrupt_init_idt();
     pic_init();
+    pit_defconfig(); // systimer
 
     // Perform memory tests
     test_memory_32bit_mode();

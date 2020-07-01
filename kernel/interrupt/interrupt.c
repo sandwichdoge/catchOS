@@ -6,19 +6,21 @@
 #include "syscall.h"  // _kb_handler_cb()
 #include "utils/debug.h"
 
+#define IDT_SIZE 256
+#define INT_PAGEFAULT 14
+#define INT_SYSTIME 32
+#define INT_KEYBOARD 33  // 0x20 + 1
+#define INT_SYSCALL 0x80
+
+extern void asm_int_handler_32();   // Handler for PIT channel0 system timer
 extern void asm_int_handler_33();   // Handler for keyboard press
 extern void asm_int_handler_14();   // Handler for page fault
 extern void asm_int_handler_128();  // Handler for syscall
 
-#define IDT_SIZE 256
-#define INT_PAGEFAULT 14
-#define INT_KEYBOARD 33  // 0x20 + 1
-#define INT_SYSCALL 0x80
-
 struct idt IDT;                                // To be loaded into the CPU
 struct idt_entry idt_entries[IDT_SIZE] = {0};  // Main content of IDT
-void (*int_handler_table[IDT_SIZE])(unsigned int* return_reg,
-                                    struct cpu_state*) = {0};  // Array of void func(void) pointers
+// Array of void func(uint*, cpu_state*) pointers
+void (*int_handler_table[IDT_SIZE])(unsigned int* return_reg, struct cpu_state*) = {0}; 
 
 // https://wiki.osdev.org/Interrupt_Descriptor_Table
 private
@@ -58,7 +60,15 @@ void ISR_PAGEFAULT(unsigned int* return_reg, struct cpu_state* unused) {
 
 // int 128 (or 0x80). Syscalls may modify eax, ecx, e11.
 private
-void ISR_SYSCALL(unsigned int* return_reg, struct cpu_state* regs) { syscall_handler(return_reg, regs); }
+void ISR_SYSCALL(unsigned int* return_reg, struct cpu_state* regs) { 
+    syscall_handler(return_reg, regs); 
+}
+
+// 0x20 - Programmable Interval Timer
+private
+void ISR_SYSTIME(unsigned int* return_reg, struct cpu_state* unused) {
+    //_dbg_log("[TIMER]PIT\n");
+}
 
 public
 void interrupt_init_idt(void) {
@@ -78,11 +88,13 @@ void interrupt_init_idt(void) {
     */
 
     // Init ISR table
+    int_handler_table[INT_SYSTIME] = ISR_SYSTIME;
     int_handler_table[INT_KEYBOARD] = ISR_KEYBOARD;
     int_handler_table[INT_PAGEFAULT] = ISR_PAGEFAULT;
     int_handler_table[INT_SYSCALL] = ISR_SYSCALL;
 
     // Keyboard press interrupt, 0x20 + 1 (which is PIC1_START_INTERRUPT + IRQ_1)
+    interrupt_encode_idt_entry(INT_SYSTIME, (unsigned int)asm_int_handler_32);
     interrupt_encode_idt_entry(INT_KEYBOARD, (unsigned int)asm_int_handler_33);
     interrupt_encode_idt_entry(INT_PAGEFAULT, (unsigned int)asm_int_handler_14);
     interrupt_encode_idt_entry(INT_SYSCALL, (unsigned int)asm_int_handler_128);
@@ -94,8 +106,7 @@ void interrupt_init_idt(void) {
 }
 
 public
-void interrupt_handler(unsigned int* return_reg, struct cpu_state cpu_state, unsigned int interrupt_num,
-                       struct stack_state stack_state) {
+void interrupt_handler(unsigned int* return_reg, struct cpu_state cpu_state, unsigned int interrupt_num, struct stack_state stack_state) {
     _dbg_log("[Interrupt]num:[%u], eax:[%x]\n", interrupt_num, cpu_state.eax);
 
     if (interrupt_num >= sizeof(int_handler_table) / sizeof(*int_handler_table)) {
