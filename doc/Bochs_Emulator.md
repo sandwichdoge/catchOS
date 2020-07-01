@@ -28,8 +28,8 @@ romimage: file=/usr/share/bochs/BIOS-bochs-latest
 vgaromimage: file=/usr/share/bochs/VGABIOS-lgpl-latest
 ata0: enabled=1, ioaddr1=0x1f0, ioaddr2=0x3f0, irq=14
 ata1: enabled=1, ioaddr1=0x170, ioaddr2=0x370, irq=15
-ata0-master: type=cdrom, path=os.iso, status=inserted
-ata1-master: type=disk, mode=flat, cylinders=306, heads=4, spt=17, translation=none
+ata0-master: type=disk, path="hdd.img", mode=flat, cylinders=20, heads=16, spt=63
+ata1-slave: type=cdrom, path="os.iso", status=inserted
 boot: cdrom
 log: bochslog.txt
 clock: sync=realtime, time0=local
