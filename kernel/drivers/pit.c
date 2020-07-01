@@ -28,7 +28,7 @@ public void pit_setfreq(unsigned int hz) {
     /*
     Send command byte
     - Raise interrupts (use channel 0)
-    - Send the divider as low byte then high byte (see next section for an explanation)
+    - Send the divider as low byte then high byte
     - Use a square wave
     - Use binary mode
     */

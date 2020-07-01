@@ -1,4 +1,4 @@
-+ [[Home](README.md)](#-home--readmemd-)
++ [[Home](README.md)]
 - [4. Kernel](#4-kernel)
   * [4.1 Memory](#41-memory)
     + [4.1.1 Detecting Memory's Limits](#411-detecting-memory-s-limits)
@@ -21,7 +21,8 @@
     + [4.3.1 stdin](#431-stdin)
   * [4.3 Context Switching](#43-context-switching)
   * [4.4 System Calls](#44-system-calls)
-    + [4.4.1 mmap](#441-mmap)
+  * [4.5 Clock Sources](#45-clock-sources)
+    + [4.5.1 Programmable Interval Timer](#451-programmable-interval-timer)
 
 
 ## 4. Kernel
@@ -161,3 +162,26 @@ Key press -> keyboard controller recognizes press -> stores keypress until USB p
 |         |                                |                                  |                                  |
 
 https://www.tablesgenerator.com/markdown_tables
+
+
+### 4.5 Clock Sources
+#### 4.5.1 Programmable Interval Timer
+- Input signal is an oscillating crystal. [1193182hz Crystal] -> [PIT] -> [PIC] -> [CPU].
+- Has 3 channels, channel 0 is connected to line IRQ0 of the PIC. We only use this channel.
+- IRQ0 is generated every clock pulse.
+- Frequency of output clock signal can be configured by writing divisor value to channel0 port. Freq(Hz) = 1193182 / divisor.
+- Divisor is a 16 bit uint.
+- Send the divider as low byte then high byte.
+- Use a square wave.
+- Use binary mode.
+
+```
+I/O port     Usage
+0x40         Channel 0 data port (read/write)
+0x41         Channel 1 data port (read/write)
+0x42         Channel 2 data port (read/write)
+0x43         Mode/Command register (write only, a read is ignored)
+```
+
+https://wiki.osdev.org/Programmable_Interval_Timer
+
