@@ -69,8 +69,8 @@ private
 void ISR_SYSTIME(unsigned int* return_reg, struct cpu_state* unused) {
     static unsigned int counter;
     counter++;
-    if (counter % 40 == 0) {
-        _dbg_log("1s passed %u\n", counter);
+    if (counter % 1000 == 0) {
+        _dbg_log("[Timer]Time passed: %ums\n", counter);
     }
 }
 
@@ -106,7 +106,11 @@ void interrupt_init_idt(void) {
     IDT.size = sizeof(struct idt_entry) * IDT_SIZE - 1;
     IDT.address = (unsigned int)idt_entries;
 
-    lidt(&IDT);  // ASM wrapper
+    lidt(&IDT);  // ASM wrapper, load interrupt table
+
+    // Tell PIC to receive external hardware interrupts
+    pic_enable_irq(INT_SYSTIME);
+    pic_enable_irq(INT_KEYBOARD);
 }
 
 public

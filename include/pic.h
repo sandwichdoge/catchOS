@@ -3,4 +3,5 @@
 void pic_ack(unsigned int pic_int_num);
 void pic_remap(int offset1, int offset2);
 void pic_init(void);
+void pic_enable_irq(unsigned int irq_no);
 #endif

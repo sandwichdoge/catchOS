@@ -53,7 +53,8 @@ void kmain(unsigned int ebx) {
 #endif
 
     serial_defconfig(SERIAL_COM1_BASE);
-    pit_defconfig(); // systimer
+    pit_defconfig();    // systimer - Programmable interval timer
+    pic_init();         // Programmable interrupt controller
 
     // Setup heap
     kheap_init();
@@ -65,7 +66,6 @@ void kmain(unsigned int ebx) {
     // Setup interrupts
     write_cstr("Setting up interrupts..", 0);
     interrupt_init_idt();
-    pic_init();
 
     // Perform memory tests
     test_memory_32bit_mode();

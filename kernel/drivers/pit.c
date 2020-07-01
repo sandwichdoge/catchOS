@@ -40,5 +40,5 @@ public void pit_setfreq(unsigned int hz) {
 }
 
 public void pit_defconfig() {
-    pit_setfreq(40);
+    pit_setfreq(1000);
 }

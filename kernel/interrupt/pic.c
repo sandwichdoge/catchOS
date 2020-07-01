@@ -1,5 +1,5 @@
 #include "pic.h"
-
+#include "utils/debug.h"
 #include "builddef.h"
 #include "io.h"
 
@@ -31,6 +31,8 @@ rather than 8h and 70h, as configured by default */
 #define ICW4_BUF_MASTER 0x0C /* Buffered mode/master */
 #define ICW4_SFNM 0x10       /* Special fully nested (not) */
 
+private unsigned char pic1, pic2;
+
 /*
 From OSdev - PIC
 Arguments:
@@ -54,7 +56,6 @@ void pic_remap(int offset1, int offset2) {
 public
 void pic_init() {
     pic_remap(PIC1_START_INTERRUPT, PIC2_START_INTERRUPT);
-
     /*
     IRQ 0 ‒ system timer
     IRQ 1 — keyboard controller
@@ -69,11 +70,28 @@ void pic_init() {
     IRQ 14 — ATA channel 1
     IRQ 15 — ATA channel 2
     */
-    // IMR
-    outb(PIC1_DATA, 0xfc);  // (0b11111100) - PIT, keyboard IRQ
-    outb(PIC2_DATA, 0xff);
+    // IMR - Default all interrupts disabled.
+    pic1 = 0xff;
+    pic2 = 0xff;
+    outb(PIC1_DATA, pic1);  // (0b11111100) - PIT, keyboard IRQ
+    outb(PIC2_DATA, pic2);
 
     asm("sti");  // Enable interrupts
+}
+
+#define PIC_OFFSET 0x20
+public
+void pic_enable_irq(unsigned int irq_no) {
+    irq_no -= PIC_OFFSET;
+    if (irq_no < 8) {
+        pic1 &= ~(1 << irq_no);
+        outb(PIC1_DATA, pic1);
+    } else if (irq_no < 16) {
+        pic2 &= ~(1 << (irq_no - 8));
+        outb(PIC2_DATA, pic2);
+    } else {
+        _dbg_log("Error. Trying to enable invalid irq: %u.\n", irq_no);
+    }
 }
 
 // Send acknowledge byte back to PIC, otherwise it will stop generating interrupts.
