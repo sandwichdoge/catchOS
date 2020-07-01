@@ -10,7 +10,7 @@
 #define INT_PAGEFAULT 14
 #define INT_SYSTIME 32
 #define INT_KEYBOARD 33  // 0x20 + 1
-#define INT_SYSCALL 0x80
+#define INT_SYSCALL 128
 
 extern void asm_int_handler_32();   // Handler for PIT channel0 system timer
 extern void asm_int_handler_33();   // Handler for keyboard press
