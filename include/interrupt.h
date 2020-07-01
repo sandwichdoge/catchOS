@@ -1,6 +1,11 @@
 #ifndef INCLUDE_INTERRUPT_H
 #define INCLUDE_INTERRUPT_H
 
+#define INT_PAGEFAULT 14
+#define INT_SYSTIME 32
+#define INT_KEYBOARD 33  // 0x20 + 1
+#define INT_SYSCALL 128
+
 struct cpu_state {
     unsigned int edi;
     unsigned int esi;
@@ -35,4 +40,5 @@ struct idt {
 } __attribute__((packed));
 
 void interrupt_init_idt(void);
+void interrupt_register(unsigned int irq, void (*isr)(unsigned int* return_reg, struct cpu_state*));
 #endif

@@ -7,10 +7,6 @@
 #include "utils/debug.h"
 
 #define IDT_SIZE 256
-#define INT_PAGEFAULT 14
-#define INT_SYSTIME 32
-#define INT_KEYBOARD 33  // 0x20 + 1
-#define INT_SYSCALL 128
 
 extern void asm_int_handler_32();   // Handler for PIT channel0 system timer
 extern void asm_int_handler_33();   // Handler for keyboard press
@@ -64,13 +60,17 @@ void ISR_SYSCALL(unsigned int* return_reg, struct cpu_state* regs) {
     syscall_handler(return_reg, regs); 
 }
 
-// 0x20 - Programmable Interval Timer
 private
-void ISR_SYSTIME(unsigned int* return_reg, struct cpu_state* unused) {
-    static unsigned int counter;
-    counter++;
-    if (counter % 1000 == 0) {
-        _dbg_log("[Timer]Time passed: %ums\n", counter);
+int is_hw_irq(unsigned int irq) {
+    return (irq == INT_SYSTIME || irq == INT_KEYBOARD);
+}
+
+public
+void interrupt_register(unsigned int irq, void (*isr)(unsigned int* return_reg, struct cpu_state*)) {
+    int_handler_table[irq] = isr;
+    if (is_hw_irq(irq)) {
+        _dbg_log("Enabling HW interrupt %u.\n", irq);
+        pic_enable_irq(irq);
     }
 }
 
@@ -92,7 +92,6 @@ void interrupt_init_idt(void) {
     */
 
     // Init ISR table
-    int_handler_table[INT_SYSTIME] = ISR_SYSTIME;
     int_handler_table[INT_KEYBOARD] = ISR_KEYBOARD;
     int_handler_table[INT_PAGEFAULT] = ISR_PAGEFAULT;
     int_handler_table[INT_SYSCALL] = ISR_SYSCALL;
@@ -109,13 +108,12 @@ void interrupt_init_idt(void) {
     lidt(&IDT);  // ASM wrapper, load interrupt table
 
     // Tell PIC to receive external hardware interrupts
-    pic_enable_irq(INT_SYSTIME);
     pic_enable_irq(INT_KEYBOARD);
 }
 
 public
 void interrupt_handler(unsigned int* return_reg, struct cpu_state cpu_state, unsigned int interrupt_num, struct stack_state stack_state) {
-    //_dbg_log("[Interrupt]num:[%u], eax:[%x]\n", interrupt_num, cpu_state.eax);
+    _dbg_log("[Interrupt]num:[%u], eax:[%x]\n", interrupt_num, cpu_state.eax);
 
     if (interrupt_num >= sizeof(int_handler_table) / sizeof(*int_handler_table)) {
         _dbg_log("Error. Unknown interrupt number.\n");

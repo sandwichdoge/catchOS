@@ -11,7 +11,7 @@
 #include "stddef.h"
 #include "stdint.h"
 #include "syscall.h"
-#include "pit.h"
+#include "timer.h"
 #include "utils/debug.h"
 #include "utils/string.h"
 
@@ -53,8 +53,8 @@ void kmain(unsigned int ebx) {
 #endif
 
     serial_defconfig(SERIAL_COM1_BASE);
-    pit_defconfig();    // systimer - Programmable interval timer
     pic_init();         // Programmable interrupt controller
+    timer_init();
 
     // Setup heap
     kheap_init();
