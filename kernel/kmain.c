@@ -53,6 +53,7 @@ void kmain(unsigned int ebx) {
 #endif
 
     serial_defconfig(SERIAL_COM1_BASE);
+    pit_defconfig(); // systimer
 
     // Setup heap
     kheap_init();
@@ -65,17 +66,14 @@ void kmain(unsigned int ebx) {
     write_cstr("Setting up interrupts..", 0);
     interrupt_init_idt();
     pic_init();
-    pit_defconfig(); // systimer
 
     // Perform memory tests
     test_memory_32bit_mode();
 
-// Call user program
+    // Call user program
 #ifdef WITH_GRUB_MB
     call_user_module(mbinfo);
 #endif
-
-    _dbg_log("Hello, world\n\0");
 
     // Enter I/O shell
     shell_main();

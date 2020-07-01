@@ -8,7 +8,7 @@ ata0-master: type=disk, path="hdd.img", mode=flat, cylinders=20, heads=16, spt=6
 ata1-slave: type=cdrom, path="os.iso", status=inserted
 boot: cdrom
 log: bochslog.txt
-clock: sync=none, time0=local
+clock: sync=realtime, time0=local
 cpu: count=1, ips=1000000
 com1: enabled=1, mode=file, dev=serial_debug.txt
 magic_break: enabled=1

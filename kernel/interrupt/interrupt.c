@@ -67,7 +67,11 @@ void ISR_SYSCALL(unsigned int* return_reg, struct cpu_state* regs) {
 // 0x20 - Programmable Interval Timer
 private
 void ISR_SYSTIME(unsigned int* return_reg, struct cpu_state* unused) {
-    //_dbg_log("[TIMER]PIT\n");
+    static unsigned int counter;
+    counter++;
+    if (counter % 40 == 0) {
+        _dbg_log("1s passed %u\n", counter);
+    }
 }
 
 public
@@ -107,7 +111,7 @@ void interrupt_init_idt(void) {
 
 public
 void interrupt_handler(unsigned int* return_reg, struct cpu_state cpu_state, unsigned int interrupt_num, struct stack_state stack_state) {
-    _dbg_log("[Interrupt]num:[%u], eax:[%x]\n", interrupt_num, cpu_state.eax);
+    //_dbg_log("[Interrupt]num:[%u], eax:[%x]\n", interrupt_num, cpu_state.eax);
 
     if (interrupt_num >= sizeof(int_handler_table) / sizeof(*int_handler_table)) {
         _dbg_log("Error. Unknown interrupt number.\n");
