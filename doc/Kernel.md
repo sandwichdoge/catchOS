@@ -15,8 +15,10 @@
     + [4.2.4 Hardware Interrupts](#424-hardware-interrupts)
       - [4.2.4.1 Keyboard](#4241-keyboard)
       - [4.2.4.2 Pagefault](#4242-pagefault)
+      - [4.2.4.3 Programmable Interval Timer](#4243-programmable-interval-timer)
     + [4.2.5 Software Interrupts](#425-software-interrupts)
       - [4.2.5.1 Mode Switching](#4251-mode-switching)
+      - [4.2.5.2 System Calls](#4252-system-calls)
   * [4.3 I/O](#43-i-o)
     + [4.3.1 stdin](#431-stdin)
   * [4.3 Context Switching](#43-context-switching)
@@ -113,10 +115,15 @@ Key press -> keyboard controller recognizes press -> stores keypress until USB p
 ```
 
 ##### 4.2.4.2 Pagefault
+- Interrupt number 14.
 - This is an exception, which is a kind of interrupt.
 - The CPU generates this to interrupt itself, thus pagefault interrupt will not go through the PIC.
 - After paging is enabled, when an unmapped memory address is dereferenced, the CPU generates a pagefault interrupt.
 - We should translate this into a segmentation fault signal.
+
+##### 4.2.4.3 Programmable Interval Timer
+- Interrupt number 32 (i.e. 0x20 + 0 for IRQ0).
+- Is generated every interval, based on PIT configurations.
 
 #### 4.2.5 Software Interrupts
 - We can populate the IDT with custom interrupt numbers.
@@ -124,6 +131,11 @@ Key press -> keyboard controller recognizes press -> stores keypress until USB p
 
 ##### 4.2.5.1 Mode Switching
 - TODO: interrupt to switch from user mode to kernel mode privilege?
+
+##### 4.2.5.2 System Calls
+- Interrupt number 128.
+- Userland applications will call ```int 128```, with syscall number in EAX to invoke a system call.
+
 
 ### 4.3 I/O
 #### 4.3.1 stdin
