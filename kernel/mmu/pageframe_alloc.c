@@ -1,51 +1,49 @@
-#include "kinfo.h"
-#include "kheap.h" // kmalloc_align()
-#include "stddef.h"
 #include "builddef.h"
+#include "kheap.h"  // kmalloc_align()
+#include "kinfo.h"
+#include "paging.h"
+#include "stddef.h"
 #include "utils/bitmap.h"
 #include "utils/debug.h"
-#include "paging.h"
 
-#define VIRTUAL_ADDR_SIZE 4294967296 // 4GiB
-#define PDE_SIZE 0x400000
-extern unsigned int kernel_page_directory[1024];
+#define VIRTUAL_ADDR_SIZE 4294967296  // 4GiB
 
-private int _is_initialized = 0;
+private
+int _is_initialized = 0;
 // Bitmap representing allocated phys pages: 0 means available, 1 means already allocated
-private unsigned char *_pageframe_bitmap = NULL;
-private unsigned int _pages_total_phys = 0;                  // Total pages in the _pageframe_bitmap
+private
+unsigned char *_pageframe_bitmap = NULL;
+private
+unsigned int _pages_total_phys = 0;  // Total pages in the _pageframe_bitmap
 
-private void pageframe_alloc_set_page(unsigned int page_no) {
-    bitmap_set_bit(_pageframe_bitmap, page_no);
-}
+private
+void pageframe_alloc_set_page(unsigned int page_no) { bitmap_set_bit(_pageframe_bitmap, page_no); }
 
-private int pageframe_alloc_get_page(unsigned int page_no) {
-    return bitmap_get_bit(_pageframe_bitmap, page_no);
-}
+private
+int pageframe_alloc_get_page(unsigned int page_no) { return bitmap_get_bit(_pageframe_bitmap, page_no); }
 
-private void pageframe_alloc_set_pages(unsigned int page_start, unsigned int pages) {
+private
+void pageframe_alloc_set_pages(unsigned int page_start, unsigned int pages) {
     bitmap_set_bits(_pageframe_bitmap, page_start, pages);
 }
 
-private void pageframe_alloc_clear_page(unsigned int page_no) {
-	bitmap_clear_bit(_pageframe_bitmap, page_no);
-}
+private
+void pageframe_alloc_clear_page(unsigned int page_no) { bitmap_clear_bit(_pageframe_bitmap, page_no); }
 
-private unsigned int pageframe_addr_from_page(unsigned int page_no) {
-    return (page_no * 4096);
-}
+private
+unsigned int pageframe_addr_from_page(unsigned int page_no) { return (page_no * 4096); }
 
-private unsigned int page_from_addr(unsigned int addr) {
-    return (addr / 4096);
-}
+private
+unsigned int page_from_addr(unsigned int addr) { return (addr / 4096); }
 
-private void* pageframe_alloc_bestfit(unsigned int pages) {
+private
+void *pageframe_alloc_bestfit(unsigned int pages) {
     void *ret = NULL;
 
     // Check every bit to find satisfactory free pages
     // Check 1 byte at a time for performance
     for (unsigned int i = 0; i < _pages_total_phys / 8; i++) {
-        if (_pageframe_bitmap[i] == 0xff) { // No available pages (aka no available bits in byte)
+        if (_pageframe_bitmap[i] == 0xff) {  // No available pages (aka no available bits in byte)
             // Carry on to next byte
         } else {
             // Now check the byte whether it has enough available consecutive bits
@@ -72,11 +70,11 @@ private void* pageframe_alloc_bestfit(unsigned int pages) {
                 }
             }
 
-            if (best_fit_pos >= 0) { // We got enough available bits in byte
+            if (best_fit_pos >= 0) {  // We got enough available bits in byte
                 unsigned int page_no = i * 8 + best_fit_pos;
                 // Mark pages as allocated in bitmap
                 pageframe_alloc_set_pages(page_no, pages);
-                ret = (void*)pageframe_addr_from_page(page_no);
+                ret = (void *)pageframe_addr_from_page(page_no);
                 break;
             }
         }
@@ -86,8 +84,9 @@ private void* pageframe_alloc_bestfit(unsigned int pages) {
 }
 
 // Number of pages is always bigger than 8
-private void* pageframe_alloc_firstfit(unsigned int pages) {
-    void* ret = NULL;
+private
+void *pageframe_alloc_firstfit(unsigned int pages) {
+    void *ret = NULL;
     unsigned int page_no = 0;
 
     // Find the first available page quickly.
@@ -109,7 +108,7 @@ private void* pageframe_alloc_firstfit(unsigned int pages) {
             cur_len++;
             if (cur_len == pages) {
                 pageframe_alloc_set_pages(page_no, pages);
-                ret = (void*)pageframe_addr_from_page(page_no);
+                ret = (void *)pageframe_addr_from_page(page_no);
                 break;
             }
         } else {
@@ -122,10 +121,12 @@ private void* pageframe_alloc_firstfit(unsigned int pages) {
 }
 
 // Allocate and init _pageframe_bitmap
-private void pageframe_alloc_init() {
+private
+void pageframe_alloc_init() {
     struct kinfo *kinfo = get_kernel_info();
     _pages_total_phys = (kinfo->phys_mem_upper * 1024) / 4096;
-    // 1 bit represents 1 page in phys mem (4 KiB). We assign just enough memory to contain the bitmap of physical memory.
+    // 1 bit represents 1 page in phys mem (4 KiB). We assign just enough memory to contain the bitmap of physical
+    // memory.
     _pageframe_bitmap = kmalloc_align(_pages_total_phys / 8, 4096);
 
     // Reserved Kernel data area (1024 pages - 4 MiB) starting from 0x0.
@@ -137,35 +138,31 @@ private void pageframe_alloc_init() {
     _is_initialized = 1;
 }
 
-public void* pageframe_alloc(unsigned int pages) {
+public
+void *pageframe_alloc(unsigned int pages) {
     if (!_is_initialized) {
         pageframe_alloc_init();
     }
     void *ret = NULL;
 
-    if (pages > 8) { // First fit algo if more than 8 pages requested
+    if (pages > 8) {  // First fit algo if more than 8 pages requested
         ret = pageframe_alloc_firstfit(pages);
-    } else { // Fewer than 8 pages requested
+    } else {  // Fewer than 8 pages requested
         ret = pageframe_alloc_bestfit(pages);
     }
 
-    // 1-1 map
-    unsigned int *page_tables = kmalloc_align(4096 * pages, 4096);
-    for (unsigned int i = 0; i < pages; ++i) {
-        paging_map((unsigned int)ret + 0xc0000000 + i * PDE_SIZE, (unsigned int)ret + i * PDE_SIZE, kernel_page_directory, page_tables + 1024 * i);
-    }
-    ret += 0xc0000000;
-    _dbg_log("%u pages requested. Return: [0x%x]\n", pages, ret);
+    _dbg_log("[MMU]%u pages requested. Return: [0x%x]\n", pages, ret);
     // If out of memory (not enough pages), ret is NULL
     return ret;
 }
 
-public void pageframe_free(void *phys_addr, unsigned int pages) {
+public
+void pageframe_free(void *phys_addr, unsigned int pages) {
     if (!_is_initialized) return;
 
-    unsigned int page_no = page_from_addr((unsigned int)((char*)phys_addr));
+    unsigned int page_no = page_from_addr((unsigned int)((char *)phys_addr));
 
-    for (int i = 0; i < (int)pages; i++) { // Free 1 page at a time (which represents 4KiB)
+    for (int i = 0; i < (int)pages; i++) {  // Free 1 page at a time (which represents 4KiB)
         int page_status = pageframe_alloc_get_page(page_no + i);
 
         if (page_status == 1) {

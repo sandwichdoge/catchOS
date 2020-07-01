@@ -2,7 +2,7 @@ CC=gcc
 CXX=g++
 AS=nasm
 ASFLAGS=-f elf32
-CFLAGS=-I../include -I./googletest/googletest/include -Wno-write-strings -DDEBUG -DTARGET_HOST
+CFLAGS=-I../include -I./googletest/googletest/include -Wno-write-strings -DDEBUG -DTARGET_HOST -g -fsanitize=address
 OBJECTS=main.o \
 		test_string_utils.o \
 		test_printf_utils.o \

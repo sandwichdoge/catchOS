@@ -1,6 +1,7 @@
+#include <cstring>
+
 #include "../include/utils/printf.h"
 #include "gtest/gtest.h"
-#include <cstring>
 
 TEST(PrintfUtils, snprinf1) {
     int n = 8;

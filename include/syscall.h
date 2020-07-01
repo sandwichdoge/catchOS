@@ -1,14 +1,14 @@
 #ifndef INCLUDE_SYSCALL_H
 #define INCLUDE_SYSCALL_H
-#include "interrupt.h" // struct cpu_state
+#include "interrupt.h"  // struct cpu_state
 
-enum SYSCALL_NUM {SYSCALL_MMAP = 2, SYSCALL_MUNMAP = 3};
+enum SYSCALL_NUM { SYSCALL_MMAP = 2, SYSCALL_MUNMAP = 3 };
 
 // Global keyboard press handler. Userland will register with this.
 void (*_kb_handler_cb)(unsigned char c);
 
 void syscall_init();
-int syscall_handler(unsigned int* return_reg, struct cpu_state*);
+int syscall_handler(unsigned int *return_reg, struct cpu_state *);
 
 // Get VGA size
 int syscall_fb_get_scr_w();

@@ -10,7 +10,7 @@ struct kinfo {
     unsigned int phys_mem_lower;
     unsigned int phys_mem_upper;
 };
-struct kinfo* get_kernel_info();
+struct kinfo *get_kernel_info();
 // Get kernel and hardware info
 void kinfo_init(multiboot_info_t *mbinfo);
 void kinfo_set_phys_mem_lower(unsigned int phys_mem_lower);

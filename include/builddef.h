@@ -1,7 +1,7 @@
 #ifdef DEBUG
-#define private 
+#define private
 #else
 #define private static
 #endif
 
-#define public 
+#define public

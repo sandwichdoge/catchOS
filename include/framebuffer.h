@@ -5,7 +5,7 @@
 #define FB_WHITE 0xf
 #define SCR_W 80
 #define SCR_H 24
-#define SCR_SIZE SCR_W * SCR_H
+#define SCR_SIZE SCR_W *SCR_H
 
 void clr_screen(unsigned char bg);
 int fb_get_scr_w();

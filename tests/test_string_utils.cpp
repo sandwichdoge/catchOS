@@ -1,14 +1,13 @@
-#include "../include/utils/string.h"
-#include "gtest/gtest.h"
 #include <cstring>
 
-TEST(StringUtils, memset) 
-{
+#include "../include/utils/string.h"
+#include "gtest/gtest.h"
+
+TEST(StringUtils, memset) {
     char s[] = "hello, world";
     _memset_s(s, 'z', 5);
     EXPECT_TRUE(0 == std::memcmp(s, "zzzzz, world", sizeof(s)));
-} 
-
+}
 
 TEST(StringUtils, memcpy) {
     char s[] = "hello, world";
@@ -19,7 +18,7 @@ TEST(StringUtils, memcpy) {
 TEST(StringUtils, memcpy2) {
     char s[] = "hello, world";
     char *prev = s;
-    _memcpy_s(s,"adios", 5);
+    _memcpy_s(s, "adios", 5);
     EXPECT_EQ(prev, s);
 }
 

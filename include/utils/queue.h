@@ -1,10 +1,9 @@
 #ifndef INCLUDE_QUEUE_H
 #define INCLUDE_QUEUE_H
 
-enum QUEUE_DATA_TYPE {Q_UINT8, Q_INT8, Q_UINT32, Q_INT32};
+enum QUEUE_DATA_TYPE { Q_UINT8, Q_INT8, Q_UINT32, Q_INT32 };
 
-union queue_data
-{
+union queue_data {
     unsigned char ui8;
     char i8;
     unsigned int ui32;

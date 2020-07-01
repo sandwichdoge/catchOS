@@ -26,25 +26,20 @@ int _int_to_str_u(char *out, size_t bufsize, unsigned int n);
 
 char *_int_to_str_static(unsigned int num, int base);
 
-#define _strcpy(dst, src) _Generic((src), char*: _strcpy_s, \
-                                default: _strcpy_s, \
-                                unsigned char*: _strcpy_u)(dst, src)
+#define _strcpy(dst, src) \
+    _Generic((src), char * : _strcpy_s, default : _strcpy_s, unsigned char * : _strcpy_u)(dst, src)
 
-#define _strncpy(dst, src, len) _Generic((src), char*: _strncpy_s, \
-                                default: _strncpy_s, \
-                                unsigned char*: _strncpy_u)(dst, src, len)
+#define _strncpy(dst, src, len) \
+    _Generic((src), char * : _strncpy_s, default : _strncpy_s, unsigned char * : _strncpy_u)(dst, src, len)
 
-#define _memcpy(dst, src, len) _Generic((src), char*: _memcpy_s, \
-                                default: _memcpy_s, \
-                                unsigned char*: _memcpy_u)(dst, src, len)
+#define _memcpy(dst, src, len) \
+    _Generic((src), char * : _memcpy_s, default : _memcpy_s, unsigned char * : _memcpy_u)(dst, src, len)
 
-#define _memset(dst, c, len) _Generic((dst), char*: _memset_s, \
-                                default: _memset_s, \
-                                unsigned char*: _memset_u)(dst, c, len)
+#define _memset(dst, c, len) \
+    _Generic((dst), char * : _memset_s, default : _memset_s, unsigned char * : _memset_u)(dst, c, len)
 
-#define _int_to_str(out, bufsize, n) _Generic((n), int: _int_to_str_s, \
-                                default: _int_to_str_s, \
-                                unsigned int: _int_to_str_u)(out, bufsize, n)
+#define _int_to_str(out, bufsize, n) \
+    _Generic((n), int : _int_to_str_s, default : _int_to_str_s, unsigned int : _int_to_str_u)(out, bufsize, n)
 #endif
 
 #ifdef __cplusplus

@@ -1,19 +1,43 @@
 #include "liballoc.h"
 #include "pageframe_alloc.h"
+#include "kheap.h"
+#include "paging.h"
+#include "utils/debug.h"
 
-int liballoc_lock() {
-    return 0;
+#define PDE_SIZE 0x400000
+extern unsigned int kernel_page_directory[1024];
+
+int liballoc_lock() { return 0; }
+
+int liballoc_unlock() { return 0; }
+
+void *pageframe_alloc_liballoc(unsigned int pages) { 
+    void* ret = pageframe_alloc(pages);
+    if (ret) {
+        // 1-1 map
+        unsigned int *page_tables = kmalloc_align(4096 * pages, 4096);
+        for (unsigned int i = 0; i < pages; ++i) {
+            paging_map((unsigned int)ret + 0xc0000000 + i * PDE_SIZE, (unsigned int)ret + i * PDE_SIZE, kernel_page_directory, page_tables + 1024 * i);
+        }
+        ret += 0xc0000000;
+    } else { // Out of memory
+        _dbg_log("[MMU]Out of pages.\n");
+    }
+    return ret;
 }
 
-int liballoc_unlock() {
-    return 0;
+void pageframe_free_liballoc(void *virt_addr, unsigned int pages) {
+    if (virt_addr) {
+        virt_addr -= 0xc0000000;
+    }
+    pageframe_free(virt_addr, pages);
 }
 
-void* liballoc_alloc(int pages) {
-    return pageframe_alloc((unsigned int)pages);
+void* liballoc_alloc(int pages) { 
+    return pageframe_alloc_liballoc((unsigned int)pages); 
 }
 
 int liballoc_free(void* p, int pages) {
-    pageframe_free(p, (unsigned int)pages);
+    pageframe_free_liballoc(p, (unsigned int)pages);
     return 0;
 }
