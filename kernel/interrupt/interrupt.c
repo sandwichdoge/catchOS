@@ -113,7 +113,7 @@ void interrupt_init_idt(void) {
 
 public
 void interrupt_handler(unsigned int* return_reg, struct cpu_state cpu_state, unsigned int interrupt_num, struct stack_state stack_state) {
-    _dbg_log("[Interrupt]num:[%u], eax:[%x]\n", interrupt_num, cpu_state.eax);
+    //_dbg_log("[Interrupt]num:[%u], eax:[%x]\n", interrupt_num, cpu_state.eax);
 
     if (interrupt_num >= sizeof(int_handler_table) / sizeof(*int_handler_table)) {
         _dbg_log("Error. Unknown interrupt number.\n");

@@ -53,19 +53,20 @@ void kmain(unsigned int ebx) {
 #endif
 
     serial_defconfig(SERIAL_COM1_BASE);
-    pic_init();         // Programmable interrupt controller
-    timer_init();
-
-    // Setup heap
-    kheap_init();
-
-    // Setup paging
-    write_cstr("Setting up paging..", 80);
-    mmu_init();
-
+    
     // Setup interrupts
+    pic_init();         // Programmable interrupt controller
     write_cstr("Setting up interrupts..", 0);
     interrupt_init_idt();
+    timer_init();
+
+    write_cstr("Setting up memory..", 80);
+    // Setup heap
+    kheap_init();
+    // Setup paging
+    mmu_init();
+
+    asm("sti");  // Enable interrupts
 
     // Perform memory tests
     test_memory_32bit_mode();

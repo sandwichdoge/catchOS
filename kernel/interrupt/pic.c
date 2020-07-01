@@ -75,8 +75,6 @@ void pic_init() {
     pic2 = 0xff;
     outb(PIC1_DATA, pic1);  // (0b11111100) - PIT, keyboard IRQ
     outb(PIC2_DATA, pic2);
-
-    asm("sti");  // Enable interrupts
 }
 
 #define PIC_OFFSET 0x20
