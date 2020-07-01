@@ -16,7 +16,7 @@ void ISR_SYSTIME(unsigned int* return_reg, struct cpu_state* unused) {
 
 public
 int timer_init() {
-    pit_defconfig();
+    pit_setfreq(1000);
     interrupt_register(INT_SYSTIME, ISR_SYSTIME);
     return 0;
 }

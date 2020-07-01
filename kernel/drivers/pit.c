@@ -38,7 +38,3 @@ public void pit_setfreq(unsigned int hz) {
     outb(PIT_DATA_CH0_PORT, l);
     outb(PIT_DATA_CH0_PORT, h);
 }
-
-public void pit_defconfig() {
-    pit_setfreq(1000);
-}
