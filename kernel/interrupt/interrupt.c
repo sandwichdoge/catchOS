@@ -48,18 +48,6 @@ void ISR_KEYBOARD(unsigned int* return_reg, struct cpu_state* unused) {
 }
 
 private
-void ISR_PAGEFAULT(unsigned int* return_reg, struct cpu_state* unused) {
-    _dbg_log("Error. Pagefault!\n");
-    _dbg_break();
-}
-
-// int 128 (or 0x80). Syscalls may modify eax, ecx, e11.
-private
-void ISR_SYSCALL(unsigned int* return_reg, struct cpu_state* regs) { 
-    syscall_handler(return_reg, regs); 
-}
-
-private
 int is_hw_irq(unsigned int irq) {
     return (irq == INT_SYSTIME || irq == INT_KEYBOARD);
 }
@@ -76,7 +64,6 @@ void interrupt_register(unsigned int irq, void (*isr)(unsigned int* return_reg, 
 public
 void interrupt_init(void) {
     pic_init();         // Programmable interrupt controller
-
     /*
     IRQ 0 ‒ system timer
     IRQ 1 — keyboard controller
@@ -94,8 +81,6 @@ void interrupt_init(void) {
 
     // Init ISR table
     int_handler_table[INT_KEYBOARD] = ISR_KEYBOARD;
-    int_handler_table[INT_PAGEFAULT] = ISR_PAGEFAULT;
-    int_handler_table[INT_SYSCALL] = ISR_SYSCALL;
 
     // Keyboard press interrupt, 0x20 + 1 (which is PIC1_START_INTERRUPT + IRQ_1)
     interrupt_encode_idt_entry(INT_SYSTIME, (unsigned int)asm_int_handler_32);

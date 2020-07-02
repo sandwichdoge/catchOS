@@ -5,7 +5,6 @@
 #include "kinfo.h"
 #include "mmu.h"
 #include "multiboot.h"
-#include "paging.h"
 #include "shell.h"
 #include "stddef.h"
 #include "stdint.h"
@@ -47,6 +46,7 @@ void kmain(unsigned int ebx) {
     write_cstr("Setting up memory..", 80);
     kheap_init();
     mmu_init();
+    syscall_init();
 
     asm("sti");  // Enable interrupts
 

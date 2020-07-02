@@ -1,5 +1,5 @@
 #include "mmu.h"
-
+#include "interrupt.h"
 #include "builddef.h"
 #include "liballoc.h"
 #include "pageframe_alloc.h"
@@ -13,8 +13,15 @@ void test_pageframe_firstpage() {
     pageframe_free(p, 1);
 }
 
+private
+void ISR_PAGEFAULT(unsigned int* return_reg, struct cpu_state* unused) {
+    _dbg_log("Error. Pagefault!\n");
+    _dbg_break();
+}
+
 public
 void mmu_init() {
+    interrupt_register(INT_PAGEFAULT, ISR_PAGEFAULT);
     paging_init();
     test_pageframe_firstpage();
 }

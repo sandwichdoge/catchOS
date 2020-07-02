@@ -3,13 +3,20 @@
  * */
 
 #include "syscall.h"
-
 #include "builddef.h"
 #include "drivers/framebuffer.h"
 #include "mmu.h"
+#include "interrupt.h"
 #include "drivers/serial.h"
 #include "utils/debug.h"
 
+// int 128 (or 0x80). Syscalls may modify eax, ecx, e11.
+private
+void ISR_SYSCALL(unsigned int* return_reg, struct cpu_state* regs) { 
+    syscall_handler(return_reg, regs); 
+}
+
+private
 int syscall_handler(unsigned int *return_reg, struct cpu_state *cpu) {
     int syscall_no = cpu->eax;
     _dbg_log("syscall_no:%d, return register:%x\n", syscall_no, return_reg);
@@ -26,6 +33,10 @@ int syscall_handler(unsigned int *return_reg, struct cpu_state *cpu) {
     }
 
     return 0;
+}
+
+void syscall_init() {
+    interrupt_register(INT_SYSCALL, ISR_SYSCALL);
 }
 
 void syscall_register_kb_handler(void (*kb_handler)(unsigned char c)) { _kb_handler_cb = kb_handler; }
