@@ -1,5 +1,5 @@
 #include "shell.h"
-
+#include "timer.h"
 #include "builddef.h"
 #include "keyboard.h"  // For key defs
 #include "syscall.h"
@@ -116,7 +116,13 @@ void shell_main() {
 
         shell_cin(buf);
         shell_cout("\n", 1);
-        shell_cout("Cheers ", _strlen("Cheers "));  // \nCheers User\n
+
+        static char ticksbuf[12];
+        _memset(ticksbuf, 0, sizeof(ticksbuf));
+        unsigned int ticks = getticks();
+        _int_to_str(ticksbuf, sizeof(ticksbuf), ticks);
+        shell_cout(ticksbuf, _strlen(ticksbuf));
+        shell_cout(".Cheers ", _strlen(".Cheers "));  // \nCheers User\n
         shell_cout(buf, _strlen(buf));
         shell_cout("\n", 1);
     }

@@ -4,14 +4,17 @@
 #include "pit.h"
 #include "utils/debug.h"
 
+private unsigned int _ticks;
+
 // 0x20 - Programmable Interval Timer
 private
 void ISR_SYSTIME(unsigned int* return_reg, struct cpu_state* unused) {
-    static unsigned int counter;
-    counter++;
-    if (counter % 1000 == 0) {
-        _dbg_log("[Timer]Time passed: %ums\n", counter);
-    }
+    _ticks++;
+}
+
+public
+unsigned int getticks() {
+    return _ticks;
 }
 
 public
