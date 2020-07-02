@@ -1,27 +1,11 @@
 #ifndef INCLUDE_INTERRUPT_H
 #define INCLUDE_INTERRUPT_H
+#include "cpu_state.h"
 
 #define INT_PAGEFAULT 14
 #define INT_SYSTIME 32
 #define INT_KEYBOARD 33  // 0x20 + 1
 #define INT_SYSCALL 128
-
-struct cpu_state {
-    unsigned int edi;
-    unsigned int esi;
-    unsigned int ebp;
-    unsigned int edx;
-    unsigned int ecx;
-    unsigned int ebx;
-    unsigned int eax;
-} __attribute__((packed));
-
-struct stack_state {
-    unsigned int error_code;
-    unsigned int eip;
-    unsigned int cs;
-    unsigned int eflags;
-} __attribute__((packed));
 
 struct idt_entry {
     /* The lowest 32 bits */
