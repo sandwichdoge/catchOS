@@ -39,6 +39,6 @@ struct idt {
     unsigned int address;
 } __attribute__((packed));
 
-void interrupt_init_idt(void);
+void interrupt_init(void);
 void interrupt_register(unsigned int irq, void (*isr)(unsigned int* return_reg, struct cpu_state*));
 #endif

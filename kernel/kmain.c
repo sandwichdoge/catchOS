@@ -5,7 +5,6 @@
 #include "mmu.h"
 #include "multiboot.h"
 #include "paging.h"
-#include "pic.h"
 #include "serial.h"
 #include "shell.h"
 #include "stddef.h"
@@ -55,9 +54,8 @@ void kmain(unsigned int ebx) {
     serial_defconfig(SERIAL_COM1_BASE);
     
     // Setup interrupts
-    pic_init();         // Programmable interrupt controller
     write_cstr("Setting up interrupts..", 0);
-    interrupt_init_idt();
+    interrupt_init();
     timer_init();
 
     write_cstr("Setting up memory..", 80);

@@ -1,5 +1,4 @@
 #include "interrupt.h"
-
 #include "builddef.h"
 #include "keyboard.h"
 #include "pic.h"
@@ -75,7 +74,9 @@ void interrupt_register(unsigned int irq, void (*isr)(unsigned int* return_reg, 
 }
 
 public
-void interrupt_init_idt(void) {
+void interrupt_init(void) {
+    pic_init();         // Programmable interrupt controller
+
     /*
     IRQ 0 ‒ system timer
     IRQ 1 — keyboard controller
