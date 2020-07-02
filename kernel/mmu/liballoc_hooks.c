@@ -19,7 +19,7 @@ void *pageframe_alloc_liballoc(unsigned int pages) {
         for (unsigned int i = 0; i < pages; ++i) {
             paging_map((unsigned int)ret + 0xc0000000 + i * PDE_SIZE, (unsigned int)ret + i * PDE_SIZE, kernel_page_directory, page_tables + 1024 * i);
         }
-        ret += 0xc0000000;
+        ret = (char*)ret + 0xc0000000;
     } else { // Out of memory
         _dbg_log("[MMU]Out of pages.\n");
     }
@@ -28,7 +28,7 @@ void *pageframe_alloc_liballoc(unsigned int pages) {
 
 void pageframe_free_liballoc(void *virt_addr, unsigned int pages) {
     if (virt_addr) {
-        virt_addr -= 0xc0000000;
+        virt_addr = (char*)virt_addr - 0xc0000000;
     }
     pageframe_free(virt_addr, pages);
 }
