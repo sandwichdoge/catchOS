@@ -1,7 +1,7 @@
 #include "shell.h"
 #include "timer.h"
 #include "builddef.h"
-#include "keyboard.h"  // For key defs
+#include "drivers/keyboard.h"  // For key defs
 #include "syscall.h"
 #include "multiboot.h"
 #include "utils/debug.h"

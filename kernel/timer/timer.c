@@ -1,7 +1,7 @@
 #include "builddef.h"
 #include "timer.h"
 #include "interrupt.h"
-#include "pit.h"
+#include "drivers/pit.h"
 #include "utils/debug.h"
 
 private unsigned int _ticks;

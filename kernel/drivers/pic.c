@@ -1,7 +1,7 @@
-#include "pic.h"
+#include "drivers/pic.h"
 #include "utils/debug.h"
 #include "builddef.h"
-#include "io.h"
+#include "drivers/io.h"
 
 #define PIC1_PORT_A 0x20
 #define PIC2_PORT_A 0xa0

@@ -1,7 +1,6 @@
-#include "keyboard.h"
-
+#include "drivers/keyboard.h"
 #include "builddef.h"
-#include "io.h"
+#include "drivers/io.h"
 #include "utils/debug.h"
 
 #define KBD_DATA_PORT 0x60

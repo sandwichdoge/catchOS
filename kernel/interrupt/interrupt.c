@@ -1,7 +1,7 @@
 #include "interrupt.h"
 #include "builddef.h"
-#include "keyboard.h"
-#include "pic.h"
+#include "drivers/keyboard.h"
+#include "drivers/pic.h"
 #include "syscall.h"  // _kb_handler_cb()
 #include "utils/debug.h"
 

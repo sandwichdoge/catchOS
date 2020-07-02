@@ -5,9 +5,9 @@
 #include "syscall.h"
 
 #include "builddef.h"
-#include "framebuffer.h"
+#include "drivers/framebuffer.h"
 #include "mmu.h"
-#include "serial.h"
+#include "drivers/serial.h"
 #include "utils/debug.h"
 
 int syscall_handler(unsigned int *return_reg, struct cpu_state *cpu) {

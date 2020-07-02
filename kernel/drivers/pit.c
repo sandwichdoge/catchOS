@@ -1,5 +1,5 @@
-#include "pit.h"
-#include "io.h"
+#include "drivers/pit.h"
+#include "drivers/io.h"
 #include "utils/debug.h"
 #include "builddef.h"
 

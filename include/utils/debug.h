@@ -1,6 +1,6 @@
 #ifndef INCLUDE_DEBUG_H
 #define INCLUDE_DEBUG_H
-#include "serial.h"
+#include "drivers/serial.h"
 #include "stdarg.h"
 #include "utils/string.h"
 #ifdef TARGET_HOST  // For unit test and debugging on x64 host

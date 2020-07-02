@@ -1,7 +1,6 @@
-#include "framebuffer.h"
-
+#include "drivers/framebuffer.h"
 #include "builddef.h"
-#include "io.h"
+#include "drivers/io.h"
 #include "utils/debug.h"
 #include "utils/string.h"
 
