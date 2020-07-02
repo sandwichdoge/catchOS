@@ -8,8 +8,6 @@
 
 #define CIN_BUFSZ 256
 
-char msg_hello[] = "Hello!";
-char msg_q_name[] = "What is your name? ";
 char greeting[] = "Welcome to Thuan's OS! You're now in 32-bit Protected Mode.\0";
 
 unsigned int SCREEN_WIDTH, SCREEN_HEIGHT;
@@ -103,27 +101,43 @@ void shell_cin(char* out) {
     _cin_pos = 0;
 }
 
-public
-void shell_main() {
-    shell_init();
-    shell_cout(msg_hello, sizeof(msg_hello));
-    char buf[CIN_BUFSZ];
-    _memset(buf, 0, CIN_BUFSZ);
+private unsigned int shell_gettime() {
+    return getticks();
+}
 
-    for (;;) {
-        _memset(buf, 0, CIN_BUFSZ);
-        shell_cout(msg_q_name, _strlen(msg_q_name));
+#define MSG_ERR "Sorry, I didn't understand that. Try typing \"help\"."
+#define MSG_HELP "help\n\
+uptime\n"
 
-        shell_cin(buf);
-        shell_cout("\n", 1);
-
+private void shell_handle_cmd(char* cmd) {
+    if (_strncmp(cmd, "uptime", _strlen("uptime")) == 0) {
         static char ticksbuf[12];
         _memset(ticksbuf, 0, sizeof(ticksbuf));
         unsigned int ticks = getticks();
         _int_to_str(ticksbuf, sizeof(ticksbuf), ticks);
         shell_cout(ticksbuf, _strlen(ticksbuf));
-        shell_cout(".Cheers ", _strlen(".Cheers "));  // \nCheers User\n
-        shell_cout(buf, _strlen(buf));
+    } else if (_strncmp(cmd, "help", _strlen("help")) == 0) {
+        shell_cout(MSG_HELP, _strlen(MSG_HELP));
+    } else {
+        shell_cout(MSG_ERR, _strlen(MSG_ERR));
+    }
+}
+
+public
+void shell_main() {
+    shell_init();
+    char buf[CIN_BUFSZ];
+    _memset(buf, 0, CIN_BUFSZ);
+
+    for (;;) {
+        _memset(buf, 0, CIN_BUFSZ);
+        shell_cout(">", 1);
+
+        shell_cin(buf);
+        shell_cout("\n", 1);
+
+        shell_handle_cmd(buf);
+
         shell_cout("\n", 1);
     }
 }
