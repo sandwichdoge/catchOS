@@ -30,10 +30,12 @@ asm_int_handler_common:
     push ebp
     push esi
     push edi
-    lea eax, [esp+24]   ; modifying value in this address will change (1), return reg
+    push esp
+    lea eax, [esp+28]   ; modifying value in this address will change (1), return reg
     push eax
     call interrupt_handler
     pop eax
+    pop esp
     pop	edi
     pop	esi
     pop	ebp

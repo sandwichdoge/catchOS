@@ -2,6 +2,7 @@
 #define INCLUDE_CPU_STATE_H
 
 struct cpu_state {
+    unsigned int esp;
     unsigned int edi;
     unsigned int esi;
     unsigned int ebp;
