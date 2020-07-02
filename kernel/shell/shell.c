@@ -107,7 +107,8 @@ public
 void shell_main() {
     shell_init();
     shell_cout(msg_hello, sizeof(msg_hello));
-    char buf[CIN_BUFSZ] = {0};
+    char buf[CIN_BUFSZ];
+    _memset(buf, 0, CIN_BUFSZ);
 
     for (;;) {
         _memset(buf, 0, CIN_BUFSZ);

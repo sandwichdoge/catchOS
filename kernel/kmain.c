@@ -61,9 +61,7 @@ void kmain(unsigned int ebx) {
     timer_init();
 
     write_cstr("Setting up memory..", 80);
-    // Setup heap
     kheap_init();
-    // Setup paging
     mmu_init();
 
     asm("sti");  // Enable interrupts

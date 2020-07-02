@@ -14,7 +14,7 @@ extern void asm_int_handler_14();   // Handler for page fault
 extern void asm_int_handler_128();  // Handler for syscall
 
 struct idt IDT;                                // To be loaded into the CPU
-struct idt_entry idt_entries[IDT_SIZE] = {0};  // Main content of IDT
+struct idt_entry idt_entries[IDT_SIZE] = {{0}};  // Main content of IDT
 // Array of void func(uint*, cpu_state*) pointers
 void (*int_handler_table[IDT_SIZE])(unsigned int* return_reg, struct cpu_state*) = {0}; 
 
