@@ -3,6 +3,7 @@
 #include "builddef.h"
 #include "keyboard.h"  // For key defs
 #include "syscall.h"
+#include "multiboot.h"
 #include "utils/debug.h"
 #include "utils/string.h"
 
@@ -107,7 +108,27 @@ private unsigned int shell_gettime() {
 
 #define MSG_ERR "Sorry, I didn't understand that. Try typing \"help\"."
 #define MSG_HELP "help\n\
-uptime\n"
+uptime\n\
+program"
+private multiboot_info_t* mb;
+
+private
+int call_user_module(multiboot_info_t *mbinfo) {
+    struct multiboot_mod_list *mods = (struct multiboot_mod_list *)(mbinfo->mods_addr + 0xc0000000);
+    unsigned int mcount = mbinfo->mods_count;
+
+    if (mcount > 0) {
+        unsigned int prog_addr = (mods->mod_start + 0xc0000000);
+        typedef void (*call_module_t)(void);
+        call_module_t start_program = (call_module_t)prog_addr;
+
+        start_program();
+        register int ret asm("eax");
+        return ret;
+    } else {
+        return 0;
+    }
+}
 
 private void shell_handle_cmd(char* cmd) {
     if (_strncmp(cmd, "uptime", _strlen("uptime")) == 0) {
@@ -116,15 +137,24 @@ private void shell_handle_cmd(char* cmd) {
         unsigned int ticks = getticks();
         _int_to_str(ticksbuf, sizeof(ticksbuf), ticks);
         shell_cout(ticksbuf, _strlen(ticksbuf));
+        shell_cout("\n", 1);
     } else if (_strncmp(cmd, "help", _strlen("help")) == 0) {
         shell_cout(MSG_HELP, _strlen(MSG_HELP));
+        shell_cout("\n", 1);
+    } else if (_strncmp(cmd, "program", _strlen("program")) == 0) {
+        int ret = call_user_module(mb);
+        static char ret_s[12];
+        _memset(ret_s, 0, sizeof(ret_s));
+        _int_to_str(ret_s, sizeof(ret_s), ret);
+        shell_cout(ret_s, _strlen(ret_s));
+        shell_cout("\n", 1);
     } else {
-        shell_cout(MSG_ERR, _strlen(MSG_ERR));
     }
 }
 
 public
-void shell_main() {
+void shell_main(multiboot_info_t *mbinfo) {
+    mb = mbinfo;
     shell_init();
     char buf[CIN_BUFSZ];
     _memset(buf, 0, CIN_BUFSZ);
@@ -137,7 +167,5 @@ void shell_main() {
         shell_cout("\n", 1);
 
         shell_handle_cmd(buf);
-
-        shell_cout("\n", 1);
     }
 }

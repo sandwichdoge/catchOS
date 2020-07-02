@@ -28,20 +28,6 @@ void test_memory_32bit_mode() {
 
 void halt() { asm("hlt"); }
 
-void call_user_module(multiboot_info_t *mbinfo) {
-    struct multiboot_mod_list *mods = (struct multiboot_mod_list *)(mbinfo->mods_addr + 0xc0000000);
-    unsigned int mcount = mbinfo->mods_count;
-
-    if (mcount > 0) {
-        unsigned int prog_addr = (mods->mod_start + 0xc0000000);
-
-        typedef void (*call_module_t)(void);
-        call_module_t start_program = (call_module_t)prog_addr;
-
-        start_program();
-    }
-}
-
 void kmain(unsigned int ebx) {
 // First thing first, gather all info about our hardware capabilities, store it in kinfo singleton
 #ifdef WITH_GRUB_MB
@@ -67,13 +53,12 @@ void kmain(unsigned int ebx) {
     // Perform memory tests
     test_memory_32bit_mode();
 
-    // Call user program
-#ifdef WITH_GRUB_MB
-    call_user_module(mbinfo);
-#endif
-
     // Enter I/O shell
-    shell_main();
+    #ifdef WITH_GRUB_MB
+        shell_main(mbinfo);
+    #else
+        shell_main(NULL);
+    #endif
 
     while (1) {
     }
