@@ -18,7 +18,7 @@ kmain : We're now in 32-bit protected mode.
 The kernel will have
 - Virtual memory
 - Heap allocation
-- Preemptive multi-tasking
+- Cooperative multi-tasking
 - UTF-8 support
 - User accounts
 - Userland programs that will probably run in ring 0

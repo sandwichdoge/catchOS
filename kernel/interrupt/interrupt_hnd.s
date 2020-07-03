@@ -44,5 +44,6 @@ asm_int_handler_common:
     pop	ebx
     pop eax             ; (1) this
     add esp, 8  ; restore esp from int_handler_33 arg push
-    iret        ; return from interrupt
+    iret        ; return from interrupt - iret pops stack_state flags that was automatically added when interrupt happened
 
+;https://docs.oracle.com/cd/E19620-01/805-4693/instructionset-75/index.html

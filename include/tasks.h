@@ -10,7 +10,7 @@ READY = default, ready to run.
 WAITING = in sleep().
 RUNNING = being executed by cpu.
 */
-enum TASK_STATE {TASK_READY = 0, TASK_WAITING, TASK_RUNNING};
+enum TASK_STATE {TASK_READY = 0, TASK_WAITING, TASK_RUNNING, TASK_JOINABLE};
 
 struct task_struct {
     enum TASK_STATE state;
@@ -24,6 +24,10 @@ struct task_struct {
     int interruptible;  // If non-zero then current task may not be interrupted (e.g. scheduler task)
 };
 
+// Create a new task.
 struct task_struct* task_new(void (*fp)(void*), unsigned int stack_size, int priority);
+
+// Join a running task, release its resources.
+void task_join(struct task_struct*);
 
 #endif

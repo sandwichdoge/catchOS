@@ -18,6 +18,8 @@ private void test_proc(void *p) {
 
 public
 struct task_struct* task_new(void (*fp)(void*), unsigned int stack_size, int priority) {
+    if (_nr_tasks == MAX_CONCURRENT_TASKS) return NULL; // Max number of tasks reached.
+
     _tasks[_nr_tasks] = (struct task_struct*)mmu_mmap(sizeof(struct task_struct));
     _tasks[_nr_tasks]->stack_bottom = mmu_mmap(stack_size);
     _tasks[_nr_tasks]->cpu_state.esp = (char*)_tasks[_nr_tasks]->stack_bottom + stack_size;
@@ -26,4 +28,13 @@ struct task_struct* task_new(void (*fp)(void*), unsigned int stack_size, int pri
     _tasks[_nr_tasks]->stack_state.eip = fp;    // Instruction pointer
 
     return NULL;
+}
+
+public
+void task_join(struct task_struct* task) {
+    while (task->state != TASK_JOINABLE) {
+    }
+    mmu_munmap(task->stack_bottom);
+    mmu_munmap(task);
+    _nr_tasks--;
 }
