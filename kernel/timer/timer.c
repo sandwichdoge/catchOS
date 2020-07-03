@@ -4,7 +4,7 @@
 #include "drivers/pit.h"
 #include "utils/debug.h"
 
-#define TICK_FREQ_HZ 1000
+#define TICK_FREQ_HZ 100
 
 private unsigned int _ticks;
 
@@ -21,8 +21,8 @@ unsigned int getticks() {
 
 public
 void delay(unsigned int ms) {
-    unsigned int stop = _ticks + ms;
-    while (_ticks < stop) {
+    unsigned int stop = _ticks * 10 + ms;
+    while (_ticks * 10 < stop) {
 
     }
 }
