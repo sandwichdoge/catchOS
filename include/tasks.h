@@ -2,6 +2,11 @@
 #define INCLUDE_TASKS_H
 #include "cpu_state.h"
 
+/* 
+READY = default, ready to run.
+WAITING = in sleep().
+RUNNING = being executed by cpu.
+*/
 enum TASK_STATE {TASK_READY = 0, TASK_WAITING, TASK_RUNNING};
 
 struct task_struct {

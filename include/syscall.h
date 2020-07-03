@@ -8,7 +8,6 @@ enum SYSCALL_NUM { SYSCALL_MMAP = 2, SYSCALL_MUNMAP = 3 };
 void (*_kb_handler_cb)(unsigned char c);
 
 void syscall_init();
-int syscall_handler(unsigned int *return_reg, struct cpu_state *);
 
 // Get VGA size
 int syscall_fb_get_scr_w();

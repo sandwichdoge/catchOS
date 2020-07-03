@@ -10,6 +10,7 @@ SYS_DIR=$(KERNEL_DIR)/sys
 UTILS_DIR=$(KERNEL_DIR)/utils
 SHELL_DIR=$(KERNEL_DIR)/shell
 TIMER_DIR=$(KERNEL_DIR)/timer
+TASKS_DIR=$(KERNEL_DIR)/tasks
 
 CC=gcc
 CXX=g++
@@ -30,6 +31,7 @@ OBJECTS=$(KBOOT_DIR)/multiboot_header.o $(KBOOT_DIR)/kboot.o \
 		$(MMU_DIR)/paging.o $(MMU_DIR)/paging_en.o $(MMU_DIR)/kheap.o \
 		$(MMU_DIR)/pageframe_alloc.o $(MMU_DIR)/mmu.o $(MMU_DIR)/liballoc.o $(MMU_DIR)/liballoc_hooks.o \
 		$(TIMER_DIR)/timer.o \
+		$(TASKS_DIR)/tasks.o \
 		$(SYS_DIR)/syscall.o \
 		$(COMMON_DIR)/kinfo.o \
 		$(UTILS_DIR)/string.o $(UTILS_DIR)/debug.o $(UTILS_DIR)/printf.o $(UTILS_DIR)/bitmap.o
@@ -82,4 +84,6 @@ clean:
 	rm -f $(DRIVERS_DIR)/*.o
 	rm -f $(COMMON_DIR)/*.o
 	rm -f $(SHELL_DIR)/*.o
+	rm -f $(TIMER_DIR)/*.o
+	rm -f $(TASKS_DIR)/*.o
 	rm -f $(TESTS_DIR)/*.o

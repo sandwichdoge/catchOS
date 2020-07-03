@@ -10,12 +10,6 @@
 #include "drivers/serial.h"
 #include "utils/debug.h"
 
-// int 128 (or 0x80). Syscalls may modify eax, ecx, e11.
-private
-void ISR_SYSCALL(unsigned int* return_reg, struct cpu_state* regs) { 
-    syscall_handler(return_reg, regs); 
-}
-
 private
 int syscall_handler(unsigned int *return_reg, struct cpu_state *cpu) {
     int syscall_no = cpu->eax;
@@ -33,6 +27,12 @@ int syscall_handler(unsigned int *return_reg, struct cpu_state *cpu) {
     }
 
     return 0;
+}
+
+// int 128 (or 0x80). Syscalls may modify eax, ecx, e11.
+private
+void ISR_SYSCALL(unsigned int* return_reg, struct cpu_state* regs) { 
+    syscall_handler(return_reg, regs); 
 }
 
 void syscall_init() {
