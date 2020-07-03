@@ -4,6 +4,8 @@
 #include "drivers/pit.h"
 #include "utils/debug.h"
 
+#define TICK_FREQ_HZ 1000
+
 private unsigned int _ticks;
 
 // 0x20 - Programmable Interval Timer
@@ -18,8 +20,16 @@ unsigned int getticks() {
 }
 
 public
+void delay(unsigned int ms) {
+    unsigned int stop = _ticks + ms;
+    while (_ticks < stop) {
+
+    }
+}
+
+public
 int timer_init() {
-    pit_setfreq(1000);
+    pit_setfreq(TICK_FREQ_HZ);
     interrupt_register(INT_SYSTIME, ISR_SYSTIME);
     return 0;
 }
