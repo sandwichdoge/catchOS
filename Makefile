@@ -17,7 +17,8 @@ CXX=g++
 AS=nasm
 ASFLAGS=-f elf32
 CFLAGS=-I$(INCLUDE_DIR) -m32 -nostdlib -nostdinc -fno-builtin -fno-stack-protector -nostartfiles -nodefaultlibs -Wall -Wextra -Wno-unused-parameter \
--D WITH_GRUB_MB -D TARGET_BOCHS -Wall -pedantic
+-D WITH_GRUB_MB -D TARGET_BOCHS \
+-Wall -pedantic
 LDFLAGS=-T $(KERNEL_DIR)/link.ld -melf_i386
 
 OBJECTS=$(KBOOT_DIR)/multiboot_header.o $(KBOOT_DIR)/kboot.o \
