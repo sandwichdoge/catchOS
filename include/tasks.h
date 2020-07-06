@@ -9,6 +9,7 @@
 READY = default, ready to run.
 WAITING = in sleep().
 RUNNING = being executed by cpu.
+JOINABLE = function has returned, we may terminate task.
 */
 enum TASK_STATE {TASK_READY = 0, TASK_WAITING, TASK_RUNNING, TASK_JOINABLE};
 
@@ -29,5 +30,8 @@ struct task_struct* task_new(void (*fp)(void*), unsigned int stack_size, int pri
 
 // Join a running task, release its resources.
 void task_join(struct task_struct*);
+
+// Give up control to another process.
+void task_yield(struct task_struct* task);
 
 #endif
