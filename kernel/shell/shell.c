@@ -134,7 +134,7 @@ private void shell_handle_cmd(char* cmd) {
     if (_strncmp(cmd, "uptime", _strlen("uptime")) == 0) {
         static char ticksbuf[12];
         _memset(ticksbuf, 0, sizeof(ticksbuf));
-        unsigned int ticks = getticks() * 10;
+        unsigned int ticks = shell_gettime() * 10;
         _int_to_str(ticksbuf, sizeof(ticksbuf), ticks);
         shell_cout(ticksbuf, _strlen(ticksbuf));
         shell_cout("\n", 1);
