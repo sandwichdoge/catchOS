@@ -30,4 +30,7 @@ struct task_struct* task_new(void (*fp)(void*), unsigned int stack_size, int pri
 // Join a running task, release its resources.
 void task_join(struct task_struct*);
 
+// Give up control to another process.
+void task_yield(struct task_struct* task);
+
 #endif

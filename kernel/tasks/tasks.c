@@ -33,8 +33,14 @@ struct task_struct* task_new(void (*fp)(void*), unsigned int stack_size, int pri
 public
 void task_join(struct task_struct* task) {
     while (task->state != TASK_JOINABLE) {
+        task_yield(task);
     }
     mmu_munmap(task->stack_bottom);
     mmu_munmap(task);
     _nr_tasks--;
+}
+
+public
+void task_yield(struct task_struct* task) {
+    // TODO: Switch control to scheduler, sched decides what process to continue.
 }
