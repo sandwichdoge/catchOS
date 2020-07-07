@@ -15,6 +15,10 @@ private void test_proc(void *p) {
     }
 }
 
+public unsigned int task_get_nr() {
+    return _nr_tasks;
+}
+
 public
 struct task_struct* task_new(void (*fp)(void*), unsigned int stack_size, int priority) {
     if (_nr_tasks == MAX_CONCURRENT_TASKS) return NULL; // Max number of tasks reached.

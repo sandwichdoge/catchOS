@@ -34,4 +34,6 @@ void task_join(struct task_struct*);
 // Give up control to another process.
 void task_yield(struct task_struct* task);
 
+// Get number of running tasks.
+unsigned int task_get_nr();
 #endif
