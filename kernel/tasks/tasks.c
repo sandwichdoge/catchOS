@@ -1,12 +1,15 @@
 #include "tasks.h"
 #include "timer.h"
 #include "mmu.h"
+#include "cpu_switch_to.h"
 #include "builddef.h"
 #include "utils/debug.h"
 
 // Array of all current tasks. Only 64 tasks can run at a time for now.
 private struct task_struct* _tasks[MAX_CONCURRENT_TASKS];
 private unsigned int _nr_tasks; // Current running tasks in the system.
+struct task_struct* _current;   // Current task that controls CPU.
+
 
 private void test_proc(void *p) {
     for (int i = 0; i < 4; ++i) {
@@ -47,4 +50,24 @@ void task_join(struct task_struct* task) {
     mmu_munmap(task->stack_bottom);
     mmu_munmap(task);
     _nr_tasks--;
+}
+
+
+private
+void schedule() {
+
+}
+
+private
+void sched_switch_to(struct task_struct* next) {
+    /*
+    - Thread A enters function.
+    - Context-switch happens and becomes Thread B.
+    - Exit function as thread B.
+    - Maybe switch page tables as well in the future?
+    */
+    if (_current == next) return;
+    struct task_struct* prev = _current;
+    _current = next;
+    cpu_switch_to(prev, next);
 }
