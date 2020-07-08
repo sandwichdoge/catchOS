@@ -15,7 +15,9 @@ void test_pageframe_firstpage() {
 
 private
 void ISR_PAGEFAULT(unsigned int* return_reg, struct cpu_state* unused) {
-    _dbg_log("Error. Pagefault!\n");
+    unsigned int faulting_address;
+    asm volatile("movl %%cr2, %0" : "=r" (faulting_address));
+    _dbg_log("Error. Pagefault at 0x[%x]!\n", faulting_address);
     _dbg_break();
 }
 
@@ -30,7 +32,7 @@ public
 void* mmu_mmap(unsigned int size) {
     // return out + 0xc0000000;
     void* ret = _malloc(size);
-    _dbg_log("[MMU]sbrk [%u], ret [0x%x]\n", size, ret);
+    _dbg_log("[MMU]Requested [%u], ret [0x%x]\n", size, ret);
     return ret;
 }
 

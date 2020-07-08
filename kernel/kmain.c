@@ -10,6 +10,7 @@
 #include "stdint.h"
 #include "syscall.h"
 #include "timer.h"
+#include "tasks.h"
 #include "utils/debug.h"
 #include "utils/string.h"
 
@@ -48,10 +49,15 @@ void kmain(unsigned int ebx) {
     mmu_init();
     syscall_init();
 
-    asm("sti");  // Enable interrupts
-
     // Perform memory tests
     test_memory_32bit_mode();
+
+    //test_caller();
+
+    asm("cli");
+    asm("sti");  // Enable interrupts
+
+    // TODO Bug, hang on serial_write() after sti is called
 
     // Enter I/O shell
     #ifdef WITH_GRUB_MB
