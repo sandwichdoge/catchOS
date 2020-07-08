@@ -20,7 +20,6 @@ cpu_switch_to:
     mov edi, [esp + 16 + 4]         ;edi = address of the previous task's "thread control block"
     mov [edi + 16], esp             ;Save ESP for previous task's kernel stack in the thread's TCB
 
-    xchg bx, bx
     ;Load next task's state
  
     lea esi, [esp + 16 + 8]         ;esi = address of the next task's "thread control block" (parameter passed on stack)
