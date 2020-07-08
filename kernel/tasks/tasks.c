@@ -68,7 +68,7 @@ void task_switch_to(struct task_struct* next) {
     struct task_struct* prev = _current;
     _current = next;
     _dbg_log("[Switch]Prev:[0x%x], Next:[0x%x]\n", prev, next);
-    // TODO Why memory read from bochs empty but can read from kernel?
+    _dbg_break();
     cpu_switch_to(prev, next);
 }
 
@@ -79,7 +79,7 @@ struct task_struct* task2;
 private void test_proc1(void *p) {
     for (int i = 0; i < 4; ++i) {
         _dbg_log("%d", i);
-        task_switch_to(task2);
+        //task_switch_to(task2);
     }
 }
 
@@ -93,6 +93,6 @@ private void test_proc2(void *p) {
 public void test_caller() {
     task1 = task_new(test_proc1, 1024, 1);
     task2 = task_new(test_proc2, 1024, 1);
-    task_switch_to(task1);  // 2 cases: first time calling switch_to -> _current is empty, or not first time
+    task_run(task1);
 }
 // End test section

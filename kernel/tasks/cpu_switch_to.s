@@ -4,18 +4,15 @@ global cpu_switch_to
 cpu_switch_to:
 ;[esp + 4] = prev TCB
 ;[esp + 8] = next TCB
-    
-    ; If previous stack is NULL, this is the first time switch_to() is called. Just load registers.
-    mov eax, [esp + 4]
-    test eax, eax
-    jz .load
-
     ;Save previous task's state
     ;Notes:
     ;  For cdecl; EAX, ECX, and EDX are already saved by the caller and don't need to be saved again
     ;  EIP is already saved on the stack by the caller's "CALL" instruction
     ;  The task isn't able to change CR3 so it doesn't need to be saved
     ;  Segment registers are constants (while running kernel code) so they don't need to be saved
+    push eax
+    push ecx
+    push edx
     push ebx
     push esi
     push edi
@@ -42,6 +39,9 @@ cpu_switch_to:
     pop edi
     pop esi
     pop ebx
- 
+    pop edx
+    pop ecx
+    pop eax
+
     ret                             ;Load next task's EIP from its kernel stack. https://docs.oracle.com/cd/E19455-01/806-3773/instructionset-67/index.html
                                     ; since ret instruction will jump to the address at top of stack, which was pushed by call instruction.
