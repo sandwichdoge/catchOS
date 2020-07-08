@@ -5,6 +5,7 @@
 #include "pageframe_alloc.h"
 #include "paging.h"
 #include "utils/debug.h"
+#include "timer.h"
 
 private
 void test_pageframe_firstpage() {
@@ -17,7 +18,7 @@ private
 void ISR_PAGEFAULT(unsigned int* return_reg, struct cpu_state* unused) {
     unsigned int faulting_address;
     asm volatile("movl %%cr2, %0" : "=r" (faulting_address));
-    _dbg_log("Error. Pagefault at 0x[%x]!\n", faulting_address);
+    _dbg_log("Error. Pagefault access [0x%x]!\n", faulting_address);
     _dbg_break();
 }
 

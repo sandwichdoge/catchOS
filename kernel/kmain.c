@@ -52,7 +52,7 @@ void kmain(unsigned int ebx) {
     // Perform memory tests
     test_memory_32bit_mode();
 
-    //test_caller();
+    test_caller();
 
     asm("cli");
     asm("sti");  // Enable interrupts
