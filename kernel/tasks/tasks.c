@@ -93,7 +93,6 @@ private void test_proc2(void *p) {
 public void test_caller() {
     task1 = task_new(test_proc1, 1024, 1);
     task2 = task_new(test_proc2, 1024, 1);
-    _current = task1;
-    task_switch_to(task2);
+    task_switch_to(task1);  // 2 cases: first time calling switch_to -> _current is empty, or not first time
 }
 // End test section
