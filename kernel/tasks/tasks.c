@@ -79,8 +79,10 @@ struct task_struct* task2;
 private void test_proc1(void *p) {
     for (int i = 0; i < 4; ++i) {
         _dbg_log("%d", i);
+        delay(1000);
         //task_switch_to(task2);
     }
+    _dbg_break();
 }
 
 private void test_proc2(void *p) {

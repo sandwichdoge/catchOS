@@ -36,11 +36,9 @@ cpu_switch_to:
     ;cmp eax,ecx                     ;Does the virtual address space need to being changed?
     ;je .doneVAS                     ; no, virtual address space is the same, so don't reload it and cause TLB flushes
     ;mov cr3,eax                     ; yes, load the next task's virtual address space
-
     test edi, edi
     jz .first
 .doneVAS:
- 
     pop ebp
     pop edi
     pop esi
@@ -52,6 +50,6 @@ cpu_switch_to:
     ret                             ;Load next task's EIP from its kernel stack. https://docs.oracle.com/cd/E19455-01/806-3773/instructionset-67/index.html
                                     ; since ret instruction will jump to the address at top of stack, which was pushed by call instruction.
 .first:
-    mov esi, [esi + 34h]            ;Offset of eip to TCB
+    mov esi, [esi + 52]             ;Offset of eip in TCB
     push esi
     ret

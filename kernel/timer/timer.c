@@ -22,9 +22,10 @@ unsigned int getticks() {
 public
 void delay(unsigned int ms) {
     unsigned int stop = _ticks * 10 + ms;
+    asm("sti");
     while (_ticks * 10 < stop) {
-
     }
+    asm("cli");
 }
 
 public
