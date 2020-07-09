@@ -67,8 +67,8 @@ void task_switch_to(struct task_struct* next) {
     if (_current == next) return;
     struct task_struct* prev = _current;
     _current = next;
-    _dbg_log("Offset: [0x%x]\n", next->stack_state.eip);
-    _dbg_log("[Switch]Prev:[0x%x], Next:[0x%x]\n", prev, next);
+    //_dbg_log("Next eip: [0x%x]\n", next->stack_state.eip);
+    _dbg_log("[Switch]Prev:[0x%x], Next:[%u][0x%x]\n", prev, next->pid, next);
     cpu_switch_to(prev, next);
 }
 
@@ -86,7 +86,7 @@ private void test_proc1(void *p) {
 private void test_proc2(void *p) {
     for (int i = 4; i < 8; ++i) {
         _dbg_log("%d", i);
-        task_switch_to(task1);
+        //task_switch_to(task1);
     }
 }
 

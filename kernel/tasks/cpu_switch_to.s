@@ -6,7 +6,6 @@ cpu_switch_to:
 ;[esp + 8] = next TCB
     ;Save previous task's state
     ;Notes:
-    ;  For cdecl; EAX, ECX, and EDX are already saved by the caller and don't need to be saved again
     ;  EIP is already saved on the stack by the caller's "CALL" instruction
     ;  The task isn't able to change CR3 so it doesn't need to be saved
     ;  Segment registers are constants (while running kernel code) so they don't need to be saved
@@ -27,9 +26,8 @@ cpu_switch_to:
 .load:
 
     ;Load next task's state
-    lea esi, [esp + 28 + 8]         ;esi = address of the next task's "thread control block" (parameter passed on stack)
-    mov edx, [esi + 16]             
-    mov esp, [edx + 16]             ;Load ESP for next task's kernel stack from the thread's TCB
+    mov esi, [esp + 28 + 8]         ;esi = address of the next task's "thread control block" (parameter passed on stack)
+    mov esp, [esi + 16]             ;Load ESP for next task's kernel stack from the thread's TCB
     ;mov eax,[esi+TCB.CR3]          ;eax = address of page directory for next task
     ;mov ebx,[esi+TCB.ESP0]         ;ebx = address for the top of the next task's kernel stack
     ;mov [TSS.ESP0],ebx             ;Adjust the ESP0 field in the TSS (used by CPU for for CPL=3 -> CPL=0 privilege level changes)
@@ -54,6 +52,6 @@ cpu_switch_to:
     ret                             ;Load next task's EIP from its kernel stack. https://docs.oracle.com/cd/E19455-01/806-3773/instructionset-67/index.html
                                     ; since ret instruction will jump to the address at top of stack, which was pushed by call instruction.
 .first:
-    mov esi, [edx + 34h]            ;Offset of eip to TCB
+    mov esi, [esi + 34h]            ;Offset of eip to TCB
     push esi
     ret
