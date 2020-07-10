@@ -67,7 +67,6 @@ void task_switch_to(struct task_struct* next) {
     if (_current == next) return;
     struct task_struct* prev = _current;
     _current = next;
-    //_dbg_log("Next eip: [0x%x]\n", next->stack_state.eip);
     _dbg_log("[Switch]Prev:[0x%x], Next:[%u][0x%x]\n", prev, next->pid, next);
     cpu_switch_to(prev, next);
 }
@@ -78,7 +77,7 @@ struct task_struct* task2;
 
 private void test_proc1(void *p) {
     for (int i = 0; i < 400; ++i) {
-        _dbg_log("%d", i);
+        _dbg_log("task1 %u:%d\n", getticks(), i);
         delay(1000);
         task_switch_to(task2);
     }
@@ -87,7 +86,7 @@ private void test_proc1(void *p) {
 
 private void test_proc2(void *p) {
     for (int i = 400; i < 800; ++i) {
-        _dbg_log("%d", i);
+        _dbg_log("task2 %u:%d\n", getticks(), i);
         delay(1000);
         task_switch_to(task1);
     }
@@ -97,5 +96,10 @@ public void test_caller() {
     task1 = task_new(test_proc1, 1024, 1);
     task2 = task_new(test_proc2, 1024, 1);
     task_switch_to(task1);
+    /*
+    kernel -> switch_to -> 1 -> ret : 0x0
+            |           |        |
+          EIP_k       EIP_1     NULL, no return address because esp has changed in switch_to().
+    */
 }
 // End test section

@@ -16,18 +16,19 @@ cpu_switch_to:
     push esi
     push edi
     push ebp
+    pushf
 
-    mov edi, [esp + 28 + 4]         ;edi = address of the previous task's "thread control block"
-    test edi, edi
+    mov edi, [esp + 32 + 4]         ;edi = address of the previous task's "thread control block"
+    test edi, edi                   ;prev is NULL i.e. first time calling switch_to()
     jz .load
 
-    mov eax, [esp + 28]
+    mov eax, [esp + 32]             ;EAX is return address i.e. where the prev task left off before calling cpu_switch_to()
     mov [edi + 52], eax             ;save EIP for previous task's eip
     mov [edi + 16], esp             ;save ESP for previous task's kernel stack in the thread's TCB
 .load:
 
     ;Load next task's state
-    mov esi, [esp + 28 + 8]         ;esi = address of the next task's "thread control block" (parameter passed on stack)
+    mov esi, [esp + 32 + 8]         ;esi = address of the next task's "thread control block" (parameter passed on stack)
     mov esp, [esi + 16]             ;Load ESP for next task's kernel stack from the thread's TCB
     ;mov eax,[esi+TCB.CR3]          ;eax = address of page directory for next task
     ;mov ebx,[esi+TCB.ESP0]         ;ebx = address for the top of the next task's kernel stack
@@ -42,9 +43,10 @@ cpu_switch_to:
 
     ; Next task's eip, return here
     mov eax, [esi + 52]
-    mov [esp + 28], eax
+    mov [esp + 32], eax
 
 .doneVAS:
+    popf
     pop ebp
     pop edi
     pop esi
