@@ -21,8 +21,9 @@ cpu_switch_to:
     test edi, edi
     jz .load
 
-    mov [edi + 16], esp             ;Save ESP for previous task's kernel stack in the thread's TCB
-
+    mov eax, [esp + 28]
+    mov [edi + 52], eax             ;save EIP for previous task's eip
+    mov [edi + 16], esp             ;save ESP for previous task's kernel stack in the thread's TCB
 .load:
 
     ;Load next task's state
@@ -38,6 +39,11 @@ cpu_switch_to:
     ;mov cr3,eax                     ; yes, load the next task's virtual address space
     test edi, edi
     jz .first
+
+    ; Next task's eip, return here
+    mov eax, [esi + 52]
+    mov [esp + 28], eax
+
 .doneVAS:
     pop ebp
     pop edi
@@ -46,6 +52,8 @@ cpu_switch_to:
     pop edx
     pop ecx
     pop eax
+
+    ;task2 error because no return addr (task2 eip) on stack
 
     ret                             ;Load next task's EIP from its kernel stack. https://docs.oracle.com/cd/E19455-01/806-3773/instructionset-67/index.html
                                     ; since ret instruction will jump to the address at top of stack, which was pushed by call instruction.

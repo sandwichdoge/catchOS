@@ -55,7 +55,6 @@ void kmain(unsigned int ebx) {
     test_caller();
 
     asm("sti");  // Enable interrupts
-
     // TODO Bug, hang on serial_write() after sti is called
 
     // Enter I/O shell
