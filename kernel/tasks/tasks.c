@@ -17,6 +17,9 @@ public unsigned int task_get_nr() {
 
 public
 struct task_struct* task_new(void (*fp)(void*), unsigned int stack_size, int priority) {
+    //TODO _tasks[_nr_tasks]->cpu_state.esp = &on_current_task_exit_cb;
+    //on_task_exit -> TASK_JOINABLE, remove from _tasks array, task_yield().
+    //no need for kmain after thread initialized (kmain will not get cpu time ever again after yielding)
     if (_nr_tasks == MAX_CONCURRENT_TASKS) return NULL; // Max number of tasks reached.
 
     _tasks[_nr_tasks] = mmu_mmap(sizeof(struct task_struct));
@@ -39,7 +42,7 @@ void task_yield() {
 public
 void task_join(struct task_struct* task) {
     while (task->state != TASK_JOINABLE) {
-        task_yield(task);
+        task_yield();
     }
     mmu_munmap(task->stack_bottom);
     mmu_munmap(task);
@@ -100,6 +103,7 @@ public void test_caller() {
     kernel -> switch_to -> 1 -> ret : 0x0
             |           |        |
           EIP_k       EIP_1     NULL, no return address because esp has changed in switch_to().
+    TODO deal with function exit.
     */
 }
 // End test section
