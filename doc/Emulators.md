@@ -92,8 +92,13 @@ Enable gdb debugging:
 -s
 ```
 
+Make CPU not start immediately on startup:
+```
+-S
+```
+
 ## 2.2.4. Debugging
-QEMU must be run with gdb debugging option:
+- QEMU must be run with gdb debugging option:
 ```
 -s
 ```
@@ -101,4 +106,16 @@ On host machine, run commands:
 ```
 gdb
 target remote localhost:1234
+```
+
+- How to add breakpoints:
+
+```
+// In code, add this line. This is basically an endless loop.
+asm volatile ("1: jmp 1b");
+```
+
+```
+// In gdb, at program pause, enter command to jump out of endless loop:
+(gdb) set $pc += 2
 ```
