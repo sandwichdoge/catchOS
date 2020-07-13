@@ -36,12 +36,6 @@ struct task_struct* task_new(void (*fp)(void*), unsigned int stack_size, int pri
 }
 
 public
-void task_yield() {
-    // TODO: Switch control to scheduler, sched decides what process to continue.
-    schedule(NULL);
-}
-
-public
 void task_join(struct task_struct* task) {
     while (task->state != TASK_JOINABLE) {
         task_yield();
@@ -49,24 +43,6 @@ void task_join(struct task_struct* task) {
     mmu_munmap(task->stack_bottom);
     mmu_munmap(task);
     _nr_tasks--;
-}
-
-public
-void task_init() {
-    _scheduler = task_new(schedule, 8192, 1);
-    _scheduler->interruptible = 0;
-    _current = _scheduler;
-}
-
-private
-void* schedule(void* unused) {
-    while (1) {
-        for (int i = 0; i < MAX_CONCURRENT_TASKS; ++i) {
-            
-        }
-        //break;
-    }
-    //task_switch_to(most_applicable)
 }
 
 private
@@ -80,8 +56,34 @@ void task_switch_to(struct task_struct* next) {
     if (_current == next) return;
     struct task_struct* prev = _current;
     _current = next;
-    _dbg_log("[Switch]Prev:[0x%x], Next:[%u][0x%x]\n", prev, next->pid, next);
+    //_dbg_log("[Switch]Prev:[0x%x], Next:[%u][0x%x]\n", prev, next->pid, next);
     cpu_switch_to(prev, next);
+}
+
+private
+void* schedule(void* unused) {
+    // Try round-robin first?
+    //_dbg_log("Total tasks: %u\n", _nr_tasks);
+    struct task_struct *next = NULL;
+    while (1) {
+        for (unsigned int i = 0; i < _nr_tasks; ++i) {
+            if (_tasks[i] != _current) {
+                next = _tasks[i];
+                break;
+            }
+        }
+        if (next) break;
+    }
+    task_switch_to(next);
+    return NULL;
+}
+
+public
+void task_yield() {
+    // Switch control to scheduler, sched decides what process to continue.
+    if (_current) _current->interruptible = 0;
+    schedule(NULL);
+    if (_current) _current->interruptible = 1;
 }
 
 // Begin test section
@@ -89,31 +91,32 @@ struct task_struct* task1;
 struct task_struct* task2;
 
 private void test_proc1(void *p) {
-    for (int i = 0; i < 400; ++i) {
-        _dbg_log("task1 %u:%d\n", getticks(), i);
-        delay(1000);
-        task_switch_to(task2);
+    while (1) {
+        for (int i = 0; i < 2000000000; ++i) {
+            _dbg_log("task1 %u:%d\n", getticks(), i);
+            delay(10);
+            //task_switch_to(task2);
+            task_yield();
+        }
     }
     _dbg_break();
 }
 
 private void test_proc2(void *p) {
-    for (int i = 400; i < 800; ++i) {
-        _dbg_log("task2 %u:%d\n", getticks(), i);
-        delay(1000);
-        task_switch_to(task1);
+    while (1) {
+        for (int i = 0; i < 2000000000; ++i) {
+            _dbg_log("task2 %u:%d\n", getticks(), i);
+            delay(10);
+            //task_switch_to(task1);
+            task_yield();
+        }
     }
 }
 
 public void test_caller() {
     task1 = task_new(test_proc1, 1024, 1);
     task2 = task_new(test_proc2, 1024, 1);
-    task_switch_to(task1);
-    /*
-    kernel -> switch_to -> 1 -> ret : 0x0
-            |           |        |
-          EIP_k       EIP_1     NULL, no return address because esp has changed in switch_to().
-    TODO deal with function exit.
-    */
+    //task_switch_to(task1);
+    task_yield();
 }
 // End test section
