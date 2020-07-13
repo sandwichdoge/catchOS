@@ -9,7 +9,7 @@
 private struct task_struct* _tasks[MAX_CONCURRENT_TASKS];
 private unsigned int _nr_tasks; // Current running tasks in the system.
 struct task_struct* _current;   // Current task that controls CPU.
-
+struct task_struct* _scheduler;
 
 public unsigned int task_get_nr() {
     return _nr_tasks;
@@ -29,6 +29,7 @@ struct task_struct* task_new(void (*fp)(void*), unsigned int stack_size, int pri
     _tasks[_nr_tasks]->cpu_state.esp = (unsigned int)_tasks[_nr_tasks]->stack_bottom + stack_size;
     _tasks[_nr_tasks]->pid = _nr_tasks + 1;
     _tasks[_nr_tasks]->stack_state.eip = (unsigned int)fp;
+    _tasks[_nr_tasks]->interruptible = 1;
     _nr_tasks++;
 
     return _tasks[_nr_tasks - 1];
@@ -37,6 +38,7 @@ struct task_struct* task_new(void (*fp)(void*), unsigned int stack_size, int pri
 public
 void task_yield() {
     // TODO: Switch control to scheduler, sched decides what process to continue.
+    schedule(NULL);
 }
 
 public
@@ -49,14 +51,22 @@ void task_join(struct task_struct* task) {
     _nr_tasks--;
 }
 
+public
+void task_init() {
+    _scheduler = task_new(schedule, 8192, 1);
+    _scheduler->interruptible = 0;
+    _current = _scheduler;
+}
 
 private
-void schedule() {
+void* schedule(void* unused) {
     while (1) {
         for (int i = 0; i < MAX_CONCURRENT_TASKS; ++i) {
             
         }
+        //break;
     }
+    //task_switch_to(most_applicable)
 }
 
 private
