@@ -42,7 +42,7 @@ void kmain(unsigned int ebx) {
     // Setup interrupts
     write_cstr("Setting up interrupts..", 0);
     interrupt_init();
-    timer_init();
+    timer_init();   // TODO if comment out this line, serial_write is normal again
 
     write_cstr("Setting up memory..", 80);
     kheap_init();
@@ -52,10 +52,8 @@ void kmain(unsigned int ebx) {
     // Perform memory tests
     test_memory_32bit_mode();
 
-    test_caller();
-
     asm("sti");  // Enable interrupts
-    // TODO Bug, hang on serial_write() after sti is called
+    test_caller();
 
     // Enter I/O shell
     #ifdef WITH_GRUB_MB

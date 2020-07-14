@@ -9,6 +9,7 @@
 
 extern void asm_int_handler_32();   // Handler for PIT channel0 system timer
 extern void asm_int_handler_33();   // Handler for keyboard press
+extern void asm_int_handler_36();   // Handler for com1
 extern void asm_int_handler_14();   // Handler for page fault
 extern void asm_int_handler_128();  // Handler for syscall
 
@@ -49,7 +50,7 @@ void ISR_KEYBOARD(unsigned int* return_reg, struct cpu_state* unused) {
 
 private
 int is_hw_irq(unsigned int irq) {
-    return (irq == INT_SYSTIME || irq == INT_KEYBOARD);
+    return (irq == INT_SYSTIME || irq == INT_KEYBOARD || irq == INT_COM1);
 }
 
 public
@@ -59,6 +60,11 @@ void interrupt_register(unsigned int irq, void (*isr)(unsigned int* return_reg, 
         _dbg_log("Enabling HW interrupt %u.\n", irq);
         pic_enable_irq(irq);
     }
+}
+
+private
+void ISR_COM1(unsigned int* return_reg, struct cpu_state* unused) {
+    _dbg_break();
 }
 
 public
@@ -79,12 +85,11 @@ void interrupt_init(void) {
     IRQ 15 — ATA channel 2
     */
 
-    // Init ISR table
-    int_handler_table[INT_KEYBOARD] = ISR_KEYBOARD;
-
+    // Must initialize all asm irq handlers that we'll use here.
     // Keyboard press interrupt, 0x20 + 1 (which is PIC1_START_INTERRUPT + IRQ_1)
     interrupt_encode_idt_entry(INT_SYSTIME, (unsigned int)asm_int_handler_32);
     interrupt_encode_idt_entry(INT_KEYBOARD, (unsigned int)asm_int_handler_33);
+    interrupt_encode_idt_entry(INT_COM1, (unsigned int)asm_int_handler_36);
     interrupt_encode_idt_entry(INT_PAGEFAULT, (unsigned int)asm_int_handler_14);
     interrupt_encode_idt_entry(INT_SYSCALL, (unsigned int)asm_int_handler_128);
 
@@ -93,13 +98,13 @@ void interrupt_init(void) {
 
     lidt(&IDT);  // ASM wrapper, load interrupt table
 
-    // Tell PIC to receive external hardware interrupts
-    pic_enable_irq(INT_KEYBOARD);
+    interrupt_register(INT_KEYBOARD, ISR_KEYBOARD);
+    interrupt_register(INT_COM1, ISR_COM1);
 }
 
 public
 void interrupt_handler(unsigned int* return_reg, struct cpu_state cpu_state, unsigned int interrupt_num, struct stack_state stack_state) {
-    //_dbg_log("[Interrupt]num:[%u], eax:[%x]\n", interrupt_num, cpu_state.eax);
+    _dbg_log("[Interrupt]num:[%u]\n", interrupt_num);
 
     if (interrupt_num >= sizeof(int_handler_table) / sizeof(*int_handler_table)) {
         _dbg_log("Error. Unknown interrupt number.\n");
@@ -108,6 +113,8 @@ void interrupt_handler(unsigned int* return_reg, struct cpu_state cpu_state, uns
 
     if (int_handler_table[interrupt_num]) {
         (*int_handler_table[interrupt_num])(return_reg, &cpu_state);
-        pic_ack(interrupt_num);
+    } else {
+        _dbg_log("Unhandled interrupt[%u]\n", interrupt_num);
     }
+    pic_ack(interrupt_num);
 }

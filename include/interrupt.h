@@ -5,6 +5,7 @@
 #define INT_PAGEFAULT 14
 #define INT_SYSTIME 32
 #define INT_KEYBOARD 33  // 0x20 + 1
+#define INT_COM1 36 // 0x20 + 4
 #define INT_SYSCALL 128
 
 struct idt_entry {
