@@ -15,6 +15,16 @@ public unsigned int task_get_nr() {
     return _nr_tasks;
 }
 
+// Read current EFLAGS register.
+private unsigned int get_eflags() {
+    unsigned int ret;
+    asm("pushf\n"
+    "movl (%%esp), %%eax\n"
+    "popf\n"
+    : "=a" (ret));
+    return ret;
+}
+
 public
 struct task_struct* task_new(void (*fp)(void*), unsigned int stack_size, int priority) {
     //TODO _tasks[_nr_tasks]->cpu_state.esp = &on_current_task_exit_cb;
@@ -28,7 +38,8 @@ struct task_struct* task_new(void (*fp)(void*), unsigned int stack_size, int pri
     _dbg_log("Allocated TCB:[0x%x], stack top:[0x%x]\n", _tasks[_nr_tasks], _tasks[_nr_tasks]->stack_bottom + stack_size);
     _tasks[_nr_tasks]->cpu_state.esp = (unsigned int)_tasks[_nr_tasks]->stack_bottom + stack_size;
     _tasks[_nr_tasks]->cpu_state.esp -= 32;
-    *(unsigned int*)(_tasks[_nr_tasks]->cpu_state.esp) = 0x00000286; // id vip vif ac vm rf nt IOPL=0 of df IF tf SF zf af PF cf
+    unsigned int current_eflags = get_eflags();
+    *(unsigned int*)(_tasks[_nr_tasks]->cpu_state.esp) = current_eflags;
     _tasks[_nr_tasks]->pid = _nr_tasks + 1;
     _tasks[_nr_tasks]->stack_state.eip = (unsigned int)fp;
     _tasks[_nr_tasks]->interruptible = 1;
@@ -66,6 +77,7 @@ private
 void* schedule(void* unused) {
     // Try round-robin first?
     //_dbg_log("Total tasks: %u\n", _nr_tasks);
+    if (_current) _current->interruptible = 0;
     struct task_struct *next = NULL;
     while (1) {
         for (unsigned int i = 0; i < _nr_tasks; ++i) {
@@ -77,15 +89,14 @@ void* schedule(void* unused) {
         if (next) break;
     }
     task_switch_to(next);
+    if (_current) _current->interruptible = 1;
     return NULL;
 }
 
 public
 void task_yield() {
     // Switch control to scheduler, sched decides what process to continue.
-    if (_current) _current->interruptible = 0;
     schedule(NULL);
-    if (_current) _current->interruptible = 1;
 }
 
 // Begin test section
