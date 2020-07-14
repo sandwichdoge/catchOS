@@ -41,7 +41,7 @@ cpu_switch_to:
     test edi, edi
     jz .first
 
-    ; Next task's eip, return here
+    ; Modify return address of self. Put in next task's eip.
     mov eax, [esi + 52]
     mov [esp + 32], eax
 

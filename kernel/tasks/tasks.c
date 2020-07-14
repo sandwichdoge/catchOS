@@ -27,6 +27,8 @@ struct task_struct* task_new(void (*fp)(void*), unsigned int stack_size, int pri
     _tasks[_nr_tasks]->state = TASK_RUNNING;
     _dbg_log("Allocated TCB:[0x%x], stack top:[0x%x]\n", _tasks[_nr_tasks], _tasks[_nr_tasks]->stack_bottom + stack_size);
     _tasks[_nr_tasks]->cpu_state.esp = (unsigned int)_tasks[_nr_tasks]->stack_bottom + stack_size;
+    _tasks[_nr_tasks]->cpu_state.esp -= 32;
+    *(unsigned int*)(_tasks[_nr_tasks]->cpu_state.esp) = 0x00000286; // id vip vif ac vm rf nt IOPL=0 of df IF tf SF zf af PF cf
     _tasks[_nr_tasks]->pid = _nr_tasks + 1;
     _tasks[_nr_tasks]->stack_state.eip = (unsigned int)fp;
     _tasks[_nr_tasks]->interruptible = 1;
@@ -94,19 +96,20 @@ private void test_proc1(void *p) {
     while (1) {
         for (int i = 0; i < 2000000000; ++i) {
             _dbg_log("task1 %u:%d\n", getticks(), i);
-            delay(10);
+            // BUG: stopped receiving timer interrupts unless sti() is called, probably lost interrupt on context switch, check EFLAGS?
+            // Removing pushf in context switch fixes this -> try disabling global interrupts first before switch?
+            delay(20);
             //task_switch_to(task2);
             task_yield();
         }
     }
-    _dbg_break();
 }
 
 private void test_proc2(void *p) {
     while (1) {
         for (int i = 0; i < 2000000000; ++i) {
             _dbg_log("task2 %u:%d\n", getticks(), i);
-            delay(10);
+            delay(20);
             //task_switch_to(task1);
             task_yield();
         }

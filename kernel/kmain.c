@@ -42,7 +42,7 @@ void kmain(unsigned int ebx) {
     // Setup interrupts
     write_cstr("Setting up interrupts..", 0);
     interrupt_init();
-    timer_init();   // TODO if comment out this line, serial_write is normal again
+    timer_init();
 
     write_cstr("Setting up memory..", 80);
     kheap_init();

@@ -104,7 +104,7 @@ void interrupt_init(void) {
 
 public
 void interrupt_handler(unsigned int* return_reg, struct cpu_state cpu_state, unsigned int interrupt_num, struct stack_state stack_state) {
-    _dbg_log("[Interrupt]num:[%u]\n", interrupt_num);
+    //_dbg_log("[Interrupt]num:[%u]\n", interrupt_num);
 
     if (interrupt_num >= sizeof(int_handler_table) / sizeof(*int_handler_table)) {
         _dbg_log("Error. Unknown interrupt number.\n");
