@@ -110,11 +110,12 @@ void interrupt_handler(unsigned int* return_reg, struct cpu_state cpu_state, uns
         _dbg_log("Error. Unknown interrupt number.\n");
         return;  // Stop if array out of range
     }
+    pic_ack(interrupt_num);
 
     if (int_handler_table[interrupt_num]) {
         (*int_handler_table[interrupt_num])(return_reg, &cpu_state);
     } else {
         _dbg_log("Unhandled interrupt[%u]\n", interrupt_num);
     }
-    pic_ack(interrupt_num);
+    // Bug here, called ISR but didn't return, so no ACK
 }

@@ -99,20 +99,19 @@ void task_yield() {
     schedule(NULL);
 }
 
-int inter = 0;
 public
 void task_isr_priority() {
-    /*
-    _current->counter--;
-    if (_current->counter > 0 || _current->interruptible) {
+    _dbg_log("ISR current:[0x%x]\n", _current);
+    if (!_current) {
         return;
     }
-    _current->counter = 0;*/
-    if (!inter) return;
+    _current->counter--;
+    if (_current->counter > 0 || !_current->interruptible) {
+        return;
+    }
+    _current->counter = 0;
     asm("cli");
-    _dbg_log("ISR\n");
     schedule(NULL);
-    _dbg_log("sched returns\n");
     asm("sti");
 }
 
@@ -145,7 +144,6 @@ private void test_proc2(void *p) {
 public void test_caller() {
     task1 = task_new(test_proc1, 1024, 1);
     task2 = task_new(test_proc2, 1024, 1);
-    inter = 1;
     task_yield();
 }
 // End test section
