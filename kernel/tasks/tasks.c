@@ -76,7 +76,7 @@ void task_switch_to(struct task_struct* next) {
 private
 void* schedule(void* unused) {
     // Try round-robin first?
-    //_dbg_log("Total tasks: %u\n", _nr_tasks);
+    _dbg_log("Total tasks: %u\n", _nr_tasks);
     if (_current) _current->interruptible = 0;
     struct task_struct *next = NULL;
     while (1) {
@@ -99,6 +99,23 @@ void task_yield() {
     schedule(NULL);
 }
 
+int inter = 0;
+public
+void task_isr_priority() {
+    /*
+    _current->counter--;
+    if (_current->counter > 0 || _current->interruptible) {
+        return;
+    }
+    _current->counter = 0;*/
+    if (!inter) return;
+    asm("cli");
+    _dbg_log("ISR\n");
+    schedule(NULL);
+    _dbg_log("sched returns\n");
+    asm("sti");
+}
+
 // Begin test section
 struct task_struct* task1;
 struct task_struct* task2;
@@ -106,12 +123,10 @@ struct task_struct* task2;
 private void test_proc1(void *p) {
     while (1) {
         for (int i = 0; i < 2000000000; ++i) {
-            _dbg_log("task1 %u:%d\n", getticks(), i);
-            // BUG: stopped receiving timer interrupts unless sti() is called, probably lost interrupt on context switch, check EFLAGS?
-            // Removing pushf in context switch fixes this -> try disabling global interrupts first before switch?
-            delay(20);
+            _dbg_log("t1 %u:%d\n", getticks(), i);
+            //delay(200);
             //task_switch_to(task2);
-            task_yield();
+            //task_yield();
         }
     }
 }
@@ -119,10 +134,10 @@ private void test_proc1(void *p) {
 private void test_proc2(void *p) {
     while (1) {
         for (int i = 0; i < 2000000000; ++i) {
-            _dbg_log("task2 %u:%d\n", getticks(), i);
-            delay(20);
+            _dbg_log("t2 %u:%d\n", getticks(), i);
+            //delay(200);
             //task_switch_to(task1);
-            task_yield();
+            //task_yield();
         }
     }
 }
@@ -130,7 +145,7 @@ private void test_proc2(void *p) {
 public void test_caller() {
     task1 = task_new(test_proc1, 1024, 1);
     task2 = task_new(test_proc2, 1024, 1);
-    //task_switch_to(task1);
+    inter = 1;
     task_yield();
 }
 // End test section
