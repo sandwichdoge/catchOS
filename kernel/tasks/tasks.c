@@ -36,9 +36,9 @@ public
 struct task_struct* task_new(void (*fp)(void*), void* arg, unsigned int stack_size, int priority) {
     /*
     - Task's stack map -
-    [arg here] - but how to return to cleanup func? must pop arg after using
-    [Task's ret addr] - When task function reaches return. Should be addr of on_current_task_return_cb().
-    [next EIP]
+    [arg]
+    [task's ret addr] - When task function reaches return. Should be addr of on_current_task_return_cb().
+    [next eip]
     [reg]
     [reg]
     [reg]
@@ -48,9 +48,6 @@ struct task_struct* task_new(void (*fp)(void*), void* arg, unsigned int stack_si
     [reg]
     [EFLAGS reg] <- esp
     */
-    //TODO _tasks[_nr_tasks]->cpu_state.esp = &on_current_task_return_cb;
-    //on_task_exit -> TASK_JOINABLE, remove from _tasks array, task_yield().
-    //no need for kmain after thread initialized (kmain will not get cpu time ever again after yielding)
     if (_nr_tasks == MAX_CONCURRENT_TASKS) return NULL; // Max number of tasks reached.
     int pid = -1;
     for (int i = 0; i < MAX_CONCURRENT_TASKS; ++i) {
@@ -63,8 +60,8 @@ struct task_struct* task_new(void (*fp)(void*), void* arg, unsigned int stack_si
     _tasks[pid] = mmu_mmap(sizeof(struct task_struct));
     _tasks[pid]->stack_bottom = mmu_mmap(stack_size);
     _tasks[pid]->state = TASK_RUNNING;
-    _dbg_log("Allocated TCB[%d]:[0x%x], stack top:[0x%x]\n", pid, _tasks[pid], _tasks[pid]->stack_bottom + stack_size);
     _tasks[pid]->cpu_state.esp = (unsigned int)_tasks[pid]->stack_bottom + stack_size;
+    _dbg_log("Allocated TCB[%d]:[0x%x], stack top:[0x%x]\n", pid, _tasks[pid], _tasks[pid]->cpu_state.esp);
     *(unsigned int*)(_tasks[pid]->cpu_state.esp) = (unsigned int)arg;
     _tasks[pid]->cpu_state.esp -= 4;
     *(unsigned int*)(_tasks[pid]->cpu_state.esp) = (unsigned int)&on_current_task_return_cb;
@@ -176,15 +173,16 @@ private void test_proc4(void* p) {
 }
 
 private void test_proc3(void *p) {
-    p += 0x456;
-    struct task_struct *task4 = task_new(test_proc4, 0x777, 1024, 1);
-    _dbg_log("t3 %u:%x\n", getticks(), (unsigned int)p);
+    struct task_struct *task4 = task_new(test_proc4, (void*)0x777, 1024, 1);
+    _dbg_log("t3 %u:%x\n", getticks(), p);
+    task_join(task4);
+    _dbg_log("joined task4\n");
 }
 
 public void test_caller() {
-    //task1 = task_new(test_proc1, NULL, 1024, 1);
-    //task2 = task_new(test_proc2, NULL, 1024, 1);
-    task3 = task_new(test_proc3, 0x123, 1024, 1);
+    task1 = task_new(test_proc1, NULL, 1024, 1);
+    task2 = task_new(test_proc2, NULL, 1024, 1);
+    task3 = task_new(test_proc3, (void*)0x123, 1024, 1);
     task_yield();
 }
 // End test section
