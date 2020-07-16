@@ -8,7 +8,8 @@
 // Array of all current tasks. Only 64 tasks can run at a time for now.
 private struct task_struct* _tasks[MAX_CONCURRENT_TASKS];
 private unsigned int _nr_tasks; // Current running tasks in the system.
-struct task_struct* _current;   // Current task that controls CPU.
+struct task_struct kmain;       // Initial _current value, so we won't have to to if _current is NULL later.
+struct task_struct* _current = &kmain;   // Current task that controls CPU.
 struct task_struct* _scheduler;
 
 public unsigned int task_get_nr() {
@@ -16,7 +17,8 @@ public unsigned int task_get_nr() {
 }
 
 // Read current EFLAGS register.
-private unsigned int get_eflags() {
+private 
+unsigned int get_eflags() {
     unsigned int ret;
     asm("pushf\n"
     "movl (%%esp), %%eax\n"
@@ -38,8 +40,7 @@ struct task_struct* task_new(void (*fp)(void*), unsigned int stack_size, int pri
     _dbg_log("Allocated TCB:[0x%x], stack top:[0x%x]\n", _tasks[_nr_tasks], _tasks[_nr_tasks]->stack_bottom + stack_size);
     _tasks[_nr_tasks]->cpu_state.esp = (unsigned int)_tasks[_nr_tasks]->stack_bottom + stack_size;
     _tasks[_nr_tasks]->cpu_state.esp -= 32;
-    unsigned int current_eflags = get_eflags();
-    *(unsigned int*)(_tasks[_nr_tasks]->cpu_state.esp) = current_eflags;
+    *(unsigned int*)(_tasks[_nr_tasks]->cpu_state.esp) = get_eflags();
     _tasks[_nr_tasks]->pid = _nr_tasks + 1;
     _tasks[_nr_tasks]->stack_state.eip = (unsigned int)fp;
     _tasks[_nr_tasks]->interruptible = 1;
@@ -77,7 +78,7 @@ private
 void* schedule(void* unused) {
     // Try round-robin first?
     _dbg_log("Total tasks: %u\n", _nr_tasks);
-    if (_current) _current->interruptible = 0;
+    _current->interruptible = 0;
     struct task_struct *next = NULL;
     while (1) {
         for (unsigned int i = 0; i < _nr_tasks; ++i) {
@@ -89,7 +90,7 @@ void* schedule(void* unused) {
         if (next) break;
     }
     task_switch_to(next);
-    if (_current) _current->interruptible = 1;
+    _current->interruptible = 1;
     return NULL;
 }
 

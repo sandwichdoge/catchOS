@@ -117,5 +117,4 @@ void interrupt_handler(unsigned int* return_reg, struct cpu_state cpu_state, uns
     } else {
         _dbg_log("Unhandled interrupt[%u]\n", interrupt_num);
     }
-    // Bug here, called ISR but didn't return, so no ACK
 }

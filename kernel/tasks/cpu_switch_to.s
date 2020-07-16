@@ -19,8 +19,6 @@ cpu_switch_to:
     pushf
 
     mov edi, [esp + 32 + 4]         ;edi = address of the previous task's "thread control block"
-    test edi, edi                   ;prev is NULL i.e. first time calling switch_to()
-    jz .load
 
     mov eax, [esp + 32]             ;EAX is return address i.e. where the prev task left off before calling cpu_switch_to()
     mov [edi + 52], eax             ;save EIP for previous task's eip
@@ -38,8 +36,6 @@ cpu_switch_to:
     ;cmp eax,ecx                     ;Does the virtual address space need to being changed?
     ;je .doneVAS                     ; no, virtual address space is the same, so don't reload it and cause TLB flushes
     ;mov cr3,eax                     ; yes, load the next task's virtual address space
-    test edi, edi
-    jz .first
 
     ; Modify return address of self. Put in next task's eip.
     mov eax, [esi + 52]
@@ -59,7 +55,3 @@ cpu_switch_to:
 
     ret                             ;Load next task's EIP from its kernel stack. https://docs.oracle.com/cd/E19455-01/806-3773/instructionset-67/index.html
                                     ; since ret instruction will jump to the address at top of stack, which was pushed by call instruction.
-.first:
-    mov esi, [esi + 52]             ;Offset of eip in TCB
-    push esi
-    ret
