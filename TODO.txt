@@ -1,7 +1,6 @@
 - Improve syscall, put keyboard callback funcs in a queue.
-- Read up Paging.
 - Detect physical memory limits.
 - Detect kernel stack overflow.
-- kmalloc.
+- Filesystem.
 - User accounts.
-- Multi-tasking.
+

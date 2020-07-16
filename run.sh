@@ -11,3 +11,5 @@ if [ "$?" -ne 0 ]; then
 fi
 cd output
 bochs -f bochsrc.txt -q
+
+#qemu-system-i386 -accel tcg,thread=single -cpu core2duo -m 128 -no-reboot -drive format=raw,media=cdrom,file=os.iso -serial file:serial_debug.txt -smp 1 -usb -vga std

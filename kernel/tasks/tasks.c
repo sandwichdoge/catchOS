@@ -8,52 +8,81 @@
 // Array of all current tasks. Only 64 tasks can run at a time for now.
 private struct task_struct* _tasks[MAX_CONCURRENT_TASKS];
 private unsigned int _nr_tasks; // Current running tasks in the system.
-struct task_struct* _current;   // Current task that controls CPU.
+struct task_struct kmain;       // Initial _current value, so we won't have to to if _current is NULL later.
+struct task_struct* _current = &kmain;   // Current task that controls CPU.
+struct task_struct* _scheduler;
 
+// Read current EFLAGS register.
+private 
+unsigned int get_eflags() {
+    unsigned int ret;
+    asm("pushf\n"
+    "movl (%%esp), %%eax\n"
+    "popf\n"
+    : "=a" (ret));
+    return ret;
+}
 
-public unsigned int task_get_nr() {
-    return _nr_tasks;
+// When a task reaches return, it will call this task for cleanup.
+private
+void on_current_task_return_cb() {
+    _current->state = TASK_JOINABLE;
+    _tasks[_current->pid] = NULL;
+    _nr_tasks--;
+    task_yield();
 }
 
 public
 struct task_struct* task_new(void (*fp)(void*), unsigned int stack_size, int priority) {
+    /*
+    - Task's stack map -
+    [Task's ret addr] - When task function reaches return. Should be addr of on_current_task_return_cb().
+    [next EIP]
+    [reg]
+    [reg]
+    [reg]
+    [reg]
+    [reg]
+    [reg]
+    [reg]
+    [EFLAGS reg] <- esp
+    */
+    //TODO _tasks[_nr_tasks]->cpu_state.esp = &on_current_task_return_cb;
+    //on_task_exit -> TASK_JOINABLE, remove from _tasks array, task_yield().
+    //no need for kmain after thread initialized (kmain will not get cpu time ever again after yielding)
     if (_nr_tasks == MAX_CONCURRENT_TASKS) return NULL; // Max number of tasks reached.
+    int pid = -1;
+    for (int i = 0; i < MAX_CONCURRENT_TASKS; ++i) {
+        if (_tasks[i] == NULL) {
+            pid = i;
+        }
+    }
+    if (pid < 0) return NULL;
 
-    _tasks[_nr_tasks] = (struct task_struct*)mmu_mmap(sizeof(struct task_struct));
-    _tasks[_nr_tasks]->stack_bottom = mmu_mmap(stack_size);
-    _dbg_log("Allocated TCB:[0x%x], stack bottom:[0x%x]\n", _tasks[_nr_tasks], _tasks[_nr_tasks]->stack_bottom);
-    _tasks[_nr_tasks]->cpu_state.esp = (unsigned int)_tasks[_nr_tasks]->stack_bottom + stack_size;
-    _tasks[_nr_tasks]->state = TASK_RUNNING;
-    _tasks[_nr_tasks]->pid = _nr_tasks;
-    _tasks[_nr_tasks]->stack_state.eip = (unsigned int)fp; // Page fault here?
+    _tasks[pid] = mmu_mmap(sizeof(struct task_struct));
+    _tasks[pid]->stack_bottom = mmu_mmap(stack_size);
+    _tasks[pid]->state = TASK_RUNNING;
+    _dbg_log("Allocated TCB[%d]:[0x%x], stack top:[0x%x]\n", pid, _tasks[pid], _tasks[pid]->stack_bottom + stack_size);
+    _tasks[pid]->cpu_state.esp = (unsigned int)_tasks[pid]->stack_bottom + stack_size;
+    *(unsigned int*)(_tasks[pid]->cpu_state.esp) = (unsigned int)&on_current_task_return_cb;
+    _tasks[pid]->cpu_state.esp -= 36;
+    *(unsigned int*)(_tasks[pid]->cpu_state.esp) = get_eflags();
+    _tasks[pid]->pid = pid;
+    _tasks[pid]->stack_state.eip = (unsigned int)fp;
+    _tasks[pid]->interruptible = 1;
     _nr_tasks++;
 
-    return _tasks[_nr_tasks - 1];
-}
-
-public
-void task_yield() {
-    // TODO: Switch control to scheduler, sched decides what process to continue.
+    return _tasks[pid];
 }
 
 public
 void task_join(struct task_struct* task) {
     while (task->state != TASK_JOINABLE) {
-        task_yield(task);
+        task_yield();
     }
     mmu_munmap(task->stack_bottom);
     mmu_munmap(task);
     _nr_tasks--;
-}
-
-
-private
-void schedule() {
-    while (1) {
-        for (int i = 0; i < MAX_CONCURRENT_TASKS; ++i) {
-            
-        }
-    }
 }
 
 private
@@ -70,27 +99,88 @@ void task_switch_to(struct task_struct* next) {
     cpu_switch_to(prev, next);
 }
 
+private
+void* schedule(void* unused) {
+    // Try round-robin first?
+    asm("cli");
+
+    static unsigned int i;
+    _dbg_log("Total tasks: %u\n", _nr_tasks);
+    _current->interruptible = 0;
+    struct task_struct *next = NULL;
+    while (1) {
+        if (i >= MAX_CONCURRENT_TASKS) i = 0;
+        next = _tasks[i];
+        if (next) {
+            break;
+        } else {
+            ++i;
+        }
+    }
+    ++i;
+    task_switch_to(next);
+    _current->interruptible = 1;
+
+    asm("sti");
+    return NULL;
+}
+
+public
+void task_yield() {
+    // Switch control to scheduler, sched decides what process to continue.
+    schedule(NULL);
+}
+
+// Called by PIT ISR_TIMER.
+public
+void task_isr_priority() {
+    _current->counter--;
+    if (_current->counter > 0 || !_current->interruptible) {
+        return;
+    }
+    _current->counter = 0;
+    schedule(NULL);
+}
+
+public
+unsigned int task_get_nr() {
+    return _nr_tasks;
+}
+
 // Begin test section
-struct task_struct* task1;
-struct task_struct* task2;
+struct task_struct *task1, *task2, *task3;
 
 private void test_proc1(void *p) {
-    for (int i = 0; i < 4; ++i) {
-        _dbg_log("%d", i);
-        task_switch_to(task2);
+    while (1) {
+        for (int i = 0; i < 2000000000; ++i) {
+            _dbg_log("t1 %u:%d\n", getticks(), i);
+            delay(200);
+        }
     }
 }
 
 private void test_proc2(void *p) {
-    for (int i = 4; i < 8; ++i) {
-        _dbg_log("%d", i);
-        task_switch_to(task1);
+    while (1) {
+        for (int i = 0; i < 2000000000; ++i) {
+            _dbg_log("t2 %u:%d\n", getticks(), i);
+            delay(200);
+        }
     }
+}
+
+private void test_proc4(void* p) {
+    _dbg_log("t4\n");
+}
+
+private void test_proc3(void *p) {
+    struct task_struct *task4 = task_new(test_proc4, 1024, 1);
+    _dbg_log("t3 %u:%d\n", getticks(), 0);
 }
 
 public void test_caller() {
     task1 = task_new(test_proc1, 1024, 1);
     task2 = task_new(test_proc2, 1024, 1);
-    task_switch_to(task1);
+    task3 = task_new(test_proc3, 1024, 1);
+    task_yield();
 }
 // End test section

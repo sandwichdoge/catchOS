@@ -52,12 +52,8 @@ void kmain(unsigned int ebx) {
     // Perform memory tests
     test_memory_32bit_mode();
 
-    //test_caller();
-
-    asm("cli");
     asm("sti");  // Enable interrupts
-
-    // TODO Bug, hang on serial_write() after sti is called
+    test_caller();
 
     // Enter I/O shell
     #ifdef WITH_GRUB_MB

@@ -1,9 +1,10 @@
-https://www.cs.bham.ac.uk/~exr/lectures/opsys/10_11/lectures/os-dev.pdf
+## catchOS
+A unix-like monolithic kernel, plus some userland applications (non POSIX-compliant).
 
 https://linux-kernel-labs.github.io
 
 ```
-sudo apt install build-essential nasm genisoimage bochs bochs-sdl libsdl2-2.0
+sudo apt install build-essential nasm genisoimage bochs bochs-sdl libsdl2-2.0 qemu-system-x86
 git submodule update --init
 ```
 

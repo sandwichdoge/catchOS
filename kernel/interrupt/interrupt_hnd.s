@@ -18,6 +18,7 @@ asm_int_handler_%1:
 
 no_error_code_interrupt_handler 32      ; create handler for interrupt 0 (system timer)
 no_error_code_interrupt_handler	33	    ; create handler for interrupt 1 (keyboard)
+no_error_code_interrupt_handler 36      ; interrupt 4 (com1)
 no_error_code_interrupt_handler 14	    ; create handler for interrupt 2 (paging)
 no_error_code_interrupt_handler 128     ; create handler for interrupt 2 (syscall)
 

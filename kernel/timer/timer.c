@@ -1,6 +1,7 @@
 #include "builddef.h"
 #include "timer.h"
 #include "interrupt.h"
+#include "tasks.h"
 #include "drivers/pit.h"
 #include "utils/debug.h"
 
@@ -12,6 +13,7 @@ private unsigned int _ticks;
 private
 void ISR_SYSTIME(unsigned int* return_reg, struct cpu_state* unused) {
     _ticks++;
+    task_isr_priority();
 }
 
 public
@@ -23,7 +25,6 @@ public
 void delay(unsigned int ms) {
     unsigned int stop = _ticks * 10 + ms;
     while (_ticks * 10 < stop) {
-
     }
 }
 
