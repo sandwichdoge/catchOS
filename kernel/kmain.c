@@ -53,7 +53,7 @@ void kmain(unsigned int ebx) {
     test_memory_32bit_mode();
 
     asm("sti");  // Enable interrupts
-    //test_caller();
+    test_caller();
 
     // Enter I/O shell
     #ifdef WITH_GRUB_MB

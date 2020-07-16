@@ -33,9 +33,10 @@ void on_current_task_return_cb() {
 }
 
 public
-struct task_struct* task_new(void (*fp)(void*), unsigned int stack_size, int priority) {
+struct task_struct* task_new(void (*fp)(void*), void* arg, unsigned int stack_size, int priority) {
     /*
     - Task's stack map -
+    [arg here] - but how to return to cleanup func? must pop arg after using
     [Task's ret addr] - When task function reaches return. Should be addr of on_current_task_return_cb().
     [next EIP]
     [reg]
@@ -65,6 +66,8 @@ struct task_struct* task_new(void (*fp)(void*), unsigned int stack_size, int pri
     _dbg_log("Allocated TCB[%d]:[0x%x], stack top:[0x%x]\n", pid, _tasks[pid], _tasks[pid]->stack_bottom + stack_size);
     _tasks[pid]->cpu_state.esp = (unsigned int)_tasks[pid]->stack_bottom + stack_size;
     *(unsigned int*)(_tasks[pid]->cpu_state.esp) = (unsigned int)&on_current_task_return_cb;
+    //_tasks[pid]->cpu_state.esp -= 4;
+    //*(unsigned int*)(_tasks[pid]->cpu_state.esp) = (unsigned int)arg;
     _tasks[pid]->cpu_state.esp -= 36;
     *(unsigned int*)(_tasks[pid]->cpu_state.esp) = get_eflags();
     _tasks[pid]->pid = pid;
@@ -169,18 +172,20 @@ private void test_proc2(void *p) {
 }
 
 private void test_proc4(void* p) {
-    _dbg_log("t4\n");
+    _dbg_log("t4 [0x%x]\n", p);
 }
 
 private void test_proc3(void *p) {
-    struct task_struct *task4 = task_new(test_proc4, 1024, 1);
-    _dbg_log("t3 %u:%d\n", getticks(), 0);
+    //struct task_struct *task4 = task_new(test_proc4, "abc\0", 1024, 1);
+    p += 0x456;
+    _dbg_log("t3 %u:%x\n", getticks(), (unsigned int)p);
+    _dbg_break();
 }
 
 public void test_caller() {
-    task1 = task_new(test_proc1, 1024, 1);
-    task2 = task_new(test_proc2, 1024, 1);
-    task3 = task_new(test_proc3, 1024, 1);
+    //task1 = task_new(test_proc1, NULL, 1024, 1);
+    //task2 = task_new(test_proc2, NULL, 1024, 1);
+    task3 = task_new(test_proc3, 0x123, 1024, 1);
     task_yield();
 }
 // End test section

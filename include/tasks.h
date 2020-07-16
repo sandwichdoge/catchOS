@@ -26,7 +26,7 @@ struct task_struct {
 };
 
 // Create a new task.
-struct task_struct* task_new(void (*fp)(void*), unsigned int stack_size, int priority);
+struct task_struct* task_new(void (*fp)(void*), void* arg, unsigned int stack_size, int priority);
 
 // Join a running task, release its resources.
 void task_join(struct task_struct*);
