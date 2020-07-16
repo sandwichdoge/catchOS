@@ -51,12 +51,18 @@ struct task_struct* task_new(void (*fp)(void*), unsigned int stack_size, int pri
     //on_task_exit -> TASK_JOINABLE, remove from _tasks array, task_yield().
     //no need for kmain after thread initialized (kmain will not get cpu time ever again after yielding)
     if (_nr_tasks == MAX_CONCURRENT_TASKS) return NULL; // Max number of tasks reached.
-    unsigned int pid = _nr_tasks;
+    int pid = -1;
+    for (int i = 0; i < MAX_CONCURRENT_TASKS; ++i) {
+        if (_tasks[i] == NULL) {
+            pid = i;
+        }
+    }
+    if (pid < 0) return NULL;
 
     _tasks[pid] = mmu_mmap(sizeof(struct task_struct));
     _tasks[pid]->stack_bottom = mmu_mmap(stack_size);
     _tasks[pid]->state = TASK_RUNNING;
-    _dbg_log("Allocated TCB:[0x%x], stack top:[0x%x]\n", _tasks[pid], _tasks[pid]->stack_bottom + stack_size);
+    _dbg_log("Allocated TCB[%d]:[0x%x], stack top:[0x%x]\n", pid, _tasks[pid], _tasks[pid]->stack_bottom + stack_size);
     _tasks[pid]->cpu_state.esp = (unsigned int)_tasks[pid]->stack_bottom + stack_size;
     *(unsigned int*)(_tasks[pid]->cpu_state.esp) = (unsigned int)&on_current_task_return_cb;
     _tasks[pid]->cpu_state.esp -= 36;
@@ -103,9 +109,13 @@ void* schedule(void* unused) {
     _current->interruptible = 0;
     struct task_struct *next = NULL;
     while (1) {
-        if (i >= _nr_tasks) i = 0;
+        if (i >= MAX_CONCURRENT_TASKS) i = 0;
         next = _tasks[i];
-        if (next) break;
+        if (next) {
+            break;
+        } else {
+            ++i;
+        }
     }
     ++i;
     task_switch_to(next);
@@ -158,7 +168,12 @@ private void test_proc2(void *p) {
     }
 }
 
+private void test_proc4(void* p) {
+    _dbg_log("t4\n");
+}
+
 private void test_proc3(void *p) {
+    struct task_struct *task4 = task_new(test_proc4, 1024, 1);
     _dbg_log("t3 %u:%d\n", getticks(), 0);
 }
 

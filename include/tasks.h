@@ -38,4 +38,7 @@ void test_caller();
 
 // Get number of running tasks.
 unsigned int task_get_nr();
+
+// Called by PIT INT_SYSTIMER.
+void task_isr_priority();
 #endif
