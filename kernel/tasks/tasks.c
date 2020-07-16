@@ -25,14 +25,18 @@ unsigned int get_eflags() {
 
 private
 void on_current_task_return_cb() {
-    _dbg_log("Called\n");
+    _current->state = TASK_JOINABLE;
+    _tasks[_current->pid] = NULL;
+    _nr_tasks--;
+    task_yield();
 }
 
 public
 struct task_struct* task_new(void (*fp)(void*), unsigned int stack_size, int priority) {
     /*
     - Task's stack map -
-    [Task's ret addr] <- (1024)
+    [Task's ret addr] - When task function reaches return. Should be addr of on_current_task_return_cb().
+    [next EIP]
     [reg]
     [reg]
     [reg]
@@ -40,7 +44,7 @@ struct task_struct* task_new(void (*fp)(void*), unsigned int stack_size, int pri
     [reg]
     [reg]
     [reg]
-    [EFLAGS reg] <- (1016) - esp
+    [EFLAGS reg] <- esp
     */
     //TODO _tasks[_nr_tasks]->cpu_state.esp = &on_current_task_return_cb;
     //on_task_exit -> TASK_JOINABLE, remove from _tasks array, task_yield().
@@ -53,8 +57,7 @@ struct task_struct* task_new(void (*fp)(void*), unsigned int stack_size, int pri
     _dbg_log("Allocated TCB:[0x%x], stack top:[0x%x]\n", _tasks[_nr_tasks], _tasks[_nr_tasks]->stack_bottom + stack_size);
     _tasks[_nr_tasks]->cpu_state.esp = (unsigned int)_tasks[_nr_tasks]->stack_bottom + stack_size;
     *(unsigned int*)(_tasks[_nr_tasks]->cpu_state.esp) = (unsigned int)&on_current_task_return_cb;
-    _dbg_log("Ret func:[0x%x]\n", &on_current_task_return_cb);
-    _tasks[_nr_tasks]->cpu_state.esp -= 32;
+    _tasks[_nr_tasks]->cpu_state.esp -= 36;
     *(unsigned int*)(_tasks[_nr_tasks]->cpu_state.esp) = get_eflags();
     _tasks[_nr_tasks]->pid = _nr_tasks + 1;
     _tasks[_nr_tasks]->stack_state.eip = (unsigned int)fp;
@@ -85,25 +88,28 @@ void task_switch_to(struct task_struct* next) {
     if (_current == next) return;
     struct task_struct* prev = _current;
     _current = next;
-    //_dbg_log("[Switch]Prev:[0x%x], Next:[%u][0x%x]\n", prev, next->pid, next);
     cpu_switch_to(prev, next);
 }
 
 private
 void* schedule(void* unused) {
     // Try round-robin first?
+    asm("cli");
+
     static unsigned int i;
     _dbg_log("Total tasks: %u\n", _nr_tasks);
-    if (i == _nr_tasks) i = 0;
     _current->interruptible = 0;
     struct task_struct *next = NULL;
     while (1) {
+        if (i >= _nr_tasks) i = 0;
         next = _tasks[i];
         if (next) break;
     }
     ++i;
     task_switch_to(next);
     _current->interruptible = 1;
+
+    asm("sti");
     return NULL;
 }
 
@@ -121,9 +127,7 @@ void task_isr_priority() {
         return;
     }
     _current->counter = 0;
-    asm("cli");
     schedule(NULL);
-    asm("sti");
 }
 
 public
@@ -153,11 +157,7 @@ private void test_proc2(void *p) {
 }
 
 private void test_proc3(void *p) {
-    for (int i = 0; i < 1; ++i) {
-        _dbg_log("t3 %u:%d\n", getticks(), i);
-        delay(200);
-    }
-    _dbg_break();
+    _dbg_log("t3 %u:%d\n", getticks(), 0);
 }
 
 public void test_caller() {
