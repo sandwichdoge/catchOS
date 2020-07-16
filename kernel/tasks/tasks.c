@@ -100,12 +100,9 @@ void task_yield() {
     schedule(NULL);
 }
 
+// Called by PIT ISR_TIMER.
 public
 void task_isr_priority() {
-    _dbg_log("ISR current:[0x%x]\n", _current);
-    if (!_current) {
-        return;
-    }
     _current->counter--;
     if (_current->counter > 0 || !_current->interruptible) {
         return;
@@ -124,9 +121,7 @@ private void test_proc1(void *p) {
     while (1) {
         for (int i = 0; i < 2000000000; ++i) {
             _dbg_log("t1 %u:%d\n", getticks(), i);
-            //delay(200);
-            //task_switch_to(task2);
-            //task_yield();
+            delay(200);
         }
     }
 }
@@ -135,9 +130,7 @@ private void test_proc2(void *p) {
     while (1) {
         for (int i = 0; i < 2000000000; ++i) {
             _dbg_log("t2 %u:%d\n", getticks(), i);
-            //delay(200);
-            //task_switch_to(task1);
-            //task_yield();
+            delay(200);
         }
     }
 }
