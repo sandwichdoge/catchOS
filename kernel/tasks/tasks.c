@@ -23,6 +23,7 @@ unsigned int get_eflags() {
     return ret;
 }
 
+// When a task reaches return, it will call this task for cleanup.
 private
 void on_current_task_return_cb() {
     _current->state = TASK_JOINABLE;
@@ -50,21 +51,22 @@ struct task_struct* task_new(void (*fp)(void*), unsigned int stack_size, int pri
     //on_task_exit -> TASK_JOINABLE, remove from _tasks array, task_yield().
     //no need for kmain after thread initialized (kmain will not get cpu time ever again after yielding)
     if (_nr_tasks == MAX_CONCURRENT_TASKS) return NULL; // Max number of tasks reached.
+    unsigned int pid = _nr_tasks;
 
-    _tasks[_nr_tasks] = mmu_mmap(sizeof(struct task_struct));
-    _tasks[_nr_tasks]->stack_bottom = mmu_mmap(stack_size);
-    _tasks[_nr_tasks]->state = TASK_RUNNING;
-    _dbg_log("Allocated TCB:[0x%x], stack top:[0x%x]\n", _tasks[_nr_tasks], _tasks[_nr_tasks]->stack_bottom + stack_size);
-    _tasks[_nr_tasks]->cpu_state.esp = (unsigned int)_tasks[_nr_tasks]->stack_bottom + stack_size;
-    *(unsigned int*)(_tasks[_nr_tasks]->cpu_state.esp) = (unsigned int)&on_current_task_return_cb;
-    _tasks[_nr_tasks]->cpu_state.esp -= 36;
-    *(unsigned int*)(_tasks[_nr_tasks]->cpu_state.esp) = get_eflags();
-    _tasks[_nr_tasks]->pid = _nr_tasks + 1;
-    _tasks[_nr_tasks]->stack_state.eip = (unsigned int)fp;
-    _tasks[_nr_tasks]->interruptible = 1;
+    _tasks[pid] = mmu_mmap(sizeof(struct task_struct));
+    _tasks[pid]->stack_bottom = mmu_mmap(stack_size);
+    _tasks[pid]->state = TASK_RUNNING;
+    _dbg_log("Allocated TCB:[0x%x], stack top:[0x%x]\n", _tasks[pid], _tasks[pid]->stack_bottom + stack_size);
+    _tasks[pid]->cpu_state.esp = (unsigned int)_tasks[pid]->stack_bottom + stack_size;
+    *(unsigned int*)(_tasks[pid]->cpu_state.esp) = (unsigned int)&on_current_task_return_cb;
+    _tasks[pid]->cpu_state.esp -= 36;
+    *(unsigned int*)(_tasks[pid]->cpu_state.esp) = get_eflags();
+    _tasks[pid]->pid = pid;
+    _tasks[pid]->stack_state.eip = (unsigned int)fp;
+    _tasks[pid]->interruptible = 1;
     _nr_tasks++;
 
-    return _tasks[_nr_tasks - 1];
+    return _tasks[pid];
 }
 
 public
