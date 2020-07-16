@@ -12,10 +12,6 @@ struct task_struct kmain;       // Initial _current value, so we won't have to t
 struct task_struct* _current = &kmain;   // Current task that controls CPU.
 struct task_struct* _scheduler;
 
-public unsigned int task_get_nr() {
-    return _nr_tasks;
-}
-
 // Read current EFLAGS register.
 private 
 unsigned int get_eflags() {
@@ -27,9 +23,26 @@ unsigned int get_eflags() {
     return ret;
 }
 
+private
+void on_current_task_return_cb() {
+    _dbg_log("Called\n");
+}
+
 public
 struct task_struct* task_new(void (*fp)(void*), unsigned int stack_size, int priority) {
-    //TODO _tasks[_nr_tasks]->cpu_state.esp = &on_current_task_exit_cb;
+    /*
+    - Task's stack map -
+    [Task's ret addr] <- (1024)
+    [reg]
+    [reg]
+    [reg]
+    [reg]
+    [reg]
+    [reg]
+    [reg]
+    [EFLAGS reg] <- (1016) - esp
+    */
+    //TODO _tasks[_nr_tasks]->cpu_state.esp = &on_current_task_return_cb;
     //on_task_exit -> TASK_JOINABLE, remove from _tasks array, task_yield().
     //no need for kmain after thread initialized (kmain will not get cpu time ever again after yielding)
     if (_nr_tasks == MAX_CONCURRENT_TASKS) return NULL; // Max number of tasks reached.
@@ -39,6 +52,8 @@ struct task_struct* task_new(void (*fp)(void*), unsigned int stack_size, int pri
     _tasks[_nr_tasks]->state = TASK_RUNNING;
     _dbg_log("Allocated TCB:[0x%x], stack top:[0x%x]\n", _tasks[_nr_tasks], _tasks[_nr_tasks]->stack_bottom + stack_size);
     _tasks[_nr_tasks]->cpu_state.esp = (unsigned int)_tasks[_nr_tasks]->stack_bottom + stack_size;
+    *(unsigned int*)(_tasks[_nr_tasks]->cpu_state.esp) = (unsigned int)&on_current_task_return_cb;
+    _dbg_log("Ret func:[0x%x]\n", &on_current_task_return_cb);
     _tasks[_nr_tasks]->cpu_state.esp -= 32;
     *(unsigned int*)(_tasks[_nr_tasks]->cpu_state.esp) = get_eflags();
     _tasks[_nr_tasks]->pid = _nr_tasks + 1;
@@ -77,18 +92,16 @@ void task_switch_to(struct task_struct* next) {
 private
 void* schedule(void* unused) {
     // Try round-robin first?
+    static unsigned int i;
     _dbg_log("Total tasks: %u\n", _nr_tasks);
+    if (i == _nr_tasks) i = 0;
     _current->interruptible = 0;
     struct task_struct *next = NULL;
     while (1) {
-        for (unsigned int i = 0; i < _nr_tasks; ++i) {
-            if (_tasks[i] != _current) {
-                next = _tasks[i];
-                break;
-            }
-        }
+        next = _tasks[i];
         if (next) break;
     }
+    ++i;
     task_switch_to(next);
     _current->interruptible = 1;
     return NULL;
@@ -113,9 +126,13 @@ void task_isr_priority() {
     asm("sti");
 }
 
+public
+unsigned int task_get_nr() {
+    return _nr_tasks;
+}
+
 // Begin test section
-struct task_struct* task1;
-struct task_struct* task2;
+struct task_struct *task1, *task2, *task3;
 
 private void test_proc1(void *p) {
     while (1) {
@@ -135,9 +152,18 @@ private void test_proc2(void *p) {
     }
 }
 
+private void test_proc3(void *p) {
+    for (int i = 0; i < 1; ++i) {
+        _dbg_log("t3 %u:%d\n", getticks(), i);
+        delay(200);
+    }
+    _dbg_break();
+}
+
 public void test_caller() {
     task1 = task_new(test_proc1, 1024, 1);
     task2 = task_new(test_proc2, 1024, 1);
+    task3 = task_new(test_proc3, 1024, 1);
     task_yield();
 }
 // End test section
