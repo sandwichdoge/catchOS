@@ -65,9 +65,9 @@ struct task_struct* task_new(void (*fp)(void*), void* arg, unsigned int stack_si
     _tasks[pid]->state = TASK_RUNNING;
     _dbg_log("Allocated TCB[%d]:[0x%x], stack top:[0x%x]\n", pid, _tasks[pid], _tasks[pid]->stack_bottom + stack_size);
     _tasks[pid]->cpu_state.esp = (unsigned int)_tasks[pid]->stack_bottom + stack_size;
+    *(unsigned int*)(_tasks[pid]->cpu_state.esp) = (unsigned int)arg;
+    _tasks[pid]->cpu_state.esp -= 4;
     *(unsigned int*)(_tasks[pid]->cpu_state.esp) = (unsigned int)&on_current_task_return_cb;
-    //_tasks[pid]->cpu_state.esp -= 4;
-    //*(unsigned int*)(_tasks[pid]->cpu_state.esp) = (unsigned int)arg;
     _tasks[pid]->cpu_state.esp -= 36;
     *(unsigned int*)(_tasks[pid]->cpu_state.esp) = get_eflags();
     _tasks[pid]->pid = pid;
@@ -176,10 +176,9 @@ private void test_proc4(void* p) {
 }
 
 private void test_proc3(void *p) {
-    //struct task_struct *task4 = task_new(test_proc4, "abc\0", 1024, 1);
     p += 0x456;
+    struct task_struct *task4 = task_new(test_proc4, 0x777, 1024, 1);
     _dbg_log("t3 %u:%x\n", getticks(), (unsigned int)p);
-    _dbg_break();
 }
 
 public void test_caller() {
