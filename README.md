@@ -1,4 +1,5 @@
-https://www.cs.bham.ac.uk/~exr/lectures/opsys/10_11/lectures/os-dev.pdf
+## catchOS
+A unix-like monolithic kernel, plus some userland applications (non POSIX-compliant).
 
 https://linux-kernel-labs.github.io
 
