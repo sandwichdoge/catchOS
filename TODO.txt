@@ -2,5 +2,6 @@
 - Detect physical memory limits.
 - Detect kernel stack overflow.
 - Filesystem.
+- Some sort of GUI.
 - User accounts.
 
