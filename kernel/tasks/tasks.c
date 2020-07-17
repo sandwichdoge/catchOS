@@ -68,6 +68,7 @@ struct task_struct* task_new(void (*fp)(void*), void* arg, unsigned int stack_si
     *(unsigned int*)(_tasks[pid]->cpu_state.esp) = (unsigned int)&on_current_task_return_cb;
     _tasks[pid]->cpu_state.esp -= 36;
     *(unsigned int*)(_tasks[pid]->cpu_state.esp) = get_eflags();
+    _tasks[pid]->priority = priority;
     _tasks[pid]->pid = pid;
     _tasks[pid]->stack_state.eip = (unsigned int)fp;
     _tasks[pid]->interruptible = 1;
@@ -101,26 +102,34 @@ void task_switch_to(struct task_struct* next) {
 
 private
 void* schedule(void* unused) {
-    // Try round-robin first?
     asm("cli");
-
-    static unsigned int i;
-    _dbg_log("Total tasks:%u\n", _nr_tasks);
     _current->interruptible = 0;
-    struct task_struct *next = NULL;
+    _dbg_log("Total tasks:%u\n", _nr_tasks);
+
+    int c, next;
     while (1) {
-        if (i >= MAX_CONCURRENT_TASKS) i = 0;
-        next = _tasks[i];
-        if (next) {
+        c = -1;
+        next = 0;
+        for (int i = 0; i < MAX_CONCURRENT_TASKS; ++i) {
+            if (_tasks[i] && _tasks[i]->state == TASK_RUNNING && _tasks[i]->counter > c) {
+                c = _tasks[i]->counter;
+                next = i;
+            }
+        }
+        if (c) {
             break;
-        } else {
-            ++i;
+        }
+        for (int i = 0; i < MAX_CONCURRENT_TASKS; ++i) {
+            if (_tasks[i]) {
+                // The more iterations of the second for loop a task passes, the more its counter will be increased.
+                // A task counter can never get larger than 2 * priority.
+                _tasks[i]->counter = (_tasks[i]->counter >> 1) + _tasks[i]->priority;
+            }
         }
     }
-    ++i;
-    task_switch_to(next);
-    _current->interruptible = 1;
+    task_switch_to(_tasks[next]);
 
+    _current->interruptible = 1;
     asm("sti");
     return NULL;
 }

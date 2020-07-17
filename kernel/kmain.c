@@ -29,7 +29,10 @@ void test_memory_32bit_mode() {
 void halt() { asm("hlt"); }
 
 void test_multitask(void* unused) {
-    _dbg_log("mutlitasking works!\n");
+    while (1) {
+        _dbg_log("test\n");
+        delay(500);
+    }
 }
 
 void kmain(unsigned int ebx) {
@@ -60,11 +63,11 @@ void kmain(unsigned int ebx) {
     //test_caller();
 
     #ifdef WITH_GRUB_MB
-        task_new(shell_main, mbinfo, 4096, 1);
+        task_new(shell_main, mbinfo, 4096, 10);
     #else
-        task_new(shell_main, NULL, 4096, 1);
+        task_new(shell_main, NULL, 4096, 10);
     #endif
-    struct task_struct* testtask = task_new(test_multitask, NULL, 1024, 1);
+    struct task_struct* testtask = task_new(test_multitask, NULL, 1024, 2);
     task_join(testtask);
     task_yield();
 
