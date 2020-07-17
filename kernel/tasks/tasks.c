@@ -105,7 +105,7 @@ void* schedule(void* unused) {
     asm("cli");
 
     static unsigned int i;
-    _dbg_log("Total tasks: %u\n", _nr_tasks);
+    _dbg_log("Total tasks:%u\n", _nr_tasks);
     _current->interruptible = 0;
     struct task_struct *next = NULL;
     while (1) {

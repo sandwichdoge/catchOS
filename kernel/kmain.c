@@ -28,6 +28,10 @@ void test_memory_32bit_mode() {
 
 void halt() { asm("hlt"); }
 
+void test_multitask(void* unused) {
+    _dbg_log("mutlitasking works!\n");
+}
+
 void kmain(unsigned int ebx) {
 // First thing first, gather all info about our hardware capabilities, store it in kinfo singleton
 #ifdef WITH_GRUB_MB
@@ -53,14 +57,16 @@ void kmain(unsigned int ebx) {
     test_memory_32bit_mode();
 
     asm("sti");  // Enable interrupts
-    test_caller();
+    //test_caller();
 
-    // Enter I/O shell
     #ifdef WITH_GRUB_MB
-        shell_main(mbinfo);
+        task_new(shell_main, mbinfo, 4096, 1);
     #else
-        shell_main(NULL);
+        task_new(shell_main, NULL, 4096, 1);
     #endif
+    struct task_struct* testtask = task_new(test_multitask, NULL, 1024, 1);
+    task_join(testtask);
+    task_yield();
 
     while (1) {
     }
