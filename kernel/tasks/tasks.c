@@ -53,6 +53,7 @@ struct task_struct* task_new(void (*fp)(void*), void* arg, unsigned int stack_si
     for (int i = 0; i < MAX_CONCURRENT_TASKS; ++i) {
         if (_tasks[i] == NULL) {
             pid = i;
+            break;
         }
     }
     if (pid < 0) return NULL;
@@ -82,7 +83,6 @@ void task_join(struct task_struct* task) {
     }
     mmu_munmap(task->stack_bottom);
     mmu_munmap(task);
-    _nr_tasks--;
 }
 
 private
@@ -169,7 +169,10 @@ private void test_proc2(void *p) {
 }
 
 private void test_proc4(void* p) {
-    _dbg_log("t4 [0x%x]\n", p);
+    for (int i = 0; i < 200; ++i) {
+        _dbg_log("t4 [0x%x][%d]\n", p, i);
+        delay(20);
+    }
 }
 
 private void test_proc3(void *p) {
