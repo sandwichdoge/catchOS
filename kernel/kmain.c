@@ -62,9 +62,9 @@ void kmain(unsigned int ebx) {
     //test_caller();
 
     #ifdef WITH_GRUB_MB
-        task_new(shell_main, mbinfo, 4096, 10);
+        task_new(shell_main, mbinfo, 4096 * 4, 10);
     #else
-        task_new(shell_main, NULL, 4096, 10);
+        task_new(shell_main, NULL, 4096 * 4, 10);
     #endif
     asm("sti");  // Enable interrupts
     task_yield();

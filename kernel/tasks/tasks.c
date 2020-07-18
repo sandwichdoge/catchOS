@@ -60,29 +60,31 @@ struct task_struct* task_new(void (*fp)(void*), void* arg, unsigned int stack_si
     }
     if (pid < 0) return NULL;
 
-    _tasks[pid] = mmu_mmap(sizeof(struct task_struct));
-    _tasks[pid]->stack_bottom = mmu_mmap(stack_size);
-    _tasks[pid]->state = TASK_RUNNING;
-    _tasks[pid]->cpu_state.esp = (unsigned int)_tasks[pid]->stack_bottom + stack_size;
-    _dbg_log("Allocated TCB[%d]:[0x%x], stack top:[0x%x]\n", pid, _tasks[pid], _tasks[pid]->cpu_state.esp);
-    *(unsigned int*)(_tasks[pid]->cpu_state.esp) = (unsigned int)arg;
-    _tasks[pid]->cpu_state.esp -= 4;
-    *(unsigned int*)(_tasks[pid]->cpu_state.esp) = (unsigned int)&on_current_task_return_cb;
-    _tasks[pid]->cpu_state.esp -= 36;
-    *(unsigned int*)(_tasks[pid]->cpu_state.esp) = get_eflags() | EFLAGS_IF; // Always enable interrupt flag for new tasks.
-    _tasks[pid]->priority = priority;
-    _tasks[pid]->pid = pid;
-    _tasks[pid]->stack_state.eip = (unsigned int)fp;
-    _tasks[pid]->interruptible = 1;
+    struct task_struct *newtask = NULL;
+    newtask = mmu_mmap(sizeof(struct task_struct));
+    newtask->stack_bottom = mmu_mmap(stack_size);
+    newtask->state = TASK_RUNNING;
+    newtask->cpu_state.esp = (unsigned int)newtask->stack_bottom + stack_size;
+    _dbg_log("Allocated TCB[%d]:[0x%x], stack top:[0x%x]\n", pid, newtask, newtask->cpu_state.esp);
+    *(unsigned int*)(newtask->cpu_state.esp) = (unsigned int)arg;
+    newtask->cpu_state.esp -= 4;
+    *(unsigned int*)(newtask->cpu_state.esp) = (unsigned int)&on_current_task_return_cb;
+    newtask->cpu_state.esp -= 36;
+    *(unsigned int*)(newtask->cpu_state.esp) = get_eflags() | EFLAGS_IF; // Always enable interrupt flag for new tasks.
+    newtask->priority = priority;
+    newtask->pid = pid;
+    newtask->stack_state.eip = (unsigned int)fp;
+    newtask->interruptible = 1;
     _nr_tasks++;
 
-    return _tasks[pid];
+    _tasks[pid] = newtask;
+    return newtask;
 }
 
 public
 void task_join(struct task_struct* task) {
     while (task->state != TASK_JOINABLE) {
-        task->counter = 0;
+        task->counter = 1;
         task_yield();
     }
     mmu_munmap(task->stack_bottom);
@@ -97,10 +99,10 @@ void task_switch_to(struct task_struct* next) {
     - Exit function as thread B.
     - Maybe switch page tables as well in the future?
     */
+    //_dbg_log("Switch from task 0x%x to task 0x%x\n", _current, next);
     if (_current == next) return;
     struct task_struct* prev = _current;
     _current = next;
-    //_dbg_log("Switch from task 0x%x to task 0x%x\n", prev, next);
     cpu_switch_to(prev, next);
 }
 
@@ -108,7 +110,7 @@ private
 void* schedule(void* unused) {
     asm("cli");
     _current->interruptible = 0;
-    _dbg_log("Total tasks:%u\n", _nr_tasks);
+    //_dbg_log("Total tasks:%u\n", _nr_tasks);
 
     int c, next;
     while (1) {
