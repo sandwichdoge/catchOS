@@ -1,5 +1,6 @@
 #include "drivers/framebuffer.h"
 #include "drivers/serial.h"
+#include "drivers/cpuid.h"
 #include "interrupt.h"
 #include "kheap.h"
 #include "kinfo.h"
@@ -29,7 +30,7 @@ void test_memory_32bit_mode() {
 void halt() { asm("hlt"); }
 
 void test_multitask(void* unused) {
-    while (1) {
+    for (int i = 0; i < 3; ++i) {
         _dbg_log("test\n");
         delay(500);
     }
@@ -58,8 +59,6 @@ void kmain(unsigned int ebx) {
 
     // Perform memory tests
     test_memory_32bit_mode();
-
-    asm("sti");  // Enable interrupts
     //test_caller();
 
     #ifdef WITH_GRUB_MB
@@ -67,8 +66,8 @@ void kmain(unsigned int ebx) {
     #else
         task_new(shell_main, NULL, 4096, 10);
     #endif
-    struct task_struct* testtask = task_new(test_multitask, NULL, 1024, 2);
-    task_join(testtask);
+    _dbg_log("sti\n");
+    asm("sti");  // Enable interrupts
     task_yield();
 
     while (1) {

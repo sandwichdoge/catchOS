@@ -16,7 +16,8 @@ CC=gcc
 CXX=g++
 AS=nasm
 ASFLAGS=-f elf32
-CFLAGS=-I$(INCLUDE_DIR) -m32 -nostdlib -nostdinc -fno-builtin -fno-stack-protector -nostartfiles -nodefaultlibs -Wall -Wextra -Wno-unused-parameter \
+CFLAGS=-I$(INCLUDE_DIR) -m32 -nostdlib -nostdinc -fno-builtin -fno-stack-protector -nostartfiles -nodefaultlibs \
+-Wall -Wextra -Wno-unused-parameter -Wno-language-extension-token \
 -D WITH_GRUB_MB -D TARGET_BOCHS -D DEBUG_LIBALLOC \
 -Wall -pedantic
 LDFLAGS=-T $(KERNEL_DIR)/link.ld -melf_i386
@@ -28,6 +29,7 @@ OBJECTS=$(KBOOT_DIR)/multiboot_header.o $(KBOOT_DIR)/kboot.o \
 		$(DRIVERS_DIR)/serial.o $(DRIVERS_DIR)/io.o \
 		$(DRIVERS_DIR)/framebuffer.o $(DRIVERS_DIR)/keyboard.o \
 		$(DRIVERS_DIR)/pic.o $(DRIVERS_DIR)/pit.o \
+		$(DRIVERS_DIR)/cpuid.o \
 		$(INTERRUPT_DIR)/interrupt.o $(INTERRUPT_DIR)/interrupt_hnd.o \
 		$(MMU_DIR)/paging.o $(MMU_DIR)/paging_en.o $(MMU_DIR)/kheap.o \
 		$(MMU_DIR)/pageframe_alloc.o $(MMU_DIR)/mmu.o $(MMU_DIR)/liballoc.o $(MMU_DIR)/liballoc_hooks.o \

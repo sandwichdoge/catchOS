@@ -5,6 +5,8 @@
 #include "builddef.h"
 #include "utils/debug.h"
 
+#define EFLAGS_IF (1 << 9)
+
 // Array of all current tasks. Only 64 tasks can run at a time for now.
 private struct task_struct* _tasks[MAX_CONCURRENT_TASKS];
 private unsigned int _nr_tasks; // Current running tasks in the system.
@@ -67,7 +69,7 @@ struct task_struct* task_new(void (*fp)(void*), void* arg, unsigned int stack_si
     _tasks[pid]->cpu_state.esp -= 4;
     *(unsigned int*)(_tasks[pid]->cpu_state.esp) = (unsigned int)&on_current_task_return_cb;
     _tasks[pid]->cpu_state.esp -= 36;
-    *(unsigned int*)(_tasks[pid]->cpu_state.esp) = get_eflags();
+    *(unsigned int*)(_tasks[pid]->cpu_state.esp) = get_eflags() | EFLAGS_IF; // Always enable interrupt flag for new tasks.
     _tasks[pid]->priority = priority;
     _tasks[pid]->pid = pid;
     _tasks[pid]->stack_state.eip = (unsigned int)fp;
@@ -97,6 +99,7 @@ void task_switch_to(struct task_struct* next) {
     if (_current == next) return;
     struct task_struct* prev = _current;
     _current = next;
+    //_dbg_log("Switch from task 0x%x to task 0x%x\n", prev, next);
     cpu_switch_to(prev, next);
 }
 

@@ -1,7 +1,6 @@
 - Improve syscall, put keyboard callback funcs in a queue.
 - Detect physical memory limits.
 - Detect kernel stack overflow.
-- Boot on hardware.
 - APIC driver.
 - Multiprocessor.
 - IDE driver and Filesystem.
