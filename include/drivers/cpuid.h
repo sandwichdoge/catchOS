@@ -65,7 +65,7 @@ enum EDX_FEAT {
     CPUID_FEAT_EDX_HTT          = 1 << 28, 
     CPUID_FEAT_EDX_TM1          = 1 << 29, 
     CPUID_FEAT_EDX_IA64         = 1 << 30,
-    CPUID_FEAT_EDX_PBE          = 1 << 31
+    //CPUID_FEAT_EDX_PBE          = 1 << 31 commented out because compiler warning.
 };
 
 #endif

@@ -47,7 +47,7 @@ public int cpuid_hasapic() {
 
 public void cpuid_getvendor(char *out) {
     unsigned int vendor[4];
-    _memset(vendor, 0, 4);
+    _memset((char*)vendor, 0, 4 * sizeof(unsigned int));
     cpuid_string(CPUID_GETVENDORSTRING, vendor);
     out[0] = vendor[0];
     out[1] = vendor[1];
