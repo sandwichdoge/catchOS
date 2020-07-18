@@ -10,7 +10,9 @@
 extern void asm_int_handler_32();   // Handler for PIT channel0 system timer
 extern void asm_int_handler_33();   // Handler for keyboard press
 extern void asm_int_handler_36();   // Handler for com1
+extern void asm_int_handler_39();   // Handler for device not available
 extern void asm_int_handler_14();   // Handler for page fault
+extern void asm_int_handler_13();   // Handler for general protection fault
 extern void asm_int_handler_128();  // Handler for syscall
 
 struct idt IDT;                                // To be loaded into the CPU
@@ -49,6 +51,12 @@ void ISR_KEYBOARD(unsigned int* return_reg, struct cpu_state* unused) {
 }
 
 private
+void ISR_GPF(unsigned int* return_reg, struct cpu_state* unused) {
+    _dbg_log("General Protection Fault!\n");
+    _dbg_break();
+}
+
+private
 int is_hw_irq(unsigned int irq) {
     return (irq == INT_SYSTIME || irq == INT_KEYBOARD || irq == INT_COM1);
 }
@@ -65,6 +73,11 @@ void interrupt_register(unsigned int irq, void (*isr)(unsigned int* return_reg, 
 private
 void ISR_COM1(unsigned int* return_reg, struct cpu_state* unused) {
     _dbg_break();
+}
+
+private
+void ISR_DEVICE_NOT_AVAILABLE(unsigned int* return_reg, struct cpu_state* unused) {
+    _dbg_log("Device Not Available\n");
 }
 
 public
@@ -87,9 +100,11 @@ void interrupt_init(void) {
 
     // Must initialize all asm irq handlers that we'll use here.
     // Keyboard press interrupt, 0x20 + 1 (which is PIC1_START_INTERRUPT + IRQ_1)
+    interrupt_encode_idt_entry(INT_GPF, (unsigned int)asm_int_handler_13);
     interrupt_encode_idt_entry(INT_SYSTIME, (unsigned int)asm_int_handler_32);
     interrupt_encode_idt_entry(INT_KEYBOARD, (unsigned int)asm_int_handler_33);
     interrupt_encode_idt_entry(INT_COM1, (unsigned int)asm_int_handler_36);
+    interrupt_encode_idt_entry(INT_DEVICE_NOT_AVAiLABLE, (unsigned int)asm_int_handler_39);
     interrupt_encode_idt_entry(INT_PAGEFAULT, (unsigned int)asm_int_handler_14);
     interrupt_encode_idt_entry(INT_SYSCALL, (unsigned int)asm_int_handler_128);
 
@@ -100,6 +115,8 @@ void interrupt_init(void) {
 
     interrupt_register(INT_KEYBOARD, ISR_KEYBOARD);
     interrupt_register(INT_COM1, ISR_COM1);
+    interrupt_register(INT_GPF, ISR_GPF);
+    interrupt_register(INT_DEVICE_NOT_AVAiLABLE, ISR_DEVICE_NOT_AVAILABLE);
 }
 
 public

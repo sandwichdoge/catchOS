@@ -58,7 +58,7 @@ void kmain(unsigned int ebx) {
     syscall_init();
 
     // Perform memory tests
-    test_memory_32bit_mode();
+    //test_memory_32bit_mode();
     //test_caller();
 
     #ifdef WITH_GRUB_MB
@@ -67,7 +67,7 @@ void kmain(unsigned int ebx) {
         task_new(shell_main, NULL, 4096 * 4, 10);
     #endif
     asm("sti");  // Enable interrupts
-    task_yield();
+    //task_yield();
 
     while (1) {
     }

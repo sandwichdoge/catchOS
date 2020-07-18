@@ -2,15 +2,30 @@
 #include "timer.h"
 #include "builddef.h"
 #include "drivers/keyboard.h"  // For key defs
+#include "drivers/framebuffer.h"
 #include "syscall.h"
+#include "tasks.h"
+#include "timer.h"
 #include "multiboot.h"
 #include "utils/debug.h"
 #include "utils/string.h"
 
 #define CIN_BUFSZ 256
+#define MSG_HELP "help\n\
+uptime\n\
+program\n\
+tests"
 
-char greeting[] = "Welcome to Thuan's OS! You're now in 32-bit Protected Mode.\0";
+char *greeting = "           _       _     _____ _____ \n"
+"          | |     | |   |  _  /  ___|\n"
+"  ___ __ _| |_ ___| |__ | | | \\ `--. \n"
+" / __/ _` | __/ __| '_ \\| | | |`--. \\\n"
+"| (_| (_| | || (__| | | \\ \\_/ /\\__/ /\n"
+" \\___\\__,_|\\__\\___|_| |_|\\___/\\____/ \n"
+"                                     \n"
+"";
 
+static multiboot_info_t* mb;
 unsigned int SCREEN_WIDTH, SCREEN_HEIGHT;
 
 unsigned int _cur;  // Global cursor position
@@ -48,19 +63,6 @@ void shell_handle_keypress(unsigned char ascii) {
 }
 
 private
-void shell_init() {
-    _cin = _cin_buf_;
-    _receiving_user_input = 0;
-    _cur = 0;
-    SCREEN_WIDTH = syscall_fb_get_scr_w();
-    SCREEN_HEIGHT = syscall_fb_get_scr_h();
-    syscall_register_kb_handler(shell_handle_keypress);
-    syscall_fb_clr_scr();
-    syscall_fb_write_str(greeting, &_cur, sizeof(greeting));
-    _cur = 80 * 3;
-}
-
-private
 void shell_setpos(unsigned int scrpos) { _cur = scrpos; }
 
 private
@@ -75,8 +77,7 @@ void shell_cout(const char* str, unsigned int len) {
                 _cur -= SCREEN_WIDTH;
             }
         } else {  // Normal character, just write it out to screen.
-            syscall_fb_write_chr(*tmp,
-                                 &_cur);  // This already automatically scrolls down screen if screen height is reached.
+            syscall_fb_write_chr(*tmp, &_cur);  // This already automatically scrolls down screen if screen height is reached.
         }
         tmp++;
     }
@@ -102,15 +103,22 @@ void shell_cin(char* out) {
     _cin_pos = 0;
 }
 
+private
+void shell_init() {
+    _cin = _cin_buf_;
+    _receiving_user_input = 0;
+    _cur = 0;
+    SCREEN_WIDTH = syscall_fb_get_scr_w();
+    SCREEN_HEIGHT = syscall_fb_get_scr_h();
+    syscall_register_kb_handler(shell_handle_keypress);
+    syscall_fb_clr_scr();
+    _cur = 0;
+    shell_cout(greeting, _strlen(greeting));
+}
+
 private unsigned int shell_gettime() {
     return getticks();
 }
-
-#define MSG_ERR "Sorry, I didn't understand that. Try typing \"help\"."
-#define MSG_HELP "help\n\
-uptime\n\
-program"
-private multiboot_info_t* mb;
 
 private
 int call_user_module(multiboot_info_t *mbinfo) {
@@ -128,6 +136,29 @@ int call_user_module(multiboot_info_t *mbinfo) {
     } else {
         return 0;
     }
+}
+
+private
+void test_multitasking(void* screenpos) {
+    _dbg_log("Test multitasking..\n");
+    char msg[16];
+    for (int i = 0; i < 4; ++i) {
+        _memset(msg, 0, sizeof(msg));
+        _int_to_str(msg, sizeof(msg), shell_gettime());
+        write_cstr(msg, *(unsigned int*)screenpos);
+        delay(500);
+    }
+}
+
+private
+void run_tests() {
+    _dbg_log("Running tests\n");
+    unsigned int pos1 = 85 * 7 + 1;
+    //unsigned int pos2 = 80 * 8;
+    struct task_struct *task1 = task_new(test_multitasking, &pos1, 4096, 5);
+    //struct task_struct *task2 = task_new(test_multitasking, &pos2, 1024, 5);
+    task_join(task1);
+    //task_join(task2);
 }
 
 private void shell_handle_cmd(char* cmd) {
@@ -148,6 +179,8 @@ private void shell_handle_cmd(char* cmd) {
         _int_to_str(ret_s, sizeof(ret_s), ret);
         shell_cout(ret_s, _strlen(ret_s));
         shell_cout("\n", 1);
+    } else if (_strncmp(cmd, "tests", _strlen("tests")) == 0) {
+        run_tests();
     } else {
     }
 }

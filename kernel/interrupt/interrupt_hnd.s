@@ -16,11 +16,13 @@ asm_int_handler_%1:
     jmp     asm_int_handler_common      ; jump to the common handler
 %endmacro
 
-no_error_code_interrupt_handler 32      ; create handler for interrupt 0 (system timer)
-no_error_code_interrupt_handler	33	    ; create handler for interrupt 1 (keyboard)
-no_error_code_interrupt_handler 36      ; interrupt 4 (com1)
-no_error_code_interrupt_handler 14	    ; create handler for interrupt 2 (paging)
-no_error_code_interrupt_handler 128     ; create handler for interrupt 2 (syscall)
+no_error_code_interrupt_handler 32      ; hw interrupt 0 (system timer)
+no_error_code_interrupt_handler	33	    ; hw interrupt 1 (keyboard)
+no_error_code_interrupt_handler 36      ; hw interrupt 4 (com1)
+no_error_code_interrupt_handler 39      ; hw device_not_available
+no_error_code_interrupt_handler 14	    ; exception interrupt 14 (paging)
+no_error_code_interrupt_handler 13	    ; exception interrupt 13 (general protection fault)
+no_error_code_interrupt_handler 128     ; sw interrupt 128 (syscall)
 
 
 asm_int_handler_common:
