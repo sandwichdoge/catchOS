@@ -28,8 +28,14 @@ unsigned int get_eflags() {
 // When a task reaches return, it will call this task for cleanup.
 private
 void on_current_task_return_cb() {
-    _current->state = TASK_JOINABLE;
+    _dbg_log("On return pid [%u]", _current->pid);
     _tasks[_current->pid] = NULL;
+    if (_current->state == TASK_DETACHED) {
+        mmu_munmap(_current->stack_bottom);
+        mmu_munmap(_current);
+    } else {
+        _current->state = TASK_JOINABLE;
+    }
     _nr_tasks--;
     task_yield();
 }
@@ -93,6 +99,11 @@ void task_join(struct task_struct* task) {
     mmu_munmap(task);
 }
 
+public
+void task_detach(struct task_struct* task) {
+    task->state = TASK_DETACHED;
+}
+
 private
 void task_switch_to(struct task_struct* next) {
     /*
@@ -119,7 +130,7 @@ void* schedule(void* unused) {
         c = -1;
         next = 0;
         for (int i = 0; i < MAX_CONCURRENT_TASKS; ++i) {
-            if (_tasks[i] && _tasks[i]->state == TASK_RUNNING && _tasks[i]->counter > c) {
+            if (_tasks[i] && (_tasks[i]->state == TASK_RUNNING || _tasks[i]->state == TASK_DETACHED) && _tasks[i]->counter > c) {
                 c = _tasks[i]->counter;
                 next = i;
             }

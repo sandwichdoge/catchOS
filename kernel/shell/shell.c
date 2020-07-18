@@ -142,9 +142,10 @@ private
 void test_multitasking(void* screenpos) {
     _dbg_log("Test multitasking..\n");
     char msg[16];
-    for (int i = 0; i < 4; ++i) {
+    for (int i = 0; i < 10; ++i) {
         _memset(msg, 0, sizeof(msg));
         _int_to_str(msg, sizeof(msg), shell_gettime());
+        _dbg_log("Write str [%d]\n", *(unsigned int*)screenpos);
         write_cstr(msg, *(unsigned int*)screenpos);
         delay(500);
     }
@@ -153,12 +154,12 @@ void test_multitasking(void* screenpos) {
 private
 void run_tests() {
     _dbg_log("Running tests\n");
-    unsigned int pos1 = 85 * 7 + 1;
-    //unsigned int pos2 = 80 * 8;
+    static unsigned int pos1 = 85 * 7;
+    static unsigned int pos2 = 85 * 8;
     struct task_struct *task1 = task_new(test_multitasking, &pos1, 4096, 5);
-    //struct task_struct *task2 = task_new(test_multitasking, &pos2, 1024, 5);
-    task_join(task1);
-    //task_join(task2);
+    struct task_struct *task2 = task_new(test_multitasking, &pos2, 4096, 5);
+    task_detach(task1);
+    task_detach(task2);
 }
 
 private void shell_handle_cmd(char* cmd) {
