@@ -66,7 +66,6 @@ void kmain(unsigned int ebx) {
     #else
         task_new(shell_main, NULL, 4096, 10);
     #endif
-    _dbg_log("sti\n");
     asm("sti");  // Enable interrupts
     task_yield();
 

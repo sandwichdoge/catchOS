@@ -82,6 +82,7 @@ struct task_struct* task_new(void (*fp)(void*), void* arg, unsigned int stack_si
 public
 void task_join(struct task_struct* task) {
     while (task->state != TASK_JOINABLE) {
+        task->counter = 0;
         task_yield();
     }
     mmu_munmap(task->stack_bottom);
