@@ -71,8 +71,12 @@ iso: kernel.elf
 	-input-charset utf8 \
 	-quiet \
 	-boot-info-table \
-	-o output/os.iso \
+	-o output/catch.iso \
 	iso
+
+isohw: kernel.elf
+	cp kernel.elf iso/boot/
+	grub-mkrescue -o output/catch.iso iso
 
 clean:
 	rm -rf *.o *.elf

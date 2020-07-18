@@ -1,7 +1,10 @@
 - Improve syscall, put keyboard callback funcs in a queue.
 - Detect physical memory limits.
 - Detect kernel stack overflow.
-- Filesystem.
-- Some sort of GUI.
+- Boot on hardware.
+- APIC driver.
+- Multiprocessor.
+- IDE driver and Filesystem.
+- Some sort of GUI (see VGA 0xA0000).
 - User accounts.
 
