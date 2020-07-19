@@ -1,6 +1,8 @@
 ## catchOS
 A unix-like monolithic kernel, plus some userland applications (non POSIX-compliant).
 
+http://www.read.seas.harvard.edu/cs161/2018/pset5/
+
 https://linux-kernel-labs.github.io
 
 ```
