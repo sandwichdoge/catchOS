@@ -52,14 +52,14 @@ void serial_configure_modem(unsigned short com, unsigned char conf) {
 
 public
 int serial_is_transmit_fifo_empty(unsigned int com) {
-    // 0x20 = 0010 0000    
+    // 0x20 = 0010 0000
     return inb(SERIAL_LINE_STATUS_PORT(com)) & 0x20;
 }
 
 // Spinning as long as the internal fifo isn't empty, then writing data to data I/O port
 public
 void serial_write(unsigned short com, char *data, unsigned int len) {
-    for (unsigned int i = 0; i < len; i++) {    // Hang here if interrupt enabled.
+    for (unsigned int i = 0; i < len; i++) {  // Hang here if interrupt enabled.
         while (serial_is_transmit_fifo_empty(com) == 0)
             ;
         outb(SERIAL_DATA_PORT(com), data[i]);

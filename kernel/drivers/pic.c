@@ -1,7 +1,8 @@
 #include "drivers/pic.h"
-#include "utils/debug.h"
+
 #include "builddef.h"
 #include "drivers/io.h"
+#include "utils/debug.h"
 
 #define PIC1_PORT_A 0x20
 #define PIC2_PORT_A 0xa0
@@ -31,7 +32,8 @@ rather than 8h and 70h, as configured by default */
 #define ICW4_BUF_MASTER 0x0C /* Buffered mode/master */
 #define ICW4_SFNM 0x10       /* Special fully nested (not) */
 
-private unsigned char pic1, pic2;
+private
+unsigned char pic1, pic2;
 
 /*
 From OSdev - PIC

@@ -1,7 +1,8 @@
 #include "drivers/pit.h"
+
+#include "builddef.h"
 #include "drivers/io.h"
 #include "utils/debug.h"
-#include "builddef.h"
 
 #define PIT_DATA_CH0_PORT 0x40
 #define PIT_DATA_CH1_PORT 0x41
@@ -9,7 +10,8 @@
 #define PIT_COMMAND_PORT 0x43
 #define PIT_INPUT_FREQ 1193182
 
-public void pit_setfreq(unsigned int hz) {
+public
+void pit_setfreq(unsigned int hz) {
     _dbg_log("Setup timer running at %u hz.\n", hz);
 
     if (hz < 20) {

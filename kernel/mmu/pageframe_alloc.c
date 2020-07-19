@@ -23,9 +23,7 @@ private
 int pageframe_alloc_get_page(unsigned int page_no) { return bitmap_get_bit(_pageframe_bitmap, page_no); }
 
 private
-void pageframe_alloc_set_pages(unsigned int page_start, unsigned int pages) {
-    bitmap_set_bits(_pageframe_bitmap, page_start, pages);
-}
+void pageframe_alloc_set_pages(unsigned int page_start, unsigned int pages) { bitmap_set_bits(_pageframe_bitmap, page_start, pages); }
 
 private
 void pageframe_alloc_clear_page(unsigned int page_no) { bitmap_clear_bit(_pageframe_bitmap, page_no); }

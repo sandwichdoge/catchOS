@@ -1,12 +1,10 @@
-#if (!defined(_STDDEF_H) && !defined(_STDDEF_H_) && !defined(_ANSI_STDDEF_H) && !defined(__STDDEF_H__)) ||    \
-    defined(__need_wchar_t) || defined(__need_size_t) || defined(__need_ptrdiff_t) || defined(__need_NULL) || \
-    defined(__need_wint_t)
+#if (!defined(_STDDEF_H) && !defined(_STDDEF_H_) && !defined(_ANSI_STDDEF_H) && !defined(__STDDEF_H__)) || defined(__need_wchar_t) || \
+    defined(__need_size_t) || defined(__need_ptrdiff_t) || defined(__need_NULL) || defined(__need_wint_t)
 
 /* Any one of these symbols __need_* means that GNU libc
    wants us just to define one data type.  So don't define
    the symbols that indicate this file's entire job has been done.  */
-#if (!defined(__need_wchar_t) && !defined(__need_size_t) && !defined(__need_ptrdiff_t) && !defined(__need_NULL) && \
-     !defined(__need_wint_t))
+#if (!defined(__need_wchar_t) && !defined(__need_size_t) && !defined(__need_ptrdiff_t) && !defined(__need_NULL) && !defined(__need_wint_t))
 #define _STDDEF_H
 #define _STDDEF_H_
 /* snaroff@next.com says the NeXT needs this.  */

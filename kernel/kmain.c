@@ -1,6 +1,6 @@
+#include "drivers/cpuid.h"
 #include "drivers/framebuffer.h"
 #include "drivers/serial.h"
-#include "drivers/cpuid.h"
 #include "interrupt.h"
 #include "kheap.h"
 #include "kinfo.h"
@@ -10,10 +10,11 @@
 #include "stddef.h"
 #include "stdint.h"
 #include "syscall.h"
-#include "timer.h"
 #include "tasks.h"
+#include "timer.h"
 #include "utils/debug.h"
 #include "utils/string.h"
+#include "utils/list.h"
 
 void test_memory_32bit_mode() {
     volatile unsigned char *p = (volatile unsigned char *)(0xc0000000 + 3000000);  // 32MB for testing 32-bit mode
@@ -29,11 +30,27 @@ void test_memory_32bit_mode() {
 
 void halt() { asm("hlt"); }
 
-void test_multitask(void* unused) {
+void test_multitask(void *done_cb) {
     for (int i = 0; i < 3; ++i) {
         _dbg_log("test\n");
-        delay(500);
+        delay(100);
     }
+    void (*fp)() = done_cb;
+    fp();
+}
+
+int test_foreach(void* data) {
+    _dbg_log("%d\n", *(int*)data);
+    return 0;
+}
+
+void test_done_cb() {
+    _dbg_log("Test done! Callback complete!\n");
+    int n1 = 111, n2 = 000;
+    struct list_head* testlist = list_create(&n1, sizeof(n1));
+    testlist = list_insert_front(testlist, &n2, sizeof(n2));
+    list_foreach(testlist, test_foreach);
+    list_free(testlist);
 }
 
 void kmain(unsigned int ebx) {
@@ -46,7 +63,7 @@ void kmain(unsigned int ebx) {
 #endif
 
     serial_defconfig(SERIAL_COM1_BASE);
-    
+
     // Setup interrupts
     write_cstr("Setting up interrupts..", 0);
     interrupt_init();
@@ -58,16 +75,16 @@ void kmain(unsigned int ebx) {
     syscall_init();
 
     // Perform memory tests
-    //test_memory_32bit_mode();
-    //test_caller();
+    // test_memory_32bit_mode();
+    task_new(test_multitask, test_done_cb, 1024, 5);
 
-    #ifdef WITH_GRUB_MB
-        task_new(shell_main, mbinfo, 4096 * 4, 10);
-    #else
-        task_new(shell_main, NULL, 4096 * 4, 10);
-    #endif
+#ifdef WITH_GRUB_MB
+    task_new(shell_main, mbinfo, 4096 * 4, 5);
+#else
+    task_new(shell_main, NULL, 4096 * 4, 5);
+#endif
     asm("sti");  // Enable interrupts
-    //task_yield();
+    // task_yield();
 
     while (1) {
     }

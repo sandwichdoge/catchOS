@@ -398,8 +398,7 @@
 #endif /* __STDC_WANT_IEC_60559_TYPES_EXT__.  */
 
 #ifdef __DEC32_MANT_DIG__
-#if (defined __STDC_WANT_DEC_FP__ || defined __STDC_WANT_IEC_60559_DFP_EXT__ || \
-     (defined __STDC_VERSION__ && __STDC_VERSION__ > 201710L))
+#if (defined __STDC_WANT_DEC_FP__ || defined __STDC_WANT_IEC_60559_DFP_EXT__ || (defined __STDC_VERSION__ && __STDC_VERSION__ > 201710L))
 /* C2X; formerly Technical Report 24732, extension for decimal
    floating-point arithmetic: Characteristic of decimal floating types
    <float.h>, and TS 18661-2.  */

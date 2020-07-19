@@ -1,13 +1,15 @@
-#include "builddef.h"
 #include "timer.h"
+
+#include "builddef.h"
+#include "drivers/pit.h"
 #include "interrupt.h"
 #include "tasks.h"
-#include "drivers/pit.h"
 #include "utils/debug.h"
 
 #define TICK_FREQ_HZ 100
 
-private unsigned int _ticks;
+private
+unsigned int _ticks;
 
 // 0x20 - Programmable Interval Timer
 private
@@ -17,9 +19,7 @@ void ISR_SYSTIME(unsigned int* return_reg, struct cpu_state* unused) {
 }
 
 public
-unsigned int getticks() {
-    return _ticks;
-}
+unsigned int getticks() { return _ticks; }
 
 public
 void delay(unsigned int ms) {

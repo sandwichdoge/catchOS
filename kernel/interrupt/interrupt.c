@@ -1,4 +1,5 @@
 #include "interrupt.h"
+
 #include "builddef.h"
 #include "drivers/keyboard.h"
 #include "drivers/pic.h"
@@ -15,10 +16,10 @@ extern void asm_int_handler_14();   // Handler for page fault
 extern void asm_int_handler_13();   // Handler for general protection fault
 extern void asm_int_handler_128();  // Handler for syscall
 
-struct idt IDT;                                // To be loaded into the CPU
+struct idt IDT;                                  // To be loaded into the CPU
 struct idt_entry idt_entries[IDT_SIZE] = {{0}};  // Main content of IDT
 // Array of void func(uint*, cpu_state*) pointers
-void (*int_handler_table[IDT_SIZE])(unsigned int* return_reg, struct cpu_state*) = {0}; 
+void (*int_handler_table[IDT_SIZE])(unsigned int* return_reg, struct cpu_state*) = {0};
 
 // https://wiki.osdev.org/Interrupt_Descriptor_Table
 private
@@ -57,9 +58,7 @@ void ISR_GPF(unsigned int* return_reg, struct cpu_state* unused) {
 }
 
 private
-int is_hw_irq(unsigned int irq) {
-    return (irq == INT_SYSTIME || irq == INT_KEYBOARD || irq == INT_COM1);
-}
+int is_hw_irq(unsigned int irq) { return (irq == INT_SYSTIME || irq == INT_KEYBOARD || irq == INT_COM1); }
 
 public
 void interrupt_register(unsigned int irq, void (*isr)(unsigned int* return_reg, struct cpu_state*)) {
@@ -71,18 +70,14 @@ void interrupt_register(unsigned int irq, void (*isr)(unsigned int* return_reg, 
 }
 
 private
-void ISR_COM1(unsigned int* return_reg, struct cpu_state* unused) {
-    _dbg_break();
-}
+void ISR_COM1(unsigned int* return_reg, struct cpu_state* unused) { _dbg_break(); }
 
 private
-void ISR_DEVICE_NOT_AVAILABLE(unsigned int* return_reg, struct cpu_state* unused) {
-    _dbg_log("Device Not Available\n");
-}
+void ISR_DEVICE_NOT_AVAILABLE(unsigned int* return_reg, struct cpu_state* unused) { _dbg_log("Device Not Available\n"); }
 
 public
 void interrupt_init(void) {
-    pic_init();         // Programmable interrupt controller
+    pic_init();  // Programmable interrupt controller
     /*
     IRQ 0 ‒ system timer
     IRQ 1 — keyboard controller

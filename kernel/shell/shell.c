@@ -1,31 +1,33 @@
 #include "shell.h"
-#include "timer.h"
+
 #include "builddef.h"
-#include "drivers/keyboard.h"  // For key defs
 #include "drivers/framebuffer.h"
+#include "drivers/keyboard.h"  // For key defs
+#include "multiboot.h"
+#include "power/shutdown_reboot.h"
 #include "syscall.h"
 #include "tasks.h"
 #include "timer.h"
-#include "power/shutdown_reboot.h"
-#include "multiboot.h"
 #include "utils/debug.h"
 #include "utils/string.h"
 
 #define CIN_BUFSZ 256
-#define MSG_HELP "help\n\
+#define MSG_HELP \
+    "help\n\
 uptime\n\
 program\n\
 tests\n\
 reboot"
 
-char *greeting = "           _       _     _____ _____ \n"
-"          | |     | |   |  _  /  ___|\n"
-"  ___ __ _| |_ ___| |__ | | | \\ `--. \n"
-" / __/ _` | __/ __| '_ \\| | | |`--. \\\n"
-"| (_| (_| | || (__| | | \\ \\_/ /\\__/ /\n"
-" \\___\\__,_|\\__\\___|_| |_|\\___/\\____/ \n"
-"                                     \n"
-"";
+char* greeting =
+    "           _       _     _____ _____ \n"
+    "          | |     | |   |  _  /  ___|\n"
+    "  ___ __ _| |_ ___| |__ | | | \\ `--. \n"
+    " / __/ _` | __/ __| '_ \\| | | |`--. \\\n"
+    "| (_| (_| | || (__| | | \\ \\_/ /\\__/ /\n"
+    " \\___\\__,_|\\__\\___|_| |_|\\___/\\____/ \n"
+    "                                     \n"
+    "";
 
 static multiboot_info_t* mb;
 unsigned int SCREEN_WIDTH, SCREEN_HEIGHT;
@@ -78,7 +80,7 @@ void shell_cout(const char* str, unsigned int len) {
                 syscall_fb_scroll_down(1);
                 _cur -= SCREEN_WIDTH;
             }
-        } else {  // Normal character, just write it out to screen.
+        } else {                                // Normal character, just write it out to screen.
             syscall_fb_write_chr(*tmp, &_cur);  // This already automatically scrolls down screen if screen height is reached.
         }
         tmp++;
@@ -118,13 +120,12 @@ void shell_init() {
     shell_cout(greeting, _strlen(greeting));
 }
 
-private unsigned int shell_gettime() {
-    return getticks();
-}
+private
+unsigned int shell_gettime() { return getticks(); }
 
 private
-int call_user_module(multiboot_info_t *mbinfo) {
-    struct multiboot_mod_list *mods = (struct multiboot_mod_list *)(mbinfo->mods_addr + 0xc0000000);
+int call_user_module(multiboot_info_t* mbinfo) {
+    struct multiboot_mod_list* mods = (struct multiboot_mod_list*)(mbinfo->mods_addr + 0xc0000000);
     unsigned int mcount = mbinfo->mods_count;
 
     if (mcount > 0) {
@@ -157,13 +158,14 @@ void run_tests() {
     _dbg_log("Running tests\n");
     static unsigned int pos1 = 85 * 7;
     static unsigned int pos2 = 85 * 8;
-    struct task_struct *task1 = task_new(test_multitasking, &pos1, 4096, 5);
-    struct task_struct *task2 = task_new(test_multitasking, &pos2, 4096, 5);
+    struct task_struct* task1 = task_new(test_multitasking, &pos1, 4096, 5);
+    struct task_struct* task2 = task_new(test_multitasking, &pos2, 4096, 5);
     task_detach(task1);
     task_detach(task2);
 }
 
-private void shell_handle_cmd(char* cmd) {
+private
+void shell_handle_cmd(char* cmd) {
     if (_strncmp(cmd, "uptime", _strlen("uptime")) == 0) {
         static char ticksbuf[12];
         _memset(ticksbuf, 0, sizeof(ticksbuf));
@@ -190,7 +192,7 @@ private void shell_handle_cmd(char* cmd) {
 }
 
 public
-void shell_main(multiboot_info_t *mbinfo) {
+void shell_main(multiboot_info_t* mbinfo) {
     mb = mbinfo;
     shell_init();
     char buf[CIN_BUFSZ];
