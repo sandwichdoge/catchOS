@@ -15,7 +15,6 @@ private
 unsigned int _nr_tasks;                            // Current running tasks in the system.
 struct task_struct kmaint = {.interruptible = 0};  // Initial _current value, so we won't have to to if _current is NULL later.
 struct task_struct* _current = &kmaint;            // Current task that controls CPU.
-struct task_struct* _scheduler;
 
 // Read current EFLAGS register.
 private
@@ -176,6 +175,11 @@ void task_isr_priority() {
 
 public
 unsigned int task_get_nr() { return _nr_tasks; }
+
+public
+inline struct task_struct* task_get_current() {
+    return _current;
+}
 
 // Begin test section
 struct task_struct *task1, *task2, *task3;

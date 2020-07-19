@@ -45,4 +45,7 @@ unsigned int task_get_nr();
 
 // Called by PIT INT_SYSTIMER.
 void task_isr_priority();
+
+// Get current running task.
+struct task_struct* task_get_current();
 #endif

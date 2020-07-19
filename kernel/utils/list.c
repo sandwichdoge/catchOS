@@ -19,12 +19,18 @@ struct list_head *list_create(void *data, int data_size) {
     return node;
 }
 
-struct list_head *list_insert_back(struct list_head *node, void *data, int data_size) {
+struct list_head *list_insert_after(struct list_head *node, void *data, int data_size) {
+    if (node == NULL) return NULL;
     struct list_head *newnode;
     newnode = list_create(data, data_size);
     newnode->next = node->next;
     if (node) node->next = newnode;
     return newnode;
+}
+
+struct list_head *list_insert_back(struct list_head *node, void *data, int data_size) {
+    struct list_head *tail = list_get_tail(node);
+    return list_insert_after(tail, data, data_size);
 }
 
 struct list_head *list_insert_front(struct list_head *list, void *data, int data_size) {

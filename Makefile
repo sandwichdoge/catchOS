@@ -35,7 +35,7 @@ OBJECTS=$(KBOOT_DIR)/multiboot_header.o $(KBOOT_DIR)/kboot.o \
 		$(MMU_DIR)/paging.o $(MMU_DIR)/paging_en.o $(MMU_DIR)/kheap.o \
 		$(MMU_DIR)/pageframe_alloc.o $(MMU_DIR)/mmu.o $(MMU_DIR)/liballoc.o $(MMU_DIR)/liballoc_hooks.o \
 		$(TIMER_DIR)/timer.o \
-		$(TASKS_DIR)/tasks.o $(TASKS_DIR)/cpu_switch_to.o \
+		$(TASKS_DIR)/tasks.o $(TASKS_DIR)/cpu_switch_to.o $(TASKS_DIR)/sem.o \
 		$(SYS_DIR)/syscall.o \
 		$(POWER_DIR)/shutdown.o $(POWER_DIR)/reboot.o \
 		$(COMMON_DIR)/kinfo.o \

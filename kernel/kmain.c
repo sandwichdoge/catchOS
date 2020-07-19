@@ -28,31 +28,6 @@ void test_memory_32bit_mode() {
     }
 }
 
-void halt() { asm("hlt"); }
-
-void test_multitask(void *done_cb) {
-    for (int i = 0; i < 3; ++i) {
-        _dbg_log("test\n");
-        delay(100);
-    }
-    void (*fp)() = done_cb;
-    fp();
-}
-
-int test_foreach(void* data) {
-    _dbg_log("%d\n", *(int*)data);
-    return 0;
-}
-
-void test_done_cb() {
-    _dbg_log("Test done! Callback complete!\n");
-    int n1 = 111, n2 = 000;
-    struct list_head* testlist = list_create(&n1, sizeof(n1));
-    testlist = list_insert_front(testlist, &n2, sizeof(n2));
-    list_foreach(testlist, test_foreach);
-    list_free(testlist);
-}
-
 void kmain(unsigned int ebx) {
 // First thing first, gather all info about our hardware capabilities, store it in kinfo singleton
 #ifdef WITH_GRUB_MB
@@ -76,12 +51,11 @@ void kmain(unsigned int ebx) {
 
     // Perform memory tests
     // test_memory_32bit_mode();
-    task_new(test_multitask, test_done_cb, 1024, 5);
 
 #ifdef WITH_GRUB_MB
-    task_new(shell_main, mbinfo, 4096 * 4, 5);
+    task_new(shell_main, mbinfo, 4096 * 4, 10);
 #else
-    task_new(shell_main, NULL, 4096 * 4, 5);
+    task_new(shell_main, NULL, 4096 * 4, 10);
 #endif
     asm("sti");  // Enable interrupts
     // task_yield();

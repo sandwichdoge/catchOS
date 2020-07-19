@@ -2,6 +2,5 @@
 #define INCLUDE_MALLOC_H
 void mmu_init();
 void* mmu_mmap(unsigned int size);
-void* mmu_alloc(unsigned int size);
 void mmu_munmap(void* mem);
 #endif
