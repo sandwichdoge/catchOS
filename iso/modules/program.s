@@ -8,5 +8,5 @@ mov ecx, eax; allocated mem
 mov eax, 3  ; munmap
 int 128
 
-mov eax, 0  ; return value
+mov eax, 123  ; return value
 ret
