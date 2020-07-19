@@ -10,6 +10,7 @@ READY = default, ready to run.
 WAITING = in sleep().
 RUNNING = being executed by cpu.
 JOINABLE = function has returned, we may terminate task.
+DETACHED = parent task no longer waits for this task.
 */
 enum TASK_STATE {TASK_READY = 0, TASK_WAITING, TASK_RUNNING, TASK_JOINABLE, TASK_DETACHED};
 

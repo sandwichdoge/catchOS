@@ -156,10 +156,59 @@ vs USB:
 Key press -> keyboard controller recognizes press -> stores keypress until USB poll -> sends status to USB controller -> USB controller sends interrupt to CPU
 ```
 
-### 4.3 Context Switching
+### 4.3 Multitasking
+- We use Preemptive Multitasking model with priority based round-robin scheduling algorithm.
+- This means a timer will trigger an interrupt to run a scheduler, who picks the most appriopriate task to switch to. We use the PIT in our kernel.
 
-- Transition between threads, the content of EIP, SS, general registers of each thread are saved and restored accordingly.
+#### 4.3.1 Context Switching
+- Transition between tasks, the content of EIP, SS, general registers of each thread are saved and restored accordingly.
+- A task may switch to any other task except the scheduler at any given time.
+- A task may create many child tasks.
+- We return from context switching with "ret" instruction, while the address of next task's eip on top of the stack. See info on ret: https://docs.oracle.com/cd/E19455-01/806-3773/instructionset-67/index.html
+- On task return, it'll return to a global clean up function on_current_task_return_cb(). This function will clean up resources based on the task's state. On task_new(), this function is placed second from stack top, behind argument pointer. It acts as a return address.
 - Context switching is not related to mode switching (aka transitioning between user mode and kernel mode or vice-versa).
+
+#### 4.3.2 Scheduler
+- Priority based round-robin algorithm.
+- All tasks are shared a time slice based on their priority. For example, a task with priority 8 and a task with priority 2 are running at the same time. The task with priority 8 with get 80% of cpu time.
+
+#### 4.3.3 Multitasking API
+See "tasks.h" file for details on ```struct task_struct```.
+```
+struct task_struct* task_new(void (*fp)(void*), void* arg, unsigned int stack_size, int priority)
+```
+- Create a new task and register it with the scheduler. The new task will run immediately if global interrupt is enabled i.e. the scheduler is running.
+- The stack of the newly created task is as follow:
+```
+- Task's stack map -
+[arg]
+[address of on_current_task_return_cb()]
+[next eip]
+[reg]
+[reg]
+[reg]
+[reg]
+[reg]
+[reg]
+[reg]
+[EFLAGS reg] <- esp
+```
+
+```
+void task_join(struct task_struct*)
+```
+- Wait in current task until specified task returns. Blocking.
+
+```
+void task_detach(struct task_struct*)
+```
+- Detach specified task, then keep executing the next instructions.
+- When detached task reaches return, it'll be cleaned up automatically by global clean up function.
+
+```
+void task_yield()
+```
+- Manually give up control to the scheduler.
 
 
 ### 4.4 System Calls

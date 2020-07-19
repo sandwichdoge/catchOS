@@ -29,6 +29,7 @@ unsigned int get_eflags() {
 private
 void on_current_task_return_cb() {
     _dbg_log("On return pid [%u]", _current->pid);
+    _current->interruptible = 0;
     _tasks[_current->pid] = NULL;
     if (_current->state == TASK_DETACHED) {
         mmu_munmap(_current->stack_bottom);
@@ -36,6 +37,7 @@ void on_current_task_return_cb() {
     } else {
         _current->state = TASK_JOINABLE;
     }
+    _current->interruptible = 1;
     _nr_tasks--;
     task_yield();
 }
