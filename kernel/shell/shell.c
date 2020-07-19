@@ -145,7 +145,6 @@ void test_multitasking(void* screenpos) {
     for (int i = 0; i < 10; ++i) {
         _memset(msg, 0, sizeof(msg));
         _int_to_str(msg, sizeof(msg), shell_gettime());
-        _dbg_log("Write str [%d]\n", *(unsigned int*)screenpos);
         write_cstr(msg, *(unsigned int*)screenpos);
         delay(500);
     }
