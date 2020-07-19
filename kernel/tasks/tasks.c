@@ -124,7 +124,6 @@ void task_switch_to(struct task_struct* next) {
 private
 void* schedule(void* unused) {
     asm("cli");
-    _current->interruptible = 0;
     //_dbg_log("Total tasks:%u\n", _nr_tasks);
 
     int c, next;
@@ -132,8 +131,9 @@ void* schedule(void* unused) {
         c = -1;
         next = 0;
         for (int i = 0; i < MAX_CONCURRENT_TASKS; ++i) {
-            if (_tasks[i] && (_tasks[i]->state == TASK_RUNNING || _tasks[i]->state == TASK_DETACHED) && _tasks[i]->counter > c) {
-                c = _tasks[i]->counter;
+            struct task_struct *t = _tasks[i];
+            if (t && (t->state == TASK_RUNNING || t->state == TASK_DETACHED) && t->counter > c) {
+                c = t->counter;
                 next = i;
             }
         }
@@ -141,16 +141,16 @@ void* schedule(void* unused) {
             break;
         }
         for (int i = 0; i < MAX_CONCURRENT_TASKS; ++i) {
-            if (_tasks[i]) {
+            struct task_struct *t = _tasks[i];
+            if (t) {
                 // The more iterations of the second for loop a task passes, the more its counter will be increased.
                 // A task counter can never get larger than 2 * priority.
-                _tasks[i]->counter = (_tasks[i]->counter >> 1) + _tasks[i]->priority;
+                t->counter = (t->counter >> 1) + t->priority;
             }
         }
     }
     task_switch_to(_tasks[next]);
 
-    _current->interruptible = 1;
     asm("sti");
     return NULL;
 }
