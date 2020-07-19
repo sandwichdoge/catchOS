@@ -6,6 +6,7 @@
 #include "syscall.h"
 #include "tasks.h"
 #include "timer.h"
+#include "power/shutdown_reboot.h"
 #include "multiboot.h"
 #include "utils/debug.h"
 #include "utils/string.h"
@@ -14,7 +15,8 @@
 #define MSG_HELP "help\n\
 uptime\n\
 program\n\
-tests"
+tests\n\
+reboot"
 
 char *greeting = "           _       _     _____ _____ \n"
 "          | |     | |   |  _  /  ___|\n"
@@ -181,6 +183,8 @@ private void shell_handle_cmd(char* cmd) {
         shell_cout("\n", 1);
     } else if (_strncmp(cmd, "tests", _strlen("tests")) == 0) {
         run_tests();
+    } else if (_strncmp(cmd, "reboot", _strlen("reboot")) == 0) {
+        reboot();
     } else {
     }
 }

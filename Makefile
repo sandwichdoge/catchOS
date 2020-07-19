@@ -11,6 +11,7 @@ UTILS_DIR=$(KERNEL_DIR)/utils
 SHELL_DIR=$(KERNEL_DIR)/shell
 TIMER_DIR=$(KERNEL_DIR)/timer
 TASKS_DIR=$(KERNEL_DIR)/tasks
+POWER_DIR=$(KERNEL_DIR)/power
 
 CC=gcc
 CXX=g++
@@ -36,6 +37,7 @@ OBJECTS=$(KBOOT_DIR)/multiboot_header.o $(KBOOT_DIR)/kboot.o \
 		$(TIMER_DIR)/timer.o \
 		$(TASKS_DIR)/tasks.o $(TASKS_DIR)/cpu_switch_to.o \
 		$(SYS_DIR)/syscall.o \
+		$(POWER_DIR)/shutdown.o $(POWER_DIR)/reboot.o \
 		$(COMMON_DIR)/kinfo.o \
 		$(UTILS_DIR)/string.o $(UTILS_DIR)/debug.o $(UTILS_DIR)/printf.o $(UTILS_DIR)/bitmap.o
 
