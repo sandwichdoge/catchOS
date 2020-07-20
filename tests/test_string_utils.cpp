@@ -22,6 +22,14 @@ TEST(StringUtils, memcpy2) {
     EXPECT_EQ(prev, s);
 }
 
+TEST(StringUtils, memcpy_void) {
+    char* s1 = "abcdef";
+    char s2[12] = {0};
+    _memcpy_s((void*)s2, (void*)s1, 6);
+    printf("%s\n", s2);
+    EXPECT_EQ(_strncmp(s1, s2, 6), 0);
+}
+
 TEST(StringUtils, strlen) {
     char *s = "hello\0";
     unsigned int len = _strlen(s);

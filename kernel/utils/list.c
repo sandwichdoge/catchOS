@@ -33,7 +33,7 @@ struct list_head *list_insert_back(struct list_head *node, void *data, int data_
     return list_insert_after(tail, data, data_size);
 }
 
-struct list_head *list_insert_front(struct list_head *list, void *data, int data_size) {
+struct list_head *list_insert_before(struct list_head *list, void *data, int data_size) {
     struct list_head *newnode;
     newnode = list_create(data, data_size);
     newnode->next = list;
