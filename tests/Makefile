@@ -8,13 +8,15 @@ OBJECTS=main.o \
 		test_printf_utils.o \
 		test_bitmap_utils.o \
 		test_pageframe_alloc.o \
+		test_spinlock.o \
 		../kernel/utils/string.c \
 		../kernel/utils/printf.o \
 		../kernel/utils/bitmap.o \
 		../kernel/mmu/pageframe_alloc.o \
 		../kernel/mmu/kheap.o \
 		../kernel/common/kinfo.o \
-		../kernel/utils/debug.o
+		../kernel/utils/spinlock.o \
+		../kernel/utils/debug.o 
 
 GTEST_DIR=./googletest/googletest
 
