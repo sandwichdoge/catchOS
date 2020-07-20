@@ -12,6 +12,7 @@
 #include "syscall.h"
 #include "tasks.h"
 #include "timer.h"
+#include "sem.h"
 #include "utils/debug.h"
 #include "utils/string.h"
 #include "utils/list.h"
@@ -27,6 +28,26 @@ void test_memory_32bit_mode() {
         _dbg_break();
     }
 }
+
+void halt() { asm("hlt"); }
+
+struct semaphore s;
+void test_multitask(void *done_cb) {
+    _dbg_log("test start\n");
+    sem_wait(&s);
+    for (int i = 0; i < 4; ++i) {
+        _dbg_log("[pid %u]test\n", task_getpid());
+        delay(100);
+    }
+    void (*fp)() = done_cb;
+    fp();
+    sem_signal(&s);
+}
+
+void test_done_cb() {
+    _dbg_log("Test done! Callback complete!\n");
+}
+
 
 void kmain(unsigned int ebx) {
 // First thing first, gather all info about our hardware capabilities, store it in kinfo singleton
@@ -49,8 +70,17 @@ void kmain(unsigned int ebx) {
     mmu_init();
     syscall_init();
 
-    // Perform memory tests
+    // Perform tests
     // test_memory_32bit_mode();
+    
+    sem_init(&s, 1);
+    struct task_struct *t1 = task_new(test_multitask, (void*)test_done_cb, 1024 * 2, 10);
+    struct task_struct *t2 = task_new(test_multitask, (void*)test_done_cb, 1024 * 2, 10);
+    struct task_struct *t3 = task_new(test_multitask, (void*)test_done_cb, 1024 * 2, 10);
+    task_detach(t1);
+    task_detach(t2);
+    task_detach(t3);
+    
 
 #ifdef WITH_GRUB_MB
     task_new(shell_main, mbinfo, 4096 * 4, 10);

@@ -30,7 +30,7 @@ unsigned int get_eflags() {
 // When a task reaches return, it will call this task for cleanup.
 private
 void on_current_task_return_cb() {
-    _dbg_log("On return pid [%u]", _current->pid);
+    _dbg_log("On return pid [%u]\n", _current->pid);
     _current->interruptible = 0;
     _tasks[_current->pid] = NULL;
     if (_current->state == TASK_DETACHED) {
@@ -179,6 +179,11 @@ unsigned int task_get_nr() { return _nr_tasks; }
 public
 inline struct task_struct* task_get_current() {
     return _current;
+}
+
+public
+inline unsigned int task_getpid() {
+    return _current->pid;
 }
 
 // Begin test section

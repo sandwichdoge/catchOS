@@ -48,4 +48,7 @@ void task_isr_priority();
 
 // Get current running task.
 struct task_struct* task_get_current();
+
+// Get current running task's pid.
+unsigned int task_getpid();
 #endif

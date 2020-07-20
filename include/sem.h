@@ -7,4 +7,7 @@ struct semaphore {
     struct list_head* task_queue;
 };
 
+void sem_init(struct semaphore* sem, int count);
+void sem_wait(struct semaphore* sem);
+void sem_signal(struct semaphore* sem);
 #endif
