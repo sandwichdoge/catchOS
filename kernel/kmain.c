@@ -30,7 +30,7 @@ void test_memory_32bit_mode() {
 }
 
 void halt() { asm("hlt"); }
-
+/*
 struct semaphore s;
 void test_multitask(void *done_cb) {
     _dbg_log("test start\n");
@@ -47,7 +47,7 @@ void test_multitask(void *done_cb) {
 void test_done_cb() {
     _dbg_log("Test done! Callback complete!\n");
 }
-
+*/
 
 void kmain(unsigned int ebx) {
 // First thing first, gather all info about our hardware capabilities, store it in kinfo singleton
@@ -72,7 +72,7 @@ void kmain(unsigned int ebx) {
 
     // Perform tests
     // test_memory_32bit_mode();
-    
+    /*
     sem_init(&s, 1);
     struct task_struct *t1 = task_new(test_multitask, (void*)test_done_cb, 1024 * 2, 10);
     struct task_struct *t2 = task_new(test_multitask, (void*)test_done_cb, 1024 * 2, 10);
@@ -80,7 +80,7 @@ void kmain(unsigned int ebx) {
     task_detach(t1);
     task_detach(t2);
     task_detach(t3);
-    
+    */
 
 #ifdef WITH_GRUB_MB
     task_new(shell_main, mbinfo, 4096 * 4, 10);
