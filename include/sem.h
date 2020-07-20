@@ -1,9 +1,11 @@
 #ifndef INCLUDE_SEM_H
 #define INCLUDE_SEM_H
 #include "utils/queue.h"
+#include "utils/spinlock.h"
 
 struct semaphore {
     int count;
+    struct spinlock lock;
     struct queue task_queue;
 };
 

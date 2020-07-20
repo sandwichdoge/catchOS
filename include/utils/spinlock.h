@@ -1,13 +1,11 @@
 #ifndef INCLUDE_SPINLOCK_H
 #define INCLUDE_SPINLOCK_H
 
-#define DECLARE_LOCK(name) volatile int name##Locked
-#define LOCK(name)                                             \
-    while (!__sync_bool_compare_and_swap(&name##Locked, 0, 1)) \
-        ;                                                      \
-    __sync_synchronize();
-#define UNLOCK(name)      \
-    __sync_synchronize(); \
-    name##Locked = 0;
+struct spinlock {
+    volatile int locked;
+};
+
+void spinlock_lock(struct spinlock* p);
+void spinlock_unlock(struct spinlock* p);
 
 #endif
