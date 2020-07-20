@@ -10,6 +10,7 @@ void queue_push(struct queue* Q, void* data, int data_size) {
     } else {
         struct list_head* p = list_insert_after(Q->tail, data, data_size);
         Q->tail = p;
+        Q->size++;
     }
 }
 
@@ -22,6 +23,7 @@ int queue_pop(struct queue* Q, void* data, int data_size) {
         struct list_head *newhead = Q->head->next;
         Q->head = newhead;
         list_remove(oldhead, oldhead);
+        Q->size--;
         return 0;
     }
 }

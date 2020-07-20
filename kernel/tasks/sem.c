@@ -28,7 +28,6 @@ void sem_wait(struct semaphore* sem) {
         LOCK(semlock);
         queue_push(&sem->task_queue, &curtask, sizeof(curtask));
         _dbg_log("created head %x\n", sem->task_queue.tail);
-        // EXPECT curtask == sem->task_queue->data
         UNLOCK(semlock);
         curtask->state = TASK_WAITING;
         task_yield();
