@@ -150,6 +150,9 @@ void* schedule(void* unused) {
         }
     }
     task_switch_to(_tasks[next]);
+    // Old task has already become another task here. 
+    // Interrupt flag is also re-enabled in task_switch_to(). When switched back, ISR will return.
+    // Then asm_int_handler_common() will change eip to the where previous task was interrupted by timer.
 
     asm("sti");
     return NULL;
@@ -164,7 +167,6 @@ void task_yield() {
 // Called by PIT ISR_TIMER.
 public
 void task_isr_priority() {
-    //_dbg_log("isr\n");
     _current->counter--;
     if (_current->counter > 0 || !_current->interruptible) {
         return;
