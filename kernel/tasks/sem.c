@@ -8,7 +8,7 @@
 DECLARE_LOCK(semlock);
 
 void sem_init(struct semaphore* sem, int count) {
-    sem->task_queue = NULL;
+    _memset(&sem->task_queue, 0, sizeof(sem->task_queue));
     sem->count = count;
 }
 
@@ -26,12 +26,8 @@ void sem_wait(struct semaphore* sem) {
         struct task_struct *curtask = task_get_current();
 
         LOCK(semlock);
-        if (sem->task_queue == NULL) {  // Queue empty
-            sem->task_queue = list_create(&curtask, sizeof(curtask));
-            _dbg_log("created head %x\n", sem->task_queue);
-        } else {
-            list_insert_back(sem->task_queue, &curtask, sizeof(curtask));
-        }
+        queue_push(&sem->task_queue, &curtask, sizeof(curtask));
+        _dbg_log("created head %x\n", sem->task_queue.tail);
         // EXPECT curtask == sem->task_queue->data
         UNLOCK(semlock);
         curtask->state = TASK_WAITING;
@@ -40,23 +36,15 @@ void sem_wait(struct semaphore* sem) {
 }
 
 void sem_signal(struct semaphore* sem) {
-    LOCK(semlock);
     // Update task_queue (pop head).
-    struct list_head *oldhead = sem->task_queue;
-    if (oldhead) {
-        struct list_head *newhead = oldhead->next;
-        sem->task_queue = newhead;
-    } 
+    LOCK(semlock);
+    struct task_struct* popped_task;
+    int is_queue_empty = queue_pop(&sem->task_queue, (void*)&popped_task, sizeof(popped_task));
     sem->count++;
     UNLOCK(semlock);
 
     // Change popped task state to TASK_RUNNING.
-    if (oldhead) {
-        struct task_struct* t = *(struct task_struct**)oldhead->data;
-        t->state = TASK_RUNNING;
-
-        // Free old head of task_queue.
-        list_remove(oldhead, oldhead);
-        _dbg_log("removed head %x\n", oldhead);
+    if (!is_queue_empty) {
+        popped_task->state = TASK_RUNNING;
     }
 }
