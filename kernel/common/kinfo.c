@@ -34,6 +34,7 @@ void kinfo_init(multiboot_info_t *mbinfo) {
     // Take info account GRUB module loaded along with kernel. We shouldn't
     // overwrite it so we treat it as a part of kernel.
     if (mbinfo) {
+        _kinfo.mbinfo = mbinfo;
         if (mbinfo->mods_count) {
             struct multiboot_mod_list *mods = (struct multiboot_mod_list *)mbinfo->mods_addr;
             _kinfo.kernel_end_phys = (void *)(mods->mod_end + mods->pad);

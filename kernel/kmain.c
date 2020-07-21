@@ -16,7 +16,7 @@
 #include "utils/debug.h"
 #include "utils/string.h"
 #include "utils/list.h"
-#include "shell_graphical.h"
+#include "drivers/svga.h"
 
 void test_memory_32bit_mode() {
     volatile unsigned char *p = (volatile unsigned char *)(0x0 + 3000000);  // 32MB for testing 32-bit mode
@@ -50,6 +50,9 @@ void test_done_cb() {
 }
 
 extern void int32_test();
+extern void vbe_switch_to_graphics();
+extern void vbe_test_graphics();
+extern void vbe_switch_to_text();
 
 void kmain(unsigned int ebx) {
 // First thing first, gather all info about our hardware capabilities, store it in kinfo singleton
@@ -74,7 +77,8 @@ void kmain(unsigned int ebx) {
 
     // Perform tests
     // test_memory_32bit_mode();
-    
+    //get_physbase();
+
     sem_init(&s, 1);
     struct task_struct *t1 = task_new(test_multitask, (void*)test_done_cb, 1024 * 2, 10);
     struct task_struct *t2 = task_new(test_multitask, (void*)test_done_cb, 1024 * 2, 10);
@@ -82,8 +86,6 @@ void kmain(unsigned int ebx) {
     task_detach(t1);
     task_detach(t2);
     task_detach(t3);
-
-    int32_test();
 
 
 #ifdef WITH_GRUB_MB

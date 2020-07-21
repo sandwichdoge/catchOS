@@ -30,7 +30,7 @@
 ; 
 [bits 32]
 
-global int32, _int32
+global r_int32, _r_int32
 
 struc regs16_t
     .di	resw 1
@@ -59,8 +59,8 @@ endstruc
 
 
 section .text
-    int32: use32                               ; by Napalm
-    _int32:
+    r_int32: use32                               ; by Napalm
+    _r_int32:
         cli                                    ; disable interrupts
         pusha                                  ; save register state to 32bit stack
         mov  esi, reloc                        ; set source to code below
