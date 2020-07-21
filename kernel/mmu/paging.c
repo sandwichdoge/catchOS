@@ -29,7 +29,7 @@ void paging_map(unsigned int virtual_addr, unsigned int phys_addr, unsigned int 
     }
 
     unsigned int pde = virtual_addr_to_pde(virtual_addr);
-    page_dir[pde] = ((unsigned int)page_table - 0xc0000000) | 3;
+    page_dir[pde] = ((unsigned int)page_table - 0x0) | 3;
 }
 
 // We're already in high-half kernel after kboot. So all addresses below are virtual.
@@ -40,9 +40,9 @@ void paging_init() {
     _dbg_log("[MMU]Page Table at 0x%x in kheap.\n", page_tables);
 
     // Map 1st page to 3GiB (kernel page)
-    paging_map(0xc0000000, 0, kernel_page_directory, page_tables + 1024 * 0);
+    paging_map(0x0, 0, kernel_page_directory, page_tables + 1024 * 0);
 
-    unsigned int kernel_page_directory_phys = (unsigned int)kernel_page_directory - 0xc0000000;
+    unsigned int kernel_page_directory_phys = (unsigned int)kernel_page_directory - 0x0;
 
     // load_page_directory() only accepts physical addresses.
     load_page_directory((void *)kernel_page_directory_phys);

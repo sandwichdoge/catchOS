@@ -32,7 +32,7 @@ void mmu_init() {
 
 public
 void* mmu_mmap(unsigned int size) {
-    // return out + 0xc0000000;
+    // return out + 0x0;
     void* ret = _malloc(size);
     _dbg_log("[MMU]Requested [%u], ret [0x%x]\n", size, ret);
     return ret;
@@ -46,5 +46,5 @@ void mmu_munmap(void* mem) { _free(mem); }
 [mmap]    <- Userland, need to modify process' page tables.
 [lib_malloc] <- library
 
-[kmalloc] <- Kernel use, when allocated, add 0xc0000000, use kernel_page_directory.
+[kmalloc] <- Kernel use, when allocated, add 0x0, use kernel_page_directory.
 */

@@ -19,7 +19,7 @@
 #include "shell_graphical.h"
 
 void test_memory_32bit_mode() {
-    volatile unsigned char *p = (volatile unsigned char *)(0xc0000000 + 3000000);  // 32MB for testing 32-bit mode
+    volatile unsigned char *p = (volatile unsigned char *)(0x0 + 3000000);  // 32MB for testing 32-bit mode
     *p = 55;
 
     if (*p == 55) {
@@ -59,7 +59,6 @@ void kmain(unsigned int ebx) {
 #else
     kinfo_init(NULL);
 #endif
-
     serial_defconfig(SERIAL_COM1_BASE);
     _dbg_log("kmain\n");
 
@@ -83,8 +82,9 @@ void kmain(unsigned int ebx) {
     task_detach(t1);
     task_detach(t2);
     task_detach(t3);
-    
+
     int32_test();
+
 
 #ifdef WITH_GRUB_MB
     task_new(shell_main, mbinfo, 4096 * 4, 10);

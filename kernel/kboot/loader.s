@@ -6,15 +6,15 @@ KERNEL_STACK_SIZE equ 4096      ; size of stack in bytes
 
 section .text
 loader:                         ; the loader label (defined as entry point in linker script)
-    add ebx, 0xc0000000
-    mov [mbinfo_struct - 0xc0000000], ebx               ; mbinfo_struct = ebx
+    add ebx, 0x0
+    mov [mbinfo_struct - 0x0], ebx               ; mbinfo_struct = ebx
     mov esp, kernel_stack + KERNEL_STACK_SIZE	; point esp to the start of the
                                                 ; stack (end of memory area)
 
 higher_half_init:               ; initialize higher-half kernel
     ; init first page table here
     xor ebx, ebx
-    lea edi, [asm_first_page_table - 0xc0000000]
+    lea edi, [asm_first_page_table - 0x0]
 .fill_table:
     mov eax, ebx
     mov edx, 0x1000
@@ -28,13 +28,13 @@ higher_half_init:               ; initialize higher-half kernel
     jne .fill_table
 
     ; finished filling table for first 4MiB, now put it in page directory
-    lea esi, [asm_first_page_table - 0xc0000000] ; page Table is now in esi
+    lea esi, [asm_first_page_table - 0x0] ; page Table is now in esi
     or esi, 3
     
     ; asm_page_directory[0] = esi; asm_page_directory[768] = esi;
-    mov [asm_page_directory - 0xc0000000], esi
-    mov [asm_page_directory - 0xc0000000 + 768 * 4], esi
-    lea esi, [asm_page_directory - 0xc0000000]
+    mov [asm_page_directory - 0x0], esi
+    mov [asm_page_directory - 0x0 + 768 * 4], esi
+    lea esi, [asm_page_directory - 0x0]
 
     ; load page directory
     mov cr3, esi

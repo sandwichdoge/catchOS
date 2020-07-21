@@ -37,7 +37,7 @@ void kinfo_init(multiboot_info_t *mbinfo) {
         if (mbinfo->mods_count) {
             struct multiboot_mod_list *mods = (struct multiboot_mod_list *)mbinfo->mods_addr;
             _kinfo.kernel_end_phys = (void *)(mods->mod_end + mods->pad);
-            _kinfo.kernel_end_virtual = (void *)(mods->mod_end + mods->pad + 0xc0000000);
+            _kinfo.kernel_end_virtual = (void *)(mods->mod_end + mods->pad + 0x0);
         }
     }
 #endif

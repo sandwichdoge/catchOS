@@ -10,7 +10,7 @@
 #define FB_HIGH_BYTE_CMD 14
 #define FB_LOW_BYTE_CMD 15
 
-char *fb = (char *)0xC00B8000;  // Video memory address
+char *fb = (char *)0x000B8000;  // Video memory address
 
 // Write character to a cell in 80x24 framebuffer
 public

@@ -25,7 +25,7 @@ init_pm:
     mov fs, ax
     mov gs, ax
 
-    mov ebp, 0xc01fffff      ; kernel stack base
+    mov ebp, 0x001fffff      ; kernel stack base
     mov esp, ebp
     ; call something here, never return from init_pm
     mov ebx, [mbinfo_struct]

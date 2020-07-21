@@ -1,4 +1,4 @@
-unsigned short *graphics_memory = (unsigned short *)(0xC0000000 + 0xA0000);
+unsigned short *graphics_memory = (unsigned short *)(0x0 + 0xA0000);
 
 void putpixel()
 {

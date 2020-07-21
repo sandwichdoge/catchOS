@@ -125,11 +125,11 @@ unsigned int shell_gettime() { return getticks(); }
 
 private
 int call_user_module(multiboot_info_t* mbinfo) {
-    struct multiboot_mod_list* mods = (struct multiboot_mod_list*)(mbinfo->mods_addr + 0xc0000000);
+    struct multiboot_mod_list* mods = (struct multiboot_mod_list*)(mbinfo->mods_addr + 0x0);
     unsigned int mcount = mbinfo->mods_count;
 
     if (mcount > 0) {
-        unsigned int prog_addr = (mods->mod_start + 0xc0000000);
+        unsigned int prog_addr = (mods->mod_start + 0x0);
         typedef void (*call_module_t)(void);
         call_module_t start_program = (call_module_t)prog_addr;
 

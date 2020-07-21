@@ -36,7 +36,7 @@
         }                                                                \
     }
 
-#define LIBALLOC_MAGIC 0xc001c0de
+#define LIBALLOC_MAGIC 0x0001c0de
 #define LIBALLOC_DEAD 0xdeaddead
 
 #if defined LIBALLOC_DEBUG || defined INFO

@@ -20,11 +20,11 @@ void int32_test()
     int32(0x10, &regs);
 	
     // full screen with blue color (1)
-    _memset((char *)0xC00A0000, 1, (320*200));
+    _memset((char *)0x000A0000, 1, (320*200));
 	
     // draw horizontal line from 100,80 to 100,240 in multiple colors
     for(y = 0; y < 200; y++)
-        _memset((char *)0xC00A0000 + (y*320+80), y, 160);
+        _memset((char *)0x000A0000 + (y*320+80), y, 160);
 	
     // wait for key
     regs.ax = 0x0000;
