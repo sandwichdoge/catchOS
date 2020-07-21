@@ -16,6 +16,7 @@
 #include "utils/debug.h"
 #include "utils/string.h"
 #include "utils/list.h"
+#include "shell_graphical.h"
 
 void test_memory_32bit_mode() {
     volatile unsigned char *p = (volatile unsigned char *)(0xc0000000 + 3000000);  // 32MB for testing 32-bit mode
@@ -48,6 +49,7 @@ void test_done_cb() {
     _dbg_log("Test done! Callback complete!\n");
 }
 
+extern void int32_test();
 
 void kmain(unsigned int ebx) {
 // First thing first, gather all info about our hardware capabilities, store it in kinfo singleton
@@ -59,6 +61,7 @@ void kmain(unsigned int ebx) {
 #endif
 
     serial_defconfig(SERIAL_COM1_BASE);
+    _dbg_log("kmain\n");
 
     // Setup interrupts
     write_cstr("Setting up interrupts..", 0);
@@ -81,6 +84,7 @@ void kmain(unsigned int ebx) {
     task_detach(t2);
     task_detach(t3);
     
+    int32_test();
 
 #ifdef WITH_GRUB_MB
     task_new(shell_main, mbinfo, 4096 * 4, 10);

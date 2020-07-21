@@ -30,6 +30,7 @@ init_pm:
     ; call something here, never return from init_pm
     mov ebx, [mbinfo_struct]
     push ebx
+
     call kmain
     jmp $
 
