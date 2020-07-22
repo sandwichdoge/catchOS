@@ -99,13 +99,8 @@ void kmain(unsigned int magic, unsigned int addr) {
     task_detach(t2);
     task_detach(t3);
 
-/*
-    #ifdef WITH_GRUB_MB
-        task_new(shell_main, mbinfo, 4096 * 4, 10);
-    #else
-        task_new(shell_main, NULL, 4096 * 4, 10);
-    #endif
-*/
+    task_new(shell_main, NULL, 4096 * 4, 10);
+
     //TODO fix needing at least a perma loop task or scheduler doesnt know where to switch to
     asm("sti");  // Enable interrupts
     // task_yield();

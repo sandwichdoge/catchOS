@@ -29,7 +29,6 @@ char* greeting =
     "                                     \n"
     "";
 
-// static multiboot_info_t* mb;
 unsigned int SCREEN_WIDTH, SCREEN_HEIGHT;
 
 unsigned int _cur;  // Global cursor position
@@ -191,10 +190,9 @@ void shell_handle_cmd(char* cmd) {
     } else {
     }
 }
-/*
+
 public
-void shell_main(multiboot_info_t* mbinfo) {
-    mb = mbinfo;
+void shell_main(void *unused) {
     shell_init();
     char buf[CIN_BUFSZ];
     _memset(buf, 0, CIN_BUFSZ);
@@ -209,4 +207,4 @@ void shell_main(multiboot_info_t* mbinfo) {
         shell_handle_cmd(buf);
     }
 }
-*/
+
