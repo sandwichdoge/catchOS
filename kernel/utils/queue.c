@@ -19,8 +19,8 @@ int queue_pop(struct queue* Q, void* data, int data_size) {
         return -1;
     } else {
         _memcpy(data, Q->head->data, data_size);
-        struct list_head *oldhead = Q->head;
-        struct list_head *newhead = Q->head->next;
+        struct list_head* oldhead = Q->head;
+        struct list_head* newhead = Q->head->next;
         Q->head = newhead;
         list_remove(oldhead, oldhead);
         Q->size--;
@@ -28,6 +28,4 @@ int queue_pop(struct queue* Q, void* data, int data_size) {
     }
 }
 
-int queue_size(struct queue *Q) {
-    return Q->size;
-}
+int queue_size(struct queue* Q) { return Q->size; }

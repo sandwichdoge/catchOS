@@ -2,19 +2,19 @@
 #include "liballoc.h"
 #include "pageframe_alloc.h"
 #include "paging.h"
-#include "utils/spinlock.h"
 #include "utils/debug.h"
+#include "utils/spinlock.h"
 
 #define PDE_SIZE 0x400000
 extern unsigned int kernel_page_directory[1024];
 
 static struct spinlock mmulock = {0};
-int liballoc_lock() { 
+int liballoc_lock() {
     spinlock_lock(&mmulock);
     return 0;
 }
 
-int liballoc_unlock() { 
+int liballoc_unlock() {
     spinlock_unlock(&mmulock);
     return 0;
 }

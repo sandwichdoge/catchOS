@@ -7,6 +7,7 @@ global kboot
 extern load_gdt
 extern kmain
 extern mbinfo_struct
+extern mbinfo_magic
 
 switch_to_pm:              ; switch from 16-bit real mode to 32-bit protected mode
     cli                    ; must disable interrupts
@@ -30,6 +31,8 @@ init_pm:
     ; call something here, never return from init_pm
     mov ebx, [mbinfo_struct]
     push ebx
+    mov eax, [mbinfo_magic]
+    push eax
 
     call kmain
     jmp $

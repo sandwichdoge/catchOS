@@ -1,8 +1,8 @@
 #include "sem.h"
 #include "builddef.h"
-#include "utils/debug.h"
 #include "mmu.h"
 #include "tasks.h"
+#include "utils/debug.h"
 
 void sem_init(struct semaphore* sem, int count) {
     _memset(&sem->task_queue, 0, sizeof(sem->task_queue));
@@ -19,9 +19,9 @@ void sem_wait(struct semaphore* sem) {
         spinlock_lock(&sem->lock);
         sem->count--;
         spinlock_unlock(&sem->lock);
-    } else {    // Block
+    } else {  // Block
         // Push current task in queue.
-        struct task_struct *curtask = task_get_current();
+        struct task_struct* curtask = task_get_current();
 
         spinlock_lock(&sem->lock);
         queue_push(&sem->task_queue, &curtask, sizeof(curtask));

@@ -16,11 +16,11 @@ struct kinfo *get_kernel_info() {
 }
 
 public
-void kinfo_init(multiboot_info_t *mbinfo) {
+void kinfo_init(struct multiboot_tag_basic_meminfo *mem, struct multiboot_tag_module *mods) {
 #ifndef TARGET_HOST
-    if (mbinfo) {
-        _kinfo.phys_mem_lower = mbinfo->mem_lower;
-        _kinfo.phys_mem_upper = mbinfo->mem_upper;
+    if (mem) {
+        _kinfo.phys_mem_lower = mem->mem_lower;
+        _kinfo.phys_mem_upper = mem->mem_upper;
     } else {  // TODO: Ask BIOS for mem limits, hardcode for 32MB for now.
         _kinfo.phys_mem_lower = 0x27c;
         _kinfo.phys_mem_upper = 0x7bc0;
@@ -33,13 +33,13 @@ void kinfo_init(multiboot_info_t *mbinfo) {
 
     // Take info account GRUB module loaded along with kernel. We shouldn't
     // overwrite it so we treat it as a part of kernel.
-    if (mbinfo) {
-        _kinfo.mbinfo = mbinfo;
+    if (mods) {
+        /*
         if (mbinfo->mods_count) {
             struct multiboot_mod_list *mods = (struct multiboot_mod_list *)mbinfo->mods_addr;
             _kinfo.kernel_end_phys = (void *)(mods->mod_end + mods->pad);
             _kinfo.kernel_end_virtual = (void *)(mods->mod_end + mods->pad + 0x0);
-        }
+        }*/
     }
 #endif
 }

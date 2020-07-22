@@ -1,22 +1,22 @@
 #include "drivers/cpuid.h"
 #include "drivers/framebuffer.h"
 #include "drivers/serial.h"
+#include "drivers/svga.h"
 #include "interrupt.h"
 #include "kheap.h"
 #include "kinfo.h"
 #include "mmu.h"
 #include "multiboot.h"
+#include "sem.h"
 #include "shell.h"
 #include "stddef.h"
 #include "stdint.h"
 #include "syscall.h"
 #include "tasks.h"
 #include "timer.h"
-#include "sem.h"
 #include "utils/debug.h"
-#include "utils/string.h"
 #include "utils/list.h"
-#include "drivers/svga.h"
+#include "utils/string.h"
 
 void test_memory_32bit_mode() {
     volatile unsigned char *p = (volatile unsigned char *)(0x0 + 3000000);  // 32MB for testing 32-bit mode
@@ -45,25 +45,27 @@ void test_multitask(void *done_cb) {
     sem_signal(&s);
 }
 
-void test_done_cb() {
-    _dbg_log("Test done! Callback complete!\n");
-}
+void test_done_cb() { _dbg_log("Test done! Callback complete!\n"); }
 
 extern void int32_test();
 extern void vbe_switch_to_graphics();
 extern void vbe_test_graphics();
 extern void vbe_switch_to_text();
 
-void kmain(unsigned int ebx) {
+void kmain(unsigned int magic, unsigned int mb2) {
 // First thing first, gather all info about our hardware capabilities, store it in kinfo singleton
+/*
 #ifdef WITH_GRUB_MB
     multiboot_info_t *mbinfo = (multiboot_info_t *)ebx;
     kinfo_init((multiboot_info_t *)ebx);
 #else
-    kinfo_init(NULL);
+    kinfo_init(NULL, NULL);
 #endif
+*/
     serial_defconfig(SERIAL_COM1_BASE);
     _dbg_log("kmain\n");
+    _dbg_log("magic:0x%x\n", magic);
+    _dbg_break();
 
     // Setup interrupts
     write_cstr("Setting up interrupts..", 0);
@@ -77,23 +79,23 @@ void kmain(unsigned int ebx) {
 
     // Perform tests
     // test_memory_32bit_mode();
-    //get_physbase();
-    //vbe_test_graphics();
+    // get_physbase();
+    // vbe_test_graphics();
 
     sem_init(&s, 1);
-    struct task_struct *t1 = task_new(test_multitask, (void*)test_done_cb, 1024 * 2, 10);
-    struct task_struct *t2 = task_new(test_multitask, (void*)test_done_cb, 1024 * 2, 10);
-    struct task_struct *t3 = task_new(test_multitask, (void*)test_done_cb, 1024 * 2, 10);
+    struct task_struct *t1 = task_new(test_multitask, (void *)test_done_cb, 1024 * 2, 10);
+    struct task_struct *t2 = task_new(test_multitask, (void *)test_done_cb, 1024 * 2, 10);
+    struct task_struct *t3 = task_new(test_multitask, (void *)test_done_cb, 1024 * 2, 10);
     task_detach(t1);
     task_detach(t2);
     task_detach(t3);
-
-
+/*
 #ifdef WITH_GRUB_MB
     task_new(shell_main, mbinfo, 4096 * 4, 10);
 #else
     task_new(shell_main, NULL, 4096 * 4, 10);
 #endif
+*/
     asm("sti");  // Enable interrupts
     // task_yield();
 

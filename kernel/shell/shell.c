@@ -29,7 +29,7 @@ char* greeting =
     "                                     \n"
     "";
 
-static multiboot_info_t* mb;
+//static multiboot_info_t* mb;
 unsigned int SCREEN_WIDTH, SCREEN_HEIGHT;
 
 unsigned int _cur;  // Global cursor position
@@ -122,7 +122,7 @@ void shell_init() {
 
 private
 unsigned int shell_gettime() { return getticks(); }
-
+/*
 private
 int call_user_module(multiboot_info_t* mbinfo) {
     struct multiboot_mod_list* mods = (struct multiboot_mod_list*)(mbinfo->mods_addr + 0x0);
@@ -140,6 +140,7 @@ int call_user_module(multiboot_info_t* mbinfo) {
         return 0;
     }
 }
+*/
 
 private
 void test_multitasking(void* screenpos) {
@@ -177,10 +178,10 @@ void shell_handle_cmd(char* cmd) {
         shell_cout(MSG_HELP, _strlen(MSG_HELP));
         shell_cout("\n", 1);
     } else if (_strncmp(cmd, "program", _strlen("program")) == 0) {
-        int ret = call_user_module(mb);
+//        int ret = call_user_module(mb);
         static char ret_s[12];
         _memset(ret_s, 0, sizeof(ret_s));
-        _int_to_str(ret_s, sizeof(ret_s), ret);
+//        _int_to_str(ret_s, sizeof(ret_s), ret);
         shell_cout(ret_s, _strlen(ret_s));
         shell_cout("\n", 1);
     } else if (_strncmp(cmd, "tests", _strlen("tests")) == 0) {
@@ -190,7 +191,7 @@ void shell_handle_cmd(char* cmd) {
     } else {
     }
 }
-
+/*
 public
 void shell_main(multiboot_info_t* mbinfo) {
     mb = mbinfo;
@@ -208,3 +209,4 @@ void shell_main(multiboot_info_t* mbinfo) {
         shell_handle_cmd(buf);
     }
 }
+*/

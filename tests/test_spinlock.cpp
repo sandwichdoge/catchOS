@@ -11,7 +11,7 @@ int counter = 0;
 void* count(void* unused) {
     spinlock_lock(&lock);
     for (int i = 0; i < 50000; ++i) {
-        counter++;    
+        counter++;
     }
     spinlock_unlock(&lock);
 }

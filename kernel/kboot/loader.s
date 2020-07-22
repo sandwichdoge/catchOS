@@ -1,11 +1,13 @@
 global loader                   ; the entry symbol for ELF
 extern kboot                    ; kboot will switch to protected mode and call kmain
 global mbinfo_struct
+global mbinfo_magic
 
 KERNEL_STACK_SIZE equ 4096      ; size of stack in bytes
 
 section .text
 loader:                         ; the loader label (defined as entry point in linker script)
+    mov [mbinfo_magic], eax
     add ebx, 0x0
     mov [mbinfo_struct - 0x0], ebx               ; mbinfo_struct = ebx
     mov esp, kernel_stack + KERNEL_STACK_SIZE	; point esp to the start of the
@@ -56,4 +58,6 @@ asm_page_directory: ; ERROR: Need to align our directory here?
 asm_first_page_table:
     resb 4096
 mbinfo_struct:
+    dd 1
+mbinfo_magic
     dd 1

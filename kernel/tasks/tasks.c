@@ -150,7 +150,7 @@ void* schedule(void* unused) {
         }
     }
     task_switch_to(_tasks[next]);
-    // Old task has already become another task here. 
+    // Old task has already become another task here.
     // Interrupt flag is also re-enabled in task_switch_to(). When switched back, ISR will return.
     // Then asm_int_handler_common() will change eip to the where previous task was interrupted by timer.
 
@@ -179,14 +179,10 @@ public
 unsigned int task_get_nr() { return _nr_tasks; }
 
 public
-inline struct task_struct* task_get_current() {
-    return _current;
-}
+inline struct task_struct* task_get_current() { return _current; }
 
 public
-inline unsigned int task_getpid() {
-    return _current->pid;
-}
+inline unsigned int task_getpid() { return _current->pid; }
 
 // Begin test section
 struct task_struct *task1, *task2, *task3;

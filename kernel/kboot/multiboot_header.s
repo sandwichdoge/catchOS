@@ -1,10 +1,15 @@
-MAGIC_NUMBER    equ 0x1BADB002                      ; define the magic number constant
-MB_FLAGS        equ 0x5
-CHECKSUM        equ -(MAGIC_NUMBER + MB_FLAGS) ; calculate the checksum
-                                                    ; (magic number + checksum + MB_FLAGS should equal 0)
-
 section .multiboot
-align 4                         ; the code must be 4 byte aligned
-    dd MAGIC_NUMBER             ; write the magic number to the machine code,
-    dd MB_FLAGS
-    dd CHECKSUM                 ; and the checksum
+header_start:
+    dd 0xe85250d6                ; magic number (multiboot 2)
+    dd 0                         ; architecture 0 (protected mode i386)
+    dd header_end - header_start ; header length
+    ; checksum
+    dd 0x100000000 - (0xe85250d6 + 0 + (header_end - header_start))
+
+    ; insert optional multiboot tags here
+
+    ; required end tag
+    dw 0    ; type
+    dw 0    ; flags
+    dd 8    ; size
+header_end:

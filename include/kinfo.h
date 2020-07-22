@@ -9,11 +9,10 @@ struct kinfo {
     void *kernel_end_virtual;
     unsigned int phys_mem_lower;
     unsigned int phys_mem_upper;
-    multiboot_info_t* mbinfo;
 };
 struct kinfo *get_kernel_info();
 // Get kernel and hardware info
-void kinfo_init(multiboot_info_t *mbinfo);
+void kinfo_init(struct multiboot_tag_basic_meminfo *mem, struct multiboot_tag_module *mods);
 void kinfo_set_phys_mem_lower(unsigned int phys_mem_lower);
 void kinfo_set_phys_mem_upper(unsigned int phys_mem_upper);
 #endif
