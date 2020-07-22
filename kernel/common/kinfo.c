@@ -18,9 +18,6 @@ struct kinfo *get_kernel_info() {
 public
 void kinfo_init(struct multiboot_tag *mb2) {
 #ifndef TARGET_HOST
-    unsigned int mem_lower = 0;
-    unsigned int mem_upper = 0;
-
     unsigned int addr = (unsigned int)mb2;
     struct multiboot_tag *tag;
     for (tag = (struct multiboot_tag *)(addr + 8); tag->type != MULTIBOOT_TAG_TYPE_END;

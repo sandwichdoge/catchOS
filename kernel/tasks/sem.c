@@ -6,8 +6,8 @@
 #include "utils/debug.h"
 
 void sem_init(struct semaphore* sem, int count) {
-    _memset(&sem->task_queue, 0, sizeof(sem->task_queue));
-    _memset(&sem->lock, 0, sizeof(sem->lock));
+    _memset((char*)&sem->task_queue, 0, sizeof(sem->task_queue));
+    _memset((char*)&sem->lock, 0, sizeof(sem->lock));
     sem->count = count;
 }
 

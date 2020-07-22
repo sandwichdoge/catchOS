@@ -13,7 +13,7 @@ TIMER_DIR=$(KERNEL_DIR)/timer
 TASKS_DIR=$(KERNEL_DIR)/tasks
 POWER_DIR=$(KERNEL_DIR)/power
 
-CC=gcc
+CC=clang
 CXX=g++
 AS=nasm
 ASFLAGS=-f elf32
@@ -26,7 +26,7 @@ LDFLAGS=-T $(KERNEL_DIR)/link.ld -melf_i386
 OBJECTS=$(KBOOT_DIR)/multiboot_header.o $(KBOOT_DIR)/kboot.o \
 		$(KBOOT_DIR)/loader.o $(KBOOT_DIR)/gdt.o \
 		$(KERNEL_DIR)/kmain.o \
-		$(SHELL_DIR)/shell.o $(SHELL_DIR)/shell_graphical.o \
+		$(SHELL_DIR)/shell.o \
 		$(DRIVERS_DIR)/serial.o $(DRIVERS_DIR)/io.o \
 		$(DRIVERS_DIR)/framebuffer.o $(DRIVERS_DIR)/keyboard.o \
 		$(DRIVERS_DIR)/pic.o $(DRIVERS_DIR)/pit.o \
@@ -38,7 +38,7 @@ OBJECTS=$(KBOOT_DIR)/multiboot_header.o $(KBOOT_DIR)/kboot.o \
 		$(TASKS_DIR)/tasks.o $(TASKS_DIR)/cpu_switch_to.o $(TASKS_DIR)/sem.o \
 		$(SYS_DIR)/syscall.o \
 		$(POWER_DIR)/shutdown.o $(POWER_DIR)/reboot.o \
-		$(COMMON_DIR)/kinfo.o $(COMMON_DIR)/realmode_int.o $(COMMON_DIR)/mode_switch_test.o \
+		$(COMMON_DIR)/kinfo.o \
 		$(UTILS_DIR)/string.o $(UTILS_DIR)/debug.o $(UTILS_DIR)/printf.o $(UTILS_DIR)/bitmap.o \
 		$(UTILS_DIR)/queue.o $(UTILS_DIR)/list.o $(UTILS_DIR)/spinlock.o
 

@@ -66,9 +66,6 @@ void shell_handle_keypress(unsigned char ascii) {
 }
 
 private
-void shell_setpos(unsigned int scrpos) { _cur = scrpos; }
-
-private
 void shell_cout(const char* str, unsigned int len) {
     // Print a string to screen, taking into account linebreaks because framebuffer doesn't know what a linebreak is.
     char* tmp = (char*)str;

@@ -1,24 +1,24 @@
 #include "drivers/svga.h"
 
 #include "kinfo.h"
-#include "realmode_int.h"
 #include "stdint.h"
 #include "timer.h"
 #include "utils/debug.h"
 #include "paging.h"
+#include "kheap.h"
 
 void svga_init() {
     _dbg_log("Init svga\n");
     struct kinfo* kinfo = get_kernel_info();
     multiboot_uint32_t color;
     unsigned i;
-    void *fb = kinfo->lfb_addr;
-    _dbg_log("lfg fb 0x%x\n", fb);
-    // Map LFB to 0xE0000000
+    char *fb = kinfo->lfb_addr;
+    _dbg_log("[SVGA]lfb addr: 0x%x\n", fb);
+
     unsigned int *kpd = get_kernel_pd();
     unsigned int *page_tables = kmalloc_align(4096, 4096);
-    paging_map(0xE0000000, (unsigned int)fb, kpd, page_tables);
-    fb = 0xE0000000;
+    paging_map(LFB_VADDR, (unsigned int)fb, kpd, page_tables);
+    fb = LFB_VADDR;
 
     /*
     switch (tagfb->common.framebuffer_type) {
@@ -53,7 +53,7 @@ void svga_init() {
             color = 0xffffffff;
             break;
     }*/
-    color = 0xff;
+    color = 0xffffffff;
 
     for (i = 0; i < kinfo->lfb_width && i < kinfo->lfb_height; i++) {
         switch (kinfo->lfb_bpp) {
