@@ -1,4 +1,5 @@
 #include "utils/spinlock.h"
+
 #include "mmu.h"
 
 inline void spinlock_lock(struct spinlock* p) {

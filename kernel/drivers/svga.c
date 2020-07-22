@@ -1,4 +1,5 @@
 #include "drivers/svga.h"
+
 #include "kinfo.h"
 #include "realmode_int.h"
 #include "stdint.h"

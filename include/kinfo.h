@@ -12,7 +12,7 @@ struct kinfo {
 };
 struct kinfo *get_kernel_info();
 // Get kernel and hardware info
-void kinfo_init(struct multiboot_tag_basic_meminfo *mem, struct multiboot_tag_module *mods);
+void kinfo_init(struct multiboot_tag *mb);
 void kinfo_set_phys_mem_lower(unsigned int phys_mem_lower);
 void kinfo_set_phys_mem_upper(unsigned int phys_mem_upper);
 #endif

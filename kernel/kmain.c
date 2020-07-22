@@ -52,20 +52,29 @@ extern void vbe_switch_to_graphics();
 extern void vbe_test_graphics();
 extern void vbe_switch_to_text();
 
-void kmain(unsigned int magic, unsigned int mb2) {
-// First thing first, gather all info about our hardware capabilities, store it in kinfo singleton
-/*
-#ifdef WITH_GRUB_MB
-    multiboot_info_t *mbinfo = (multiboot_info_t *)ebx;
-    kinfo_init((multiboot_info_t *)ebx);
-#else
-    kinfo_init(NULL, NULL);
-#endif
-*/
+void permaloop(void* unused) {
+    while (1);
+}
+
+void kmain(unsigned int magic, unsigned int addr) {
+    // First thing first, gather all info about our hardware capabilities, store it in kinfo singleton
     serial_defconfig(SERIAL_COM1_BASE);
+    if (magic != MULTIBOOT2_BOOTLOADER_MAGIC) {
+        _dbg_log("Invalid mb magic:[0x%x]\n", magic);
+        _dbg_break();
+    }
+    if (addr & 7) {
+        _dbg_log("Unaligned mbi: 0x%x\n", addr);
+        _dbg_break();
+    }
+
+#ifdef WITH_GRUB_MB
+    kinfo_init((struct multiboot_tag *)addr);
+#else
+    kinfo_init(NULL);
+#endif
+
     _dbg_log("kmain\n");
-    _dbg_log("magic:0x%x\n", magic);
-    _dbg_break();
 
     // Setup interrupts
     write_cstr("Setting up interrupts..", 0);
@@ -89,16 +98,19 @@ void kmain(unsigned int magic, unsigned int mb2) {
     task_detach(t1);
     task_detach(t2);
     task_detach(t3);
+
 /*
-#ifdef WITH_GRUB_MB
-    task_new(shell_main, mbinfo, 4096 * 4, 10);
-#else
-    task_new(shell_main, NULL, 4096 * 4, 10);
-#endif
+    #ifdef WITH_GRUB_MB
+        task_new(shell_main, mbinfo, 4096 * 4, 10);
+    #else
+        task_new(shell_main, NULL, 4096 * 4, 10);
+    #endif
 */
+    //TODO fix needing at least a perma loop task or scheduler doesnt know where to switch to
     asm("sti");  // Enable interrupts
     // task_yield();
 
+    _dbg_break();
     while (1) {
     }
 }
