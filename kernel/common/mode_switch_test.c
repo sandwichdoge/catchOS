@@ -9,7 +9,7 @@ void vbe_switch_to_graphics() {
 }
 
 void vbe_test_graphics() {
-    _memset((char *)0x000A0000, 1, (640*480));
+    _memset((char *)0xa0000, 0x9, (640*480));
 }
 
 void vbe_switch_to_text() {

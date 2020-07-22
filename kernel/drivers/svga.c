@@ -52,12 +52,6 @@ svga_control_info_t* svga_get_vbe_controlinfo() {
     struct kinfo *kinfo = get_kernel_info();
     multiboot_info_t* mbinfo = kinfo->mbinfo;
     _dbg_log("EXPECT [%u] == 1\n", mbinfo->mods_count);
-    regs16_t regs = {.ax = 0x4f00};
-    r_int32(0x10, &regs);
-    _dbg_log("EXPECT [0x%x] == [0x%x]\n", 0x004f, regs.ax);
-    delay(500);
-    _dbg_break();
-    
     svga_control_info_t* control_info = (svga_control_info_t*)mbinfo->vbe_control_info;
     return control_info;
 }
@@ -72,4 +66,10 @@ void get_physbase() {
     _dbg_log("scr w/h [%u/%u]\n", vbe_info->screen_width, vbe_info->screen_height);
     _dbg_log("svga planes: [%u]\n", vbe_info->planes);
     _dbg_log("svga winsize [%u]\n", vbe_info->windowSize);
+    
+    regs16_t regs;
+    regs.ax = 0x4f02;
+    regs.bx = 0x111 | 0x4000;
+    r_int32(0x10, &regs);
+    _memset((char*)vbe_info->physbase, 0x9, (640/8)*480);
 }
