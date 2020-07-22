@@ -13,7 +13,7 @@ TIMER_DIR=$(KERNEL_DIR)/timer
 TASKS_DIR=$(KERNEL_DIR)/tasks
 POWER_DIR=$(KERNEL_DIR)/power
 
-CC=clang
+CC=gcc
 CXX=g++
 AS=nasm
 ASFLAGS=-f elf32

@@ -12,13 +12,13 @@ void svga_init() {
     struct kinfo* kinfo = get_kernel_info();
     multiboot_uint32_t color;
     unsigned i;
-    char *fb = kinfo->lfb_addr;
+    unsigned char *fb = kinfo->lfb_addr;
     _dbg_log("[SVGA]lfb addr: 0x%x\n", fb);
 
     unsigned int *kpd = get_kernel_pd();
     unsigned int *page_tables = kmalloc_align(4096, 4096);
     paging_map(LFB_VADDR, (unsigned int)fb, kpd, page_tables);
-    fb = LFB_VADDR;
+    fb = (unsigned char*)LFB_VADDR;
 
     /*
     switch (tagfb->common.framebuffer_type) {
@@ -58,21 +58,21 @@ void svga_init() {
     for (i = 0; i < kinfo->lfb_width && i < kinfo->lfb_height; i++) {
         switch (kinfo->lfb_bpp) {
             case 8: {
-                multiboot_uint8_t *pixel = fb + kinfo->lfb_pitch * i + i;
+                multiboot_uint8_t *pixel = (multiboot_uint8_t *)(fb + kinfo->lfb_pitch * i + i);
                 *pixel = color;
             } break;
             case 15:
             case 16: {
-                multiboot_uint16_t *pixel = fb + kinfo->lfb_pitch * i + 2 * i;
+                multiboot_uint16_t *pixel = (multiboot_uint16_t *)(fb + kinfo->lfb_pitch * i + 2 * i);
                 *pixel = color;
             } break;
             case 24: {
-                multiboot_uint32_t *pixel = fb + kinfo->lfb_pitch * i + 3 * i;
+                multiboot_uint32_t *pixel = (multiboot_uint32_t *)(fb + kinfo->lfb_pitch * i + 3 * i);
                 *pixel = (color & 0xffffff) | (*pixel & 0xff000000);
             } break;
 
             case 32: {
-                multiboot_uint32_t *pixel = fb + kinfo->lfb_pitch * i + 4 * i;
+                multiboot_uint32_t *pixel = (multiboot_uint32_t *)(fb + kinfo->lfb_pitch * i + 4 * i);
                 *pixel = color;
             } break;
         }
