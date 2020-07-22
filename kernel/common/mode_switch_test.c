@@ -9,7 +9,7 @@ void vbe_switch_to_graphics() {
 }
 
 void vbe_test_graphics() {
-    _memset((char *)0x000A0000, 3, (320*199));
+    _memset((char *)0x000A0000, 1, (640*480));
 }
 
 void vbe_switch_to_text() {
@@ -38,7 +38,7 @@ void int32_test() {
     int32(0x16, &regs);
 	*/	
 
-    vbe_switch_to_graphics();
+    //vbe_switch_to_graphics();
     vbe_test_graphics();
 
     //vbe_switch_to_text();

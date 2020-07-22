@@ -78,6 +78,7 @@ void kmain(unsigned int ebx) {
     // Perform tests
     // test_memory_32bit_mode();
     //get_physbase();
+    //vbe_test_graphics();
 
     sem_init(&s, 1);
     struct task_struct *t1 = task_new(test_multitask, (void*)test_done_cb, 1024 * 2, 10);
