@@ -48,3 +48,8 @@ void paging_init() {
     load_page_directory((void *)kernel_page_directory_phys);
     enable_paging();
 }
+
+public
+unsigned int* get_kernel_pd() {
+    return kernel_page_directory;
+}

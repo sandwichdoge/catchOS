@@ -86,6 +86,8 @@ void kmain(unsigned int magic, unsigned int addr) {
     mmu_init();
     syscall_init();
 
+    svga_init();
+
     // Perform tests
     // test_memory_32bit_mode();
     // get_physbase();
@@ -100,13 +102,11 @@ void kmain(unsigned int magic, unsigned int addr) {
     task_detach(t3);
 
     task_new(shell_main, NULL, 4096 * 8, 10);
-    //_memset((char*)0xa0000, 0x3, (640 / 8) * 480);
     // TODO fix needing at least a perma loop task or scheduler doesnt know where to switch to
     // TODO fix writing VESA framebuffer error
     asm("sti");  // Enable interrupts
     // task_yield();
 
-    _dbg_break();
     while (1) {
     }
 }

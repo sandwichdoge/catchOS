@@ -14,7 +14,7 @@ framebuffer_header_start: align 8
     dd framebuffer_header_end - framebuffer_header_start
     dd 640
     dd 480
-    dd 32
+    dd 16
 framebuffer_header_end: align 8
 
     ; required end tag
