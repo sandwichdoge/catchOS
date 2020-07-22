@@ -192,7 +192,7 @@ void shell_handle_cmd(char* cmd) {
 }
 
 public
-void shell_main(void *unused) {
+void shell_main(void* unused) {
     shell_init();
     char buf[CIN_BUFSZ];
     _memset(buf, 0, CIN_BUFSZ);
@@ -207,4 +207,3 @@ void shell_main(void *unused) {
         shell_handle_cmd(buf);
     }
 }
-

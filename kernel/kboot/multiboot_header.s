@@ -8,8 +8,17 @@ header_start:
 
     ; insert optional multiboot tags here
 
+framebuffer_header_start: align 8
+    dw 5
+    dw 1
+    dd framebuffer_header_end - framebuffer_header_start
+    dd 640
+    dd 480
+    dd 32
+framebuffer_header_end: align 8
+
     ; required end tag
     dw 0    ; type
-    dw 0    ; flags
+    dw 0x0    ; flags
     dd 8    ; size
 header_end:

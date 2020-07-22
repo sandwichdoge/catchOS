@@ -117,7 +117,8 @@ void kinfo_init(struct multiboot_tag *mb2) {
 
                         case 32: {
                             multiboot_uint32_t *pixel = fb + tagfb->common.framebuffer_pitch * i + 4 * i;
-                            *pixel = color;
+                            _dbg_log("PIXEL:0x%x, color:0x%x\n", pixel, color);
+                            //*pixel = color;
                         } break;
                     }
                 }
@@ -138,6 +139,8 @@ void kinfo_init(struct multiboot_tag *mb2) {
     _kinfo.kernel_start_virtual = &KERNEL_START_VIRTUAL;
     _kinfo.kernel_end_phys = &KERNEL_END_PHYS;
     _kinfo.kernel_end_virtual = &KERNEL_END_VIRTUAL;
+
+    _dbg_break();
 
     // Take info account GRUB module loaded along with kernel. We shouldn't
     // overwrite it so we treat it as a part of kernel.

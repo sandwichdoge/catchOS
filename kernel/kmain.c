@@ -52,8 +52,9 @@ extern void vbe_switch_to_graphics();
 extern void vbe_test_graphics();
 extern void vbe_switch_to_text();
 
-void permaloop(void* unused) {
-    while (1);
+void permaloop(void *unused) {
+    while (1)
+        ;
 }
 
 void kmain(unsigned int magic, unsigned int addr) {
@@ -73,7 +74,6 @@ void kmain(unsigned int magic, unsigned int addr) {
 #else
     kinfo_init(NULL);
 #endif
-
     _dbg_log("kmain\n");
 
     // Setup interrupts
@@ -99,9 +99,10 @@ void kmain(unsigned int magic, unsigned int addr) {
     task_detach(t2);
     task_detach(t3);
 
-    task_new(shell_main, NULL, 4096 * 4, 10);
-
-    //TODO fix needing at least a perma loop task or scheduler doesnt know where to switch to
+    task_new(shell_main, NULL, 4096 * 8, 10);
+    //_memset((char*)0xa0000, 0x3, (640 / 8) * 480);
+    // TODO fix needing at least a perma loop task or scheduler doesnt know where to switch to
+    // TODO fix writing VESA framebuffer error
     asm("sti");  // Enable interrupts
     // task_yield();
 

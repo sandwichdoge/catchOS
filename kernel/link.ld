@@ -5,9 +5,9 @@ SECTIONS {
     KERNEL_START_PHYS = . - 0x0;
     KERNEL_START_VIRTUAL = .;
 
-    .multiboot ALIGN (0x4): AT(ADDR(.multiboot)-0x0)
+    .multiboot ALIGN (0x8): AT(ADDR(.multiboot)-0x0)
     {
-        *(.multiboot*)
+        *(.multiboot)
     }
 
     .rodata ALIGN (0x1000): AT(ADDR(.rodata)-0x0)
