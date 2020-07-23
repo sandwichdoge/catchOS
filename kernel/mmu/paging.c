@@ -50,6 +50,4 @@ void paging_init() {
 }
 
 public
-unsigned int* get_kernel_pd() {
-    return kernel_page_directory;
-}
+unsigned int *get_kernel_pd() { return kernel_page_directory; }

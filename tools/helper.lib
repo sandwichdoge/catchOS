@@ -1,3 +1,0 @@
-SCRIPTDIR=$(dirname "$0")
-echo "$SCRIPTDIR"
-

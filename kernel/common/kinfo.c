@@ -59,13 +59,9 @@ void kinfo_init(struct multiboot_tag *mb2) {
             } break;
             case MULTIBOOT_TAG_TYPE_FRAMEBUFFER: {
                 struct multiboot_tag_framebuffer *tagfb = (struct multiboot_tag_framebuffer *)tag;
-                _dbg_log("LFB at[0x%x], w[%u], h[%u], bpp[%u]", tagfb->common.framebuffer_addr, tagfb->common.framebuffer_width, tagfb->common.framebuffer_height, tagfb->common.framebuffer_bpp);
-                _kinfo.lfb_addr = (unsigned char*)(unsigned int)tagfb->common.framebuffer_addr;
-                _kinfo.lfb_type = tagfb->common.framebuffer_type;
-                _kinfo.lfb_width = tagfb->common.framebuffer_width;
-                _kinfo.lfb_height = tagfb->common.framebuffer_height;
-                _kinfo.lfb_pitch = tagfb->common.framebuffer_pitch;
-                _kinfo.lfb_bpp = tagfb->common.framebuffer_bpp;
+                _dbg_log("LFB at[0x%x], w[%u], h[%u], bpp[%u]", tagfb->common.framebuffer_addr, tagfb->common.framebuffer_width,
+                         tagfb->common.framebuffer_height, tagfb->common.framebuffer_bpp);
+                _memcpy(&_kinfo.tagfb, tagfb, sizeof(*tagfb));
                 break;
             }
         }
