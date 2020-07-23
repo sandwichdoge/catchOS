@@ -19,10 +19,11 @@ void svga_init() {
     paging_map(LFB_VADDR, (unsigned int)fb, kpd, page_tables);
     fb = (unsigned char *)LFB_VADDR;
 
+    struct multiboot_tag_framebuffer *tagfb = &kinfo->tagfb;
+    _dbg_log("FB TYPE: [%u]\n", tagfb->common.framebuffer_type);
+
     multiboot_uint32_t color;
     unsigned i;
-    struct multiboot_tag_framebuffer *tagfb = &kinfo->tagfb;
-
     switch (tagfb->common.framebuffer_type) {
         case MULTIBOOT_FRAMEBUFFER_TYPE_INDEXED: {
             unsigned best_distance, distance;
