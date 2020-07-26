@@ -103,8 +103,6 @@ public void svga_draw_rect(const unsigned int x1, const unsigned int y1, const u
 }
 
 // We use 12x16 text font. But actually draw 16x16 (4 empty right columns as delimiter).
-#define FONT_W 16
-#define FONT_H 16
 public void svga_draw_char(const unsigned int x, const unsigned int y, unsigned char c, unsigned int color) {
     const unsigned char *bitmap = font_get_char(c);
     for (unsigned int yy = 0; yy < FONT_H; ++yy) {
@@ -115,18 +113,6 @@ public void svga_draw_char(const unsigned int x, const unsigned int y, unsigned 
             }
         }
     }
-}
-
-void font_test() {
-    unsigned char *bitmap = font_get_char(253);
-    unsigned char expect = 0x3c;
-    unsigned char real = *bitmap;
-    _dbg_log("Expect[0x%x], Real[0x%x]\n", expect, real);
-
-    bitmap = font_get_char('V');
-    expect = 0x60;
-    real = *bitmap;
-    _dbg_log("Expect[0x%x], Real[0x%x]\n", expect, real);
 }
 
 public void svga_init() {
@@ -144,9 +130,11 @@ public void svga_init() {
     _dbg_log("[SVGA]fb type: [%u], bpp:[%u]\n", tagfb->common.framebuffer_type, tagfb->common.framebuffer_bpp);
 
     // Draw a white line
-    unsigned int color = svga_translate_rgb(0xff, 0xff, 0xff);
-    svga_draw_rect(30, 10, 46, 26, color);
+    unsigned int color = svga_translate_rgb(0xff, 0xff, 0x00);
+    svga_draw_rect(5, 10, 200, 20, color);
 
-    font_test();
-    svga_draw_char(30, 30, 'V', color);
+    unsigned char msg[] = "Welcome to my OS!";
+    for (int i = 0; i < _strlen(msg); ++i) {
+        svga_draw_char(30 + i * FONT_W, 30, msg[i], color);
+    }
 }
