@@ -26,7 +26,7 @@ LDFLAGS=-T $(KERNEL_DIR)/link.ld -melf_i386
 OBJECTS=$(KBOOT_DIR)/multiboot_header.o $(KBOOT_DIR)/kboot.o \
 		$(KBOOT_DIR)/loader.o $(KBOOT_DIR)/gdt.o \
 		$(KERNEL_DIR)/kmain.o \
-		$(SHELL_DIR)/shell.o \
+		$(SHELL_DIR)/shell.o $(SHELL_DIR)/font.o \
 		$(DRIVERS_DIR)/serial.o $(DRIVERS_DIR)/io.o \
 		$(DRIVERS_DIR)/framebuffer.o $(DRIVERS_DIR)/keyboard.o \
 		$(DRIVERS_DIR)/pic.o $(DRIVERS_DIR)/pit.o \

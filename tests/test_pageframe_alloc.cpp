@@ -81,7 +81,7 @@ TEST(pageframe_alloc, bestfit_behaviour) {
 
     void *final = pageframe_alloc(1);
     printf("Final[%p]\n", final);
-    EXPECT_EQ(final, (void *)0xb000);
+    EXPECT_EQ(final, (void *)0x8000);
 
     pageframe_free(final, 1);
     pageframe_free(p3, 1);

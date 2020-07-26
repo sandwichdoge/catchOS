@@ -46,3 +46,15 @@ TEST(Bitmap, bittoggle) {
     bit = bitmap_get_bit(bitmap, 79);
     EXPECT_EQ(bit, 0);
 }
+
+TEST(Bitmap, get2) {
+    unsigned char bitmap[] = {0x60, 0x60};
+    for (int i = 0; i < 8; i++) {
+        int bit = bitmap_get_bit(bitmap, i);
+        printf("%d-", bit);
+    }
+    int bit = bitmap_get_bit(bitmap, 10);
+    EXPECT_EQ(bit, 1);
+    int bit2 = bitmap_get_bit(bitmap, 11);
+    EXPECT_EQ(bit, 1);
+}

@@ -4,7 +4,9 @@
 #include "kinfo.h"
 #include "paging.h"
 #include "stdint.h"
+#include "utils/bitmap.h"
 #include "utils/debug.h"
+#include "font.h"
 #include "builddef.h"
 
 static unsigned char* _svga_lfb = NULL;
@@ -100,7 +102,34 @@ public void svga_draw_rect(const unsigned int x1, const unsigned int y1, const u
     }
 }
 
-void svga_init() {
+// We use 12x16 text font. But actually draw 16x16 (4 empty right columns as delimiter).
+#define FONT_W 16
+#define FONT_H 16
+public void svga_draw_char(const unsigned int x, const unsigned int y, unsigned char c, unsigned int color) {
+    const unsigned char *bitmap = font_get_char(c);
+    for (unsigned int yy = 0; yy < FONT_H; ++yy) {
+        for (unsigned int xx = 0; xx < FONT_W; ++xx) {
+            int bit = bitmap_get_bit(bitmap, yy * FONT_W + xx);
+            if (bit) {
+                svga_draw_pixel(x + xx, y + yy, color);
+            }
+        }
+    }
+}
+
+void font_test() {
+    unsigned char *bitmap = font_get_char(253);
+    unsigned char expect = 0x3c;
+    unsigned char real = *bitmap;
+    _dbg_log("Expect[0x%x], Real[0x%x]\n", expect, real);
+
+    bitmap = font_get_char('V');
+    expect = 0x60;
+    real = *bitmap;
+    _dbg_log("Expect[0x%x], Real[0x%x]\n", expect, real);
+}
+
+public void svga_init() {
     _dbg_log("Init svga\n");
     struct kinfo *kinfo = get_kernel_info();
 
@@ -116,5 +145,8 @@ void svga_init() {
 
     // Draw a white line
     unsigned int color = svga_translate_rgb(0xff, 0xff, 0xff);
-    svga_draw_rect(10, 10, 300, 50, color);
+    svga_draw_rect(30, 10, 46, 26, color);
+
+    font_test();
+    svga_draw_char(30, 30, 'V', color);
 }
