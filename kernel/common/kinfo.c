@@ -47,8 +47,6 @@ void kinfo_init(struct multiboot_tag *mb2) {
             case MULTIBOOT_TAG_TYPE_MMAP: {
                 multiboot_memory_map_t *mmap;
 
-                _dbg_log("mmap\n");
-
                 for (mmap = ((struct multiboot_tag_mmap *)tag)->entries; (multiboot_uint8_t *)mmap < (multiboot_uint8_t *)tag + tag->size;
                      mmap = (multiboot_memory_map_t *)((unsigned long)mmap + ((struct multiboot_tag_mmap *)tag)->entry_size))
                     _dbg_log(
@@ -71,6 +69,8 @@ void kinfo_init(struct multiboot_tag *mb2) {
     _kinfo.kernel_start_virtual = &KERNEL_START_VIRTUAL;
     _kinfo.kernel_end_phys = &KERNEL_END_PHYS;
     _kinfo.kernel_end_virtual = &KERNEL_END_VIRTUAL;
+    _dbg_log("Kernel start:[0x%x]\n", _kinfo.kernel_start_virtual);
+    _dbg_log("Kernel end:[0x%x]\n", _kinfo.kernel_end_virtual);
 
     // Take info account GRUB module loaded along with kernel. We shouldn't
     // overwrite it so we treat it as a part of kernel.

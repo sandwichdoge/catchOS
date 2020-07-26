@@ -47,7 +47,6 @@ private unsigned int svga_translate_rgb(unsigned char r, unsigned char g, unsign
             unsigned char r_real = ((1 << tagfb->framebuffer_red_mask_size) - 1) * (r / 0xff);
             unsigned char g_real = ((1 << tagfb->framebuffer_green_mask_size) - 1) * (g / 0xff);
             unsigned char b_real = ((1 << tagfb->framebuffer_blue_mask_size) - 1) * (b / 0xff);
-            //color = ((1 << tagfb->framebuffer_blue_mask_size) - 1) << tagfb->framebuffer_blue_field_position;
             color = (r_real << tagfb->framebuffer_red_field_position) | (g_real << tagfb->framebuffer_green_field_position) | (b_real << tagfb->framebuffer_blue_field_position);
             break;
         }
@@ -60,12 +59,10 @@ private unsigned int svga_translate_rgb(unsigned char r, unsigned char g, unsign
             break;
         }
     }
-
-
     return color;
 }
 
-public void svga_draw_pixel(int x, int y, unsigned int color) {
+public void svga_draw_pixel(unsigned int x, unsigned int y, unsigned int color) {
     struct kinfo *kinfo = get_kernel_info();
     struct multiboot_tag_framebuffer *tagfb = &kinfo->tagfb;
 
@@ -95,6 +92,14 @@ public void svga_draw_pixel(int x, int y, unsigned int color) {
     }
 }
 
+public void svga_draw_rect(const unsigned int x1, const unsigned int y1, const unsigned int x2, const unsigned int y2, unsigned int color) {
+    for (unsigned int y = y1; y < y2; ++y) {
+        for (unsigned int x = x1; x < x2; ++x) {
+            svga_draw_pixel(x, y, color);
+        }
+    }
+}
+
 void svga_init() {
     _dbg_log("Init svga\n");
     struct kinfo *kinfo = get_kernel_info();
@@ -111,7 +116,5 @@ void svga_init() {
 
     // Draw a white line
     unsigned int color = svga_translate_rgb(0xff, 0xff, 0xff);
-    for (int i = 0; i < 200; ++i) {
-        svga_draw_pixel(i, 10, color);
-    }
+    svga_draw_rect(10, 10, 300, 50, color);
 }
