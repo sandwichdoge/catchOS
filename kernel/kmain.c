@@ -47,11 +47,6 @@ void test_multitask(void *done_cb) {
 
 void test_done_cb() { _dbg_log("Test done! Callback complete!\n"); }
 
-extern void int32_test();
-extern void vbe_switch_to_graphics();
-extern void vbe_test_graphics();
-extern void vbe_switch_to_text();
-
 void permaloop(void *unused) {
     while (1)
         ;

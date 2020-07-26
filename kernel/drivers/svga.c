@@ -4,26 +4,24 @@
 #include "kinfo.h"
 #include "paging.h"
 #include "stdint.h"
-#include "timer.h"
 #include "utils/debug.h"
+#include "builddef.h"
 
-void svga_init() {
-    _dbg_log("Init svga\n");
+static unsigned char* _svga_lfb = NULL;
+
+private unsigned char* get_lfb_addr() {
+    return _svga_lfb;
+}
+
+private void set_lfb_addr(unsigned char* fb) {
+    _svga_lfb = fb;
+}
+
+private unsigned int svga_translate_rgb(unsigned char r, unsigned char g, unsigned char b) {
+    unsigned int color = 0xffffff;
+
     struct kinfo *kinfo = get_kernel_info();
-
-    unsigned char *fb = kinfo->tagfb.common.framebuffer_addr;
-    _dbg_log("[SVGA]lfb addr: 0x%x\n", fb);
-
-    unsigned int *kpd = get_kernel_pd();
-    unsigned int *page_tables = kmalloc_align(4096 * 256, 4096);
-    paging_map(LFB_VADDR, (unsigned int)fb, kpd, page_tables);
-    fb = (unsigned char *)LFB_VADDR;
-
     struct multiboot_tag_framebuffer *tagfb = &kinfo->tagfb;
-    _dbg_log("FB TYPE: [%u]\n", tagfb->common.framebuffer_type);
-
-    multiboot_uint32_t color;
-    unsigned i;
     switch (tagfb->common.framebuffer_type) {
         case MULTIBOOT_FRAMEBUFFER_TYPE_INDEXED: {
             unsigned best_distance, distance;
@@ -34,48 +32,86 @@ void svga_init() {
             color = 0;
             best_distance = 4 * 256 * 256;
 
-            for (i = 0; i < tagfb->framebuffer_palette_num_colors; i++) {
-                distance = (0xff - palette[i].blue) * (0xff - palette[i].blue) + palette[i].red * palette[i].red + palette[i].green * palette[i].green;
+            for (unsigned short i = 0; i < tagfb->framebuffer_palette_num_colors; i++) {
+                distance = (b - palette[i].blue) * (b - palette[i].blue) 
+                        + (r - palette[i].red) * (r - palette[i].red) 
+                        + (g - palette[i].green) * (g - palette[i].green);
                 if (distance < best_distance) {
                     color = i;
                     best_distance = distance;
                 }
             }
-        } break;
-
-        case MULTIBOOT_FRAMEBUFFER_TYPE_RGB:
-            color = ((1 << tagfb->framebuffer_blue_mask_size) - 1) << tagfb->framebuffer_blue_field_position;
             break;
-
-        case MULTIBOOT_FRAMEBUFFER_TYPE_EGA_TEXT:
+        }
+        case MULTIBOOT_FRAMEBUFFER_TYPE_RGB: {  // Max mask size 0x1f instead of 0xff
+            unsigned char r_real = ((1 << tagfb->framebuffer_red_mask_size) - 1) * (r / 0xff);
+            unsigned char g_real = ((1 << tagfb->framebuffer_green_mask_size) - 1) * (g / 0xff);
+            unsigned char b_real = ((1 << tagfb->framebuffer_blue_mask_size) - 1) * (b / 0xff);
+            //color = ((1 << tagfb->framebuffer_blue_mask_size) - 1) << tagfb->framebuffer_blue_field_position;
+            color = (r_real << tagfb->framebuffer_red_field_position) | (g_real << tagfb->framebuffer_green_field_position) | (b_real << tagfb->framebuffer_blue_field_position);
+            break;
+        }
+        case MULTIBOOT_FRAMEBUFFER_TYPE_EGA_TEXT: {
             color = '\\' | 0x0100;
             break;
-
-        default:
+        }
+        default: {
             color = 0xffffffff;
             break;
+        }
     }
 
-    for (i = 0; i < tagfb->common.framebuffer_width && i < tagfb->common.framebuffer_height; i++) {
-        switch (tagfb->common.framebuffer_bpp) {
-            case 8: {
-                multiboot_uint8_t *pixel = fb + tagfb->common.framebuffer_pitch * i + i;
-                *pixel = color;
-            } break;
-            case 15:
-            case 16: {
-                multiboot_uint16_t *pixel = fb + tagfb->common.framebuffer_pitch * i + 2 * i;
-                *pixel = color;
-            } break;
-            case 24: {
-                multiboot_uint32_t *pixel = fb + tagfb->common.framebuffer_pitch * i + 3 * i;
-                *pixel = (color & 0xffffff) | (*pixel & 0xff000000);
-            } break;
 
-            case 32: {
-                multiboot_uint32_t *pixel = fb + tagfb->common.framebuffer_pitch * i + 4 * i;
-                *pixel = color;
-            } break;
+    return color;
+}
+
+public void svga_draw_pixel(int x, int y, unsigned int color) {
+    struct kinfo *kinfo = get_kernel_info();
+    struct multiboot_tag_framebuffer *tagfb = &kinfo->tagfb;
+
+    unsigned char* fb = get_lfb_addr();
+    switch (tagfb->common.framebuffer_bpp) {
+        case 8: {
+            multiboot_uint8_t *pixel = fb + tagfb->common.framebuffer_pitch * y + x;
+            *pixel = color;
+            break;
         }
+        case 15:
+        case 16: {
+            multiboot_uint16_t *pixel = fb + tagfb->common.framebuffer_pitch * y + 2 * x;
+            *pixel = color;
+            break;
+        }
+        case 24: {
+            multiboot_uint32_t *pixel = fb + tagfb->common.framebuffer_pitch * y + 3 * x;
+            *pixel = (color & 0xffffff) | (*pixel & 0xff000000);
+            break;
+        }
+        case 32: {
+            multiboot_uint32_t *pixel = fb + tagfb->common.framebuffer_pitch * y + 4 * x;
+            *pixel = color;
+            break;
+        }
+    }
+}
+
+void svga_init() {
+    _dbg_log("Init svga\n");
+    struct kinfo *kinfo = get_kernel_info();
+
+    unsigned char *fb = kinfo->tagfb.common.framebuffer_addr;
+    unsigned int *kpd = get_kernel_pd();
+    unsigned int *page_tables = kmalloc_align(4096 * 256, 4096);
+    paging_map(LFB_VADDR, (unsigned int)fb, kpd, page_tables);
+    fb = (unsigned char *)LFB_VADDR;
+    set_lfb_addr(fb);
+
+    struct multiboot_tag_framebuffer *tagfb = &kinfo->tagfb;
+    _dbg_log("[SVGA]fb type: [%u], bpp:[%u]\n", tagfb->common.framebuffer_type, tagfb->common.framebuffer_bpp);
+
+    // Draw a white line
+    unsigned int color = svga_translate_rgb(0xff, 0xff, 0xff);
+    for (int i = 0; i < 200; ++i) {
+        svga_draw_pixel(i, 10, color);
     }
 }
