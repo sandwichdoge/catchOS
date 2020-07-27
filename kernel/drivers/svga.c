@@ -102,7 +102,7 @@ public void svga_draw_rect(const unsigned int x1, const unsigned int y1, const u
     }
 }
 
-// We use 12x16 text font. But actually draw 16x16 (4 empty right columns as delimiter).
+// We use 7x9 text font. But actually draw 8x9 (1 empty right column as delimiter).
 public void svga_draw_char(const unsigned int x, const unsigned int y, unsigned char c, unsigned int color) {
     const unsigned char *bitmap = font_get_char(c);
     for (unsigned int yy = 0; yy < FONT_H; ++yy) {
@@ -129,12 +129,12 @@ public void svga_init() {
     struct multiboot_tag_framebuffer *tagfb = &kinfo->tagfb;
     _dbg_log("[SVGA]fb type: [%u], bpp:[%u]\n", tagfb->common.framebuffer_type, tagfb->common.framebuffer_bpp);
 
-    // Draw a white line
     unsigned int color = svga_translate_rgb(0xff, 0xff, 0x00);
     svga_draw_rect(5, 10, 200, 20, color);
 
     unsigned char msg[] = "Welcome to my OS!";
     for (int i = 0; i < _strlen(msg); ++i) {
         svga_draw_char(30 + i * FONT_W, 30, msg[i], color);
+        svga_draw_char(30 + i * FONT_W, 41, msg[i], color);
     }
 }

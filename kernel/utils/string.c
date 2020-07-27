@@ -6,7 +6,15 @@ extern "C" {
 #include "builddef.h"
 
 public
-unsigned int _strlen(char *s) {
+unsigned int _strlen_s(char *s) {
+    unsigned int ret = 0;
+    while (*(s++)) {
+        ret++;
+    }
+    return ret;
+}
+
+unsigned int _strlen_u(unsigned char *s) {
     unsigned int ret = 0;
     while (*(s++)) {
         ret++;
