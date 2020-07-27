@@ -124,7 +124,7 @@ void task_switch_to(struct task_struct* next) {
 private
 void* schedule(void* unused) {
     asm("cli");
-    //_dbg_log("Total tasks:%u\n", _nr_tasks);
+    _dbg_log("Total tasks:%u\n", _nr_tasks);
 
     int c, next;
     while (1) {
@@ -137,7 +137,7 @@ void* schedule(void* unused) {
                 next = i;
             }
         }
-        if (c) {
+        if (c > 0) {
             break;
         }
         for (int i = 0; i < MAX_CONCURRENT_TASKS; ++i) {
