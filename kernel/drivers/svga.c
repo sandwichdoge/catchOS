@@ -104,7 +104,7 @@ public void svga_draw_rect(const unsigned int x1, const unsigned int y1, const u
 
 // We use 7x9 text font. But actually draw 8x9 (1 empty right column as delimiter).
 public void svga_draw_char(const unsigned int x, const unsigned int y, unsigned char c, unsigned int color) {
-    const unsigned char *bitmap = font_get_char(c);
+    unsigned char *bitmap = font_get_char(c);
     for (unsigned int yy = 0; yy < FONT_H; ++yy) {
         for (unsigned int xx = 0; xx < FONT_W; ++xx) {
             int bit = bitmap_get_bit(bitmap, yy * FONT_W + xx);
@@ -113,6 +113,14 @@ public void svga_draw_char(const unsigned int x, const unsigned int y, unsigned 
             }
         }
     }
+}
+
+#define SCR_W 640
+#define SCR_COLUMNS (SCR_W / FONT_W)
+public void svga_draw_char_cell(const unsigned int scrpos, unsigned char c, unsigned int color) {
+    unsigned int y = scrpos / SCR_COLUMNS;
+    unsigned int x = scrpos % SCR_COLUMNS;
+    svga_draw_char(FONT_W * x, (FONT_H + 2) * y, c, color);
 }
 
 public void svga_init() {
@@ -130,11 +138,11 @@ public void svga_init() {
     _dbg_log("[SVGA]fb type: [%u], bpp:[%u]\n", tagfb->common.framebuffer_type, tagfb->common.framebuffer_bpp);
 
     unsigned int color = svga_translate_rgb(0xff, 0xff, 0x00);
-    svga_draw_rect(5, 10, 200, 20, color);
+    svga_draw_rect(5, 8, 200, 18, color);
 
     unsigned char msg[] = "Welcome to my OS!";
-    for (int i = 0; i < _strlen(msg); ++i) {
-        svga_draw_char(30 + i * FONT_W, 30, msg[i], color);
-        svga_draw_char(30 + i * FONT_W, 41, msg[i], color);
+    for (unsigned int i = 0; i < _strlen(msg); ++i) {
+        svga_draw_char_cell(160 + i, msg[i], color);
+        svga_draw_char_cell(240 + i, msg[i], color);
     }
 }
