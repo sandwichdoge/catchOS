@@ -51,16 +51,11 @@ void _memset_u(unsigned char *dst, char c, unsigned int len) {
 }
 
 public
-void _memcpy_s(char *dst, char *src, unsigned int len) {
+void _memcpy(void *dst, void *src, unsigned int len) {
+    char *d = dst;
+    char *s = src;
     while (len--) {
-        *(dst++) = *(src++);
-    }
-}
-
-public
-void _memcpy_u(unsigned char *dst, char *src, unsigned int len) {
-    while (len--) {
-        *(dst++) = *(src++);
+        *(d++) = *(s++);
     }
 }
 

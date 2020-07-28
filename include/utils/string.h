@@ -11,8 +11,7 @@ int _strncmp(char *s1, char *s2, unsigned int len);
 void _memset_s(char *__restrict dst, char c, unsigned int len);
 void _memset_u(unsigned char *__restrict dst, char c, unsigned int len);
 
-void _memcpy_s(char *__restrict dst, char *__restrict src, unsigned int len);
-void _memcpy_u(unsigned char *__restrict dst, char *__restrict src, unsigned int len);
+void _memcpy(void *__restrict dst, void *__restrict src, unsigned int len);
 
 int _strcpy_s(char *__restrict dst, char *__restrict src);
 int _strcpy_u(unsigned char *__restrict dst, char *__restrict src);
@@ -34,7 +33,7 @@ char *_int_to_str_static(unsigned int num, int base);
 
 #define _strncpy(dst, src, len) _Generic((src), char * : _strncpy_s, default : _strncpy_s, unsigned char * : _strncpy_u)(dst, src, len)
 
-#define _memcpy(dst, src, len) _Generic((src), char * : _memcpy_s, default : _memcpy_s, unsigned char * : _memcpy_u)(dst, src, len)
+//#define _memcpy(dst, src, len) _Generic((src), char * : _memcpy_s, default : _memcpy_s, unsigned char * : _memcpy_u)(dst, src, len)
 
 #define _memset(dst, c, len) _Generic((dst), char * : _memset_s, default : _memset_s, unsigned char * : _memset_u)(dst, c, len)
 
