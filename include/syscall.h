@@ -24,6 +24,12 @@ void syscall_fb_write_chr(const char c, unsigned int *scrpos);
 // Print a string to screen.
 void syscall_fb_write_str(const char *str, unsigned int *scrpos, unsigned int len);
 
+// Draw a rectangle on screen.
+void syscall_fb_draw_rect(const unsigned int x1, const unsigned int y1, const unsigned int x2, const unsigned int y2);
+
+// Set global brush's color.
+void syscall_fb_brush_set_color(unsigned char r, unsigned char g, unsigned char b);
+
 // Clear a cell.
 void syscall_fb_clr_cell(unsigned int *scrpos);
 

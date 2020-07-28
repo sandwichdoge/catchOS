@@ -113,6 +113,13 @@ void shell_init() {
     syscall_fb_clr_scr();
     _cur = 0;
     shell_cout(greeting, _strlen(greeting));
+    syscall_fb_brush_set_color(0xff, 0x0, 0x0);
+    syscall_fb_draw_rect(300, 200, 350, 250);
+    syscall_fb_brush_set_color(0x00, 0xff, 0x0);
+    syscall_fb_draw_rect(350, 200, 400, 250);
+    syscall_fb_brush_set_color(0x00, 0x0, 0xff);
+    syscall_fb_draw_rect(400, 200, 450, 250);
+    syscall_fb_brush_set_color(0xff, 0xff, 0x0);
 }
 
 private

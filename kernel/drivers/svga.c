@@ -210,7 +210,4 @@ public void svga_init() {
 
     struct multiboot_tag_framebuffer *tagfb = &kinfo->tagfb;
     _dbg_log("[SVGA]fb type: [%u], bpp:[%u]\n", tagfb->common.framebuffer_type, tagfb->common.framebuffer_bpp);
-
-    unsigned int color = svga_translate_rgb(yellow.r, yellow.g, yellow.b);
-    svga_draw_rect(5, 90, 200, 110, color);
 }
