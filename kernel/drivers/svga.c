@@ -19,6 +19,9 @@ private void set_lfb_addr(unsigned char* fb) {
     _svga_lfb = fb;
 }
 
+static struct rgb_color black = {0x0, 0x0, 0x0};
+static struct rgb_color yellow = {0xff, 0xff, 0x0};
+
 private unsigned int svga_translate_rgb(unsigned char r, unsigned char g, unsigned char b) {
     unsigned int color = 0xffffff;
 
@@ -128,7 +131,7 @@ public void svga_scroll_down(unsigned int lines) {
         lines = SCR_ROWS;
     }
 
-    static unsigned char buf[2560 * SCR_H]; // Max possible lfb size for 640x480x32 vga (2560 = 32bit fb pitch).
+    static char buf[2560 * SCR_H]; // Max possible lfb size for 640x480x32 vga (2560 = 32bit fb pitch).
     _memset(buf, 0, sizeof(buf));
 
     unsigned int fb_size = SCR_H * tagfb->common.framebuffer_pitch;
@@ -156,14 +159,19 @@ public void svga_write_str(const char *str, unsigned int *scrpos, unsigned int l
     if (*scrpos + len > (SCR_ROWS * SCR_COLUMNS)) {
         lines_to_scroll = ((*scrpos + len - (SCR_ROWS * SCR_COLUMNS)) / SCR_COLUMNS) + 1;  // Divide rounded down, so we add 1
 
-        scroll_down(lines_to_scroll);
+        svga_scroll_down(lines_to_scroll);
         *scrpos -= lines_to_scroll * SCR_COLUMNS;  // Go back the same number of lines
-        svga_draw_char_cell(*scrpos, 'x', color);
+        svga_draw_char_cell(scrpos, 'x', color);
     }
 
     for (unsigned int i = 0; i < len; i++) {
         svga_draw_char_cell(scrpos, str[i], color);
     }
+}
+
+public void svga_clr_scr() {
+    unsigned int color = svga_translate_rgb(black.r, black.g, black.b);
+    svga_draw_rect(0, 0, SCR_W, SCR_H, color);
 }
 
 public void svga_init() {
@@ -179,13 +187,11 @@ public void svga_init() {
     struct multiboot_tag_framebuffer *tagfb = &kinfo->tagfb;
     _dbg_log("[SVGA]fb type: [%u], bpp:[%u]\n", tagfb->common.framebuffer_type, tagfb->common.framebuffer_bpp);
 
-    unsigned int color = svga_translate_rgb(0xff, 0xff, 0x00);
+    unsigned int color = svga_translate_rgb(yellow.r, yellow.g, yellow.b);
     svga_draw_rect(5, 40, 200, 50, color);
 
-    unsigned int pos = 0;
-
     unsigned int scrpos = 80;
-    unsigned char msg[] = "Welcome to my OS";
+    char msg[] = "Welcome to my OS";
     svga_write_str(msg, &scrpos, _strlen(msg), color);
     
     svga_scroll_down(1);
