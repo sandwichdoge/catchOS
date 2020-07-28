@@ -94,7 +94,7 @@ void kmain(unsigned int magic, unsigned int addr) {
     task_detach(t2);
     task_detach(t3);
 
-    //task_new(shell_main, NULL, 4096 * 8, 10);
+    task_new(shell_main, NULL, 4096 * 8, 10);
     asm("sti");  // Enable interrupts
     // task_yield();
 

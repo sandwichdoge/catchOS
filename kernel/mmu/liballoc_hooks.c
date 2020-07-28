@@ -23,9 +23,9 @@ void* pageframe_alloc_liballoc(unsigned int pages) {
     void* ret = pageframe_alloc(pages);
     if (ret) {
         // 1-1 map
-        unsigned int* page_tables = kmalloc_align(4096 * pages, 4096);
+        unsigned int* page_tables = kmalloc_align(4096, 4096);
         for (unsigned int i = 0; i < pages; ++i) {
-            paging_map((unsigned int)ret + 0x0 + i * PDE_SIZE, (unsigned int)ret + i * PDE_SIZE, kernel_page_directory, page_tables + 1024 * i);
+            paging_map((unsigned int)ret + 0x0 + i * PAGE_SIZE, (unsigned int)ret + i * PAGE_SIZE, kernel_page_directory, page_tables);
         }
         ret = (char*)ret + 0x0;
     } else {  // Out of memory

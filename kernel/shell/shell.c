@@ -1,7 +1,6 @@
 #include "shell.h"
 
 #include "builddef.h"
-#include "drivers/framebuffer.h"
 #include "drivers/keyboard.h"  // For key defs
 #include "multiboot.h"
 #include "power/shutdown_reboot.h"
@@ -54,7 +53,7 @@ void shell_handle_keypress(unsigned char ascii) {
             if (_cin_pos == 0) return;
             _cin[_cin_pos--] = '\0';
             _cur--;
-            syscall_fb_write_chr('\0', &_cur);
+            syscall_fb_clr_cell(&_cur);
             _cur--;
         } else {
             _cin[_cin_pos++] = ascii;
@@ -145,7 +144,7 @@ void test_multitasking(void* screenpos) {
     for (int i = 0; i < 10; ++i) {
         _memset(msg, 0, sizeof(msg));
         _int_to_str(msg, sizeof(msg), shell_gettime());
-        write_cstr(msg, *(unsigned int*)screenpos);
+        syscall_fb_write_str(msg, (unsigned int*)screenpos, _strlen(msg) + 1);
         delay(500);
     }
 }
@@ -155,8 +154,8 @@ void run_tests() {
     _dbg_log("Running tests\n");
     static unsigned int pos1 = 85 * 7;
     static unsigned int pos2 = 85 * 8;
-    struct task_struct* task1 = task_new(test_multitasking, &pos1, 4096, 5);
-    struct task_struct* task2 = task_new(test_multitasking, &pos2, 4096, 5);
+    struct task_struct* task1 = task_new(test_multitasking, &pos1, 4096 * 2, 5);
+    struct task_struct* task2 = task_new(test_multitasking, &pos2, 4096 * 2, 5);
     task_detach(task1);
     task_detach(task2);
 }

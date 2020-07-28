@@ -24,6 +24,9 @@ void syscall_fb_write_chr(const char c, unsigned int *scrpos);
 // Print a string to screen.
 void syscall_fb_write_str(const char *str, unsigned int *scrpos, unsigned int len);
 
+// Clear a cell.
+void syscall_fb_clr_cell(unsigned int *scrpos);
+
 // Clear video screen.
 void syscall_fb_clr_scr(void);
 

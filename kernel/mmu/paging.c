@@ -1,12 +1,10 @@
 #include "builddef.h"
+#include "paging.h"
 #include "kheap.h"
 #include "kinfo.h"
 #include "utils/debug.h"
 extern void load_page_directory(void *page_directory);
 extern void enable_paging();
-
-// Divide these 2 and we get 1024 pages each PDE.
-#define PAGE_SIZE 0x1000  // 4096
 
 // A page directory can represent all 4GiB of memory, if it has 1024 entries.
 // Page index 123 in table index 456 will be mapped to (456 * 1024) + 123 = 467067. 467067 * 4 = 1868268 KiB.

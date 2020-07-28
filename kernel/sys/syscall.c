@@ -5,7 +5,7 @@
 #include "syscall.h"
 
 #include "builddef.h"
-#include "drivers/framebuffer.h"
+#include "drivers/svga.h"
 #include "drivers/serial.h"
 #include "interrupt.h"
 #include "mmu.h"
@@ -38,18 +38,26 @@ void syscall_init() { interrupt_register(INT_SYSCALL, ISR_SYSCALL); }
 
 void syscall_register_kb_handler(void (*kb_handler)(unsigned char c)) { _kb_handler_cb = kb_handler; }
 
-int syscall_fb_get_scr_w() { return fb_get_scr_w(); }
+int syscall_fb_get_scr_w() { return svga_get_scr_columns(); }
 
-int syscall_fb_get_scr_h() { return fb_get_scr_h(); }
+int syscall_fb_get_scr_h() { return svga_get_scr_rows(); }
 
-void syscall_fb_scroll_down(unsigned int lines) { scroll_down(lines); }
+void syscall_fb_scroll_down(unsigned int lines) { svga_scroll_down(lines); }
 
-void syscall_fb_write_chr(const char c, unsigned int *scrpos) { write_chr(c, scrpos); }
+void syscall_fb_write_chr(const char c, unsigned int *scrpos) { 
+    svga_draw_char_cell(scrpos, c, svga_translate_rgb(0xff, 0xff, 0x00)); 
+}
 
-void syscall_fb_write_str(const char *str, unsigned int *scrpos, unsigned int len) { write_str(str, scrpos, len); }
+void syscall_fb_write_str(const char *str, unsigned int *scrpos, unsigned int len) { 
+    svga_write_str(str, scrpos, len, svga_translate_rgb(0xff, 0xff, 0x00)); 
+}
 
-void syscall_fb_clr_scr() { clr_screen(FB_BLACK); }
+void syscall_fb_clr_cell(unsigned int *scrpos) {
+    svga_clr_cell(scrpos);
+}
 
-void syscall_fb_mov_cursr(unsigned int scrpos) { move_cursor(scrpos); }
+void syscall_fb_clr_scr() { svga_clr_scr(); }
+
+void syscall_fb_mov_cursr(unsigned int scrpos) { svga_move_cursor(scrpos); }
 
 void syscall_serial_writestr(char *str, unsigned int len) { serial_write(SERIAL_COM1_BASE, str, len); }

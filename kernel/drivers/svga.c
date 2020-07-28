@@ -9,6 +9,11 @@
 #include "font.h"
 #include "builddef.h"
 
+#define SCR_W 640
+#define SCR_H 480
+#define SCR_COLUMNS (SCR_W / FONT_W)
+#define SCR_ROWS (SCR_H / (FONT_H + 2))
+
 static unsigned char* _svga_lfb = NULL;
 
 private unsigned char* get_lfb_addr() {
@@ -22,7 +27,7 @@ private void set_lfb_addr(unsigned char* fb) {
 static struct rgb_color black = {0x0, 0x0, 0x0};
 static struct rgb_color yellow = {0xff, 0xff, 0x0};
 
-private unsigned int svga_translate_rgb(unsigned char r, unsigned char g, unsigned char b) {
+public unsigned int svga_translate_rgb(unsigned char r, unsigned char g, unsigned char b) {
     unsigned int color = 0xffffff;
 
     struct kinfo *kinfo = get_kernel_info();
@@ -65,6 +70,18 @@ private unsigned int svga_translate_rgb(unsigned char r, unsigned char g, unsign
         }
     }
     return color;
+}
+
+public int svga_get_scr_columns() {
+    return SCR_COLUMNS;
+}
+
+public int svga_get_scr_rows() {
+    return SCR_ROWS;
+}
+
+public void svga_move_cursor(unsigned int scrpos) {
+    
 }
 
 public void svga_draw_pixel(unsigned int x, unsigned int y, unsigned int color) {
@@ -117,11 +134,6 @@ public void svga_draw_char(const unsigned int x, const unsigned int y, unsigned 
         }
     }
 }
-
-#define SCR_W 640
-#define SCR_H 480
-#define SCR_COLUMNS (SCR_W / FONT_W)
-#define SCR_ROWS (SCR_H / (FONT_H + 2))
 
 public void svga_scroll_down(unsigned int lines) {
     struct kinfo *kinfo = get_kernel_info();
@@ -177,6 +189,10 @@ public void svga_write_str(const char *str, unsigned int *scrpos, unsigned int l
     }
 }
 
+public void svga_clr_cell(unsigned int *scrpos) {
+    svga_draw_char_cell(scrpos, 255, svga_translate_rgb(black.r, black.g, black.b));
+}
+
 public void svga_clr_scr() {
     unsigned int color = svga_translate_rgb(black.r, black.g, black.b);
     svga_draw_rect(0, 0, SCR_W, SCR_H, color);
@@ -197,8 +213,4 @@ public void svga_init() {
 
     unsigned int color = svga_translate_rgb(yellow.r, yellow.g, yellow.b);
     svga_draw_rect(5, 90, 200, 110, color);
-
-    unsigned int scrpos = 80;
-    char msg[] = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras mattis leo vel neque pulvinar rutrum. Sed at condimentum neque. Curabitur in nibh eleifend, euismod velit eu, sollicitudin eros. Etiam posuere dui vitae aliquet mattis. Praesent purus sapien, sollicitudin id placerat in, consequat nec orci. Integer orci purus, convallis dignissim turpis eget, placerat sagittis sem. Phasellus aliquam egestas pretium. Curabitur eleifend lacus sit amet turpis hendrerit, a lacinia metus malesuada. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras mattis leo vel neque pulvinar rutrum. Sed at condimentum neque. Curabitur in nibh eleifend, euismod velit eu, sollicitudin eros. Etiam posuere dui vitae aliquet mattis. Praesent purus sapien, sollicitudin id placerat in, consequat nec orci. Integer orci purus, convallis dignissim turpis eget, placerat sagittis sem. Phasellus aliquam egestas pretium. Curabitur eleifend lacus sit amet turpis hendrerit, a lacinia metus malesuada. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras mattis leo vel neque pulvinar rutrum. Sed at condimentum neque. Curabitur in nibh eleifend, euismod velit eu, sollicitudin eros. Etiam posuere dui vitae aliquet mattis. Praesent purus sapien, sollicitudin id placerat in, consequat nec orci. Integer orci purus, convallis dignissim turpis eget, placerat sagittis sem. Phasellus aliquam egestas pretium. Curabitur eleifend lacus sit amet turpis hendrerit, a lacinia metus malesuada. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras mattis leo vel neque pulvinar rutrum. Sed at condimentum neque. Curabitur in nibh eleifend, euismod velit eu, sollicitudin eros. Etiam posuere dui vitae aliquet mattis. Praesent purus sapien, sollicitudin id placerat in, consequat nec orci. Integer orci purus, convallis dignissim turpis eget, placerat sagittis sem. Phasellus aliquam egestas pretium. Curabitur eleifend lacus sit amet turpis hendrerit, a lacinia metus malesuada. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras mattis leo vel neque pulvinar rutrum. Sed at condimentum neque. Curabitur in nibh eleifend, euismod velit eu, sollicitudin eros. Etiam posuere dui vitae aliquet mattis. Praesent purus sapien, sollicitudin id placerat in, consequat nec orci. Integer orci purus, convallis dignissim turpis eget, placerat sagittis sem. Phasellus aliquam egestas pretium. Curabitur eleifend lacus sit amet turpis hendrerit, a lacinia metus malesuada. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras mattis leo vel neque pulvinar rutrum. Sed at condimentum neque. Curabitur in nibh eleifend, euismod velit eu, sollicitudin eros. Etiam posuere dui vitae aliquet mattis. Praesent purus sapien, sollicitudin id placerat in, consequat nec orci. Integer orci purus, convallis dignissim turpis eget, placerat sagittis sem. Phasellus aliquam egestas pretium. Curabitur eleifend lacus sit amet turpis hendrerit, a lacinia metus malesuada. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras mattis leo vel neque pulvinar rutrum. Sed at condimentum neque. Curabitur in nibh eleifend, euismod velit eu, sollicitudin eros. Etiam posuere dui vitae aliquet mattis. Praesent purus sapien, sollicitudin id placerat in, consequat nec orci. Integer orci purus, convallis dignissim turpis eget, placerat sagittis sem. Phasellus aliquam egestas pretium. Curabitur eleifend lacus sit amet turpis hendrerit, a lacinia metus malesuada. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras mattis leo vel neque pulvinar rutrum. Sed at condimentum neque. Curabitur in nibh eleifend, euismod velit eu, sollicitudin eros. Etiam posuere dui vitae aliquet mattis. Praesent purus sapien, sollicitudin id placerat in, consequat nec orci. Integer orci purus, convallis dignissim turpis eget, placerat sagittis sem. Phasellus aliquam egestas pretium. Curabitur eleifend lacus sit amet turpis hendrerit, a lacinia metus malesuada. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras mattis leo vel neque pulvinar rutrum.";
-    svga_write_str(msg, &scrpos, _strlen(msg), color);
 }
