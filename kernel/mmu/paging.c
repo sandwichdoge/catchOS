@@ -30,7 +30,6 @@ void paging_map(unsigned int virtual_addr, unsigned int phys_addr, unsigned int 
 
     unsigned int pde = virtual_addr_to_pde(virtual_addr);
     page_dir[pde] = ((unsigned int)page_table - 0x0) | 3;
-    _dbg_log("Mapped\n");
 }
 
 // We're already in high-half kernel after kboot. So all addresses below are virtual.

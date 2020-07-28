@@ -129,17 +129,15 @@ public void svga_scroll_down(unsigned int lines) {
     }
 
     static unsigned char buf[2560 * SCR_H]; // Max possible lfb size for 640x480x32 vga (2560 = 32bit fb pitch).
-    //_memset(buf, 0, sizeof(buf));
-    /*
+    _memset(buf, 0, sizeof(buf));
+
     unsigned int fb_size = SCR_H * tagfb->common.framebuffer_pitch;
-    unsigned int row_size = tagfb->common.framebuffer_pitch;
+    unsigned int row_size = tagfb->common.framebuffer_pitch * (FONT_H + 2);
     _dbg_log("lfb size: %u\n", fb_size);
-    fb_size = 1;
-    row_size = 80;
 
     _memcpy(buf, fb + (lines * row_size), fb_size);
     _memcpy(fb, buf, fb_size);
-    */
+
     _dbg_log("OK\n");
 }
 
