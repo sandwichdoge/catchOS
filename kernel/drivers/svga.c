@@ -133,18 +133,37 @@ public void svga_scroll_down(unsigned int lines) {
 
     unsigned int fb_size = SCR_H * tagfb->common.framebuffer_pitch;
     unsigned int row_size = tagfb->common.framebuffer_pitch * (FONT_H + 2);
-    _dbg_log("lfb size: %u\n", fb_size);
 
     _memcpy(buf, fb + (lines * row_size), fb_size);
     _memcpy(fb, buf, fb_size);
-
-    _dbg_log("OK\n");
 }
 
-public void svga_draw_char_cell(const unsigned int scrpos, unsigned char c, unsigned int color) {
-    unsigned int y = scrpos / SCR_COLUMNS;
-    unsigned int x = scrpos % SCR_COLUMNS;
+public void svga_draw_char_cell(unsigned int *scrpos, unsigned char c, unsigned int color) {
+    if (*scrpos + 1 > (SCR_ROWS * SCR_COLUMNS)) {
+        svga_scroll_down(1);
+        *scrpos -= SCR_COLUMNS; // Go back 1 line.
+    }
+    unsigned int y = *scrpos / SCR_COLUMNS;
+    unsigned int x = *scrpos % SCR_COLUMNS;
+
     svga_draw_char(FONT_W * x, (FONT_H + 2) * y, c, color);
+    *scrpos = *scrpos + 1;
+}
+
+public void svga_write_str(const char *str, unsigned int *scrpos, unsigned int len, unsigned int color) {
+    // If next string overflows screen, scroll screen to make space for OF text
+    unsigned int lines_to_scroll = 0;
+    if (*scrpos + len > (SCR_ROWS * SCR_COLUMNS)) {
+        lines_to_scroll = ((*scrpos + len - (SCR_ROWS * SCR_COLUMNS)) / SCR_COLUMNS) + 1;  // Divide rounded down, so we add 1
+
+        scroll_down(lines_to_scroll);
+        *scrpos -= lines_to_scroll * SCR_COLUMNS;  // Go back the same number of lines
+        svga_draw_char_cell(*scrpos, 'x', color);
+    }
+
+    for (unsigned int i = 0; i < len; i++) {
+        svga_draw_char_cell(scrpos, str[i], color);
+    }
 }
 
 public void svga_init() {
@@ -154,20 +173,20 @@ public void svga_init() {
     unsigned char *fb = kinfo->tagfb.common.framebuffer_addr;
     unsigned int *kpd = get_kernel_pd();
     unsigned int *page_tables = kmalloc_align(4096 * 256, 4096);
-    paging_map(LFB_VADDR, (unsigned int)fb, kpd, page_tables);
-    fb = (unsigned char *)LFB_VADDR;
+    paging_map((unsigned int)fb, (unsigned int)fb, kpd, page_tables);
     set_lfb_addr(fb);
 
     struct multiboot_tag_framebuffer *tagfb = &kinfo->tagfb;
     _dbg_log("[SVGA]fb type: [%u], bpp:[%u]\n", tagfb->common.framebuffer_type, tagfb->common.framebuffer_bpp);
 
     unsigned int color = svga_translate_rgb(0xff, 0xff, 0x00);
-    svga_draw_rect(5, 8, 200, 18, color);
+    svga_draw_rect(5, 40, 200, 50, color);
 
-    unsigned char msg[] = "Welcome to my OS!";
-    for (unsigned int i = 0; i < _strlen(msg); ++i) {
-        svga_draw_char_cell(160 + i, msg[i], color);
-        svga_draw_char_cell(240 + i, msg[i], color);
-    }
+    unsigned int pos = 0;
+
+    unsigned int scrpos = 80;
+    unsigned char msg[] = "Welcome to my OS";
+    svga_write_str(msg, &scrpos, _strlen(msg), color);
+    
     svga_scroll_down(1);
 }
