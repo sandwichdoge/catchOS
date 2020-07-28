@@ -117,7 +117,7 @@ void task_switch_to(struct task_struct* next) {
     if (_current == next) return;
     struct task_struct* prev = _current;
     _current = next;
-    _dbg_log("Switch to 0x%x\n", next);
+    //_dbg_log("Switch to pid [%u]\n", next->pid);
     cpu_switch_to(prev, next);
 }
 
