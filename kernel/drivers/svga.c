@@ -131,6 +131,8 @@ public void svga_scroll_down(unsigned int lines) {
         lines = SCR_ROWS;
     }
 
+    _dbg_log("Lines to scroll: %u\n", lines);
+
     static char buf[2560 * SCR_H]; // Max possible lfb size for 640x480x32 vga (2560 = 32bit fb pitch).
     _memset(buf, 0, sizeof(buf));
 
@@ -153,14 +155,20 @@ public void svga_draw_char_cell(unsigned int *scrpos, unsigned char c, unsigned 
     *scrpos = *scrpos + 1;
 }
 
+private unsigned int ceiling(unsigned int dividend, unsigned int divisor) {
+    return (dividend + (divisor / 2)) / divisor;
+}
+
 public void svga_write_str(const char *str, unsigned int *scrpos, unsigned int len, unsigned int color) {
     // If next string overflows screen, scroll screen to make space for OF text
     unsigned int lines_to_scroll = 0;
     if (*scrpos + len > (SCR_ROWS * SCR_COLUMNS)) {
-        lines_to_scroll = ((*scrpos + len - (SCR_ROWS * SCR_COLUMNS)) / SCR_COLUMNS) + 1;  // Divide rounded down, so we add 1
+        if (len > SCR_ROWS * SCR_COLUMNS) len = SCR_ROWS * SCR_COLUMNS;
 
+        lines_to_scroll = ceiling(*scrpos + len - (SCR_ROWS * SCR_COLUMNS), SCR_COLUMNS);
+        unsigned int chars_to_scroll = lines_to_scroll * SCR_COLUMNS;
         svga_scroll_down(lines_to_scroll);
-        *scrpos -= lines_to_scroll * SCR_COLUMNS;  // Go back the same number of lines
+        *scrpos -= chars_to_scroll;  // Go back the same number of lines
         svga_draw_char_cell(scrpos, 'x', color);
     }
 
@@ -188,11 +196,9 @@ public void svga_init() {
     _dbg_log("[SVGA]fb type: [%u], bpp:[%u]\n", tagfb->common.framebuffer_type, tagfb->common.framebuffer_bpp);
 
     unsigned int color = svga_translate_rgb(yellow.r, yellow.g, yellow.b);
-    svga_draw_rect(5, 40, 200, 50, color);
+    svga_draw_rect(5, 90, 200, 110, color);
 
     unsigned int scrpos = 80;
-    char msg[] = "Welcome to my OS";
+    char msg[] = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras mattis leo vel neque pulvinar rutrum. Sed at condimentum neque. Curabitur in nibh eleifend, euismod velit eu, sollicitudin eros. Etiam posuere dui vitae aliquet mattis. Praesent purus sapien, sollicitudin id placerat in, consequat nec orci. Integer orci purus, convallis dignissim turpis eget, placerat sagittis sem. Phasellus aliquam egestas pretium. Curabitur eleifend lacus sit amet turpis hendrerit, a lacinia metus malesuada. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras mattis leo vel neque pulvinar rutrum. Sed at condimentum neque. Curabitur in nibh eleifend, euismod velit eu, sollicitudin eros. Etiam posuere dui vitae aliquet mattis. Praesent purus sapien, sollicitudin id placerat in, consequat nec orci. Integer orci purus, convallis dignissim turpis eget, placerat sagittis sem. Phasellus aliquam egestas pretium. Curabitur eleifend lacus sit amet turpis hendrerit, a lacinia metus malesuada. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras mattis leo vel neque pulvinar rutrum. Sed at condimentum neque. Curabitur in nibh eleifend, euismod velit eu, sollicitudin eros. Etiam posuere dui vitae aliquet mattis. Praesent purus sapien, sollicitudin id placerat in, consequat nec orci. Integer orci purus, convallis dignissim turpis eget, placerat sagittis sem. Phasellus aliquam egestas pretium. Curabitur eleifend lacus sit amet turpis hendrerit, a lacinia metus malesuada. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras mattis leo vel neque pulvinar rutrum. Sed at condimentum neque. Curabitur in nibh eleifend, euismod velit eu, sollicitudin eros. Etiam posuere dui vitae aliquet mattis. Praesent purus sapien, sollicitudin id placerat in, consequat nec orci. Integer orci purus, convallis dignissim turpis eget, placerat sagittis sem. Phasellus aliquam egestas pretium. Curabitur eleifend lacus sit amet turpis hendrerit, a lacinia metus malesuada. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras mattis leo vel neque pulvinar rutrum. Sed at condimentum neque. Curabitur in nibh eleifend, euismod velit eu, sollicitudin eros. Etiam posuere dui vitae aliquet mattis. Praesent purus sapien, sollicitudin id placerat in, consequat nec orci. Integer orci purus, convallis dignissim turpis eget, placerat sagittis sem. Phasellus aliquam egestas pretium. Curabitur eleifend lacus sit amet turpis hendrerit, a lacinia metus malesuada. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras mattis leo vel neque pulvinar rutrum. Sed at condimentum neque. Curabitur in nibh eleifend, euismod velit eu, sollicitudin eros. Etiam posuere dui vitae aliquet mattis. Praesent purus sapien, sollicitudin id placerat in, consequat nec orci. Integer orci purus, convallis dignissim turpis eget, placerat sagittis sem. Phasellus aliquam egestas pretium. Curabitur eleifend lacus sit amet turpis hendrerit, a lacinia metus malesuada. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras mattis leo vel neque pulvinar rutrum. Sed at condimentum neque. Curabitur in nibh eleifend, euismod velit eu, sollicitudin eros. Etiam posuere dui vitae aliquet mattis. Praesent purus sapien, sollicitudin id placerat in, consequat nec orci. Integer orci purus, convallis dignissim turpis eget, placerat sagittis sem. Phasellus aliquam egestas pretium. Curabitur eleifend lacus sit amet turpis hendrerit, a lacinia metus malesuada. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras mattis leo vel neque pulvinar rutrum. Sed at condimentum neque. Curabitur in nibh eleifend, euismod velit eu, sollicitudin eros. Etiam posuere dui vitae aliquet mattis. Praesent purus sapien, sollicitudin id placerat in, consequat nec orci. Integer orci purus, convallis dignissim turpis eget, placerat sagittis sem. Phasellus aliquam egestas pretium. Curabitur eleifend lacus sit amet turpis hendrerit, a lacinia metus malesuada. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras mattis leo vel neque pulvinar rutrum.";
     svga_write_str(msg, &scrpos, _strlen(msg), color);
-    
-    svga_scroll_down(1);
 }
