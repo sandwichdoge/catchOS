@@ -9,6 +9,10 @@ if [ "$?" -ne 0 ]; then
     echo 'Error occurred.'
     exit "$?"
 fi
+
+grub-file --is-x86-multiboot2 output/catch.iso
+echo "Is multiboot2 compliant: $?"
+
 cd output
 echo '' > serial_debug.txt
 bochs -f bochsrc.txt -q
