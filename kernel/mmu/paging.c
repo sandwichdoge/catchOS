@@ -19,7 +19,7 @@ unsigned int virtual_addr_to_pde(unsigned int virtual_addr) { return virtual_add
 // Map 1 page table (4MiB) from virtual address to phys_addr. Page table must persist in memory at all times.
 public
 void paging_map(unsigned int virtual_addr, unsigned int phys_addr, unsigned int *page_dir, unsigned int *page_table) {
-    _dbg_log("Mapping 0x%x to 0x%x\n", phys_addr, virtual_addr);
+    _dbg_log("Mapping 0x%x to 0x%x, kernel_page_dir[0x%x], page_table[0x%x]\n", phys_addr, virtual_addr, page_dir, page_table);
 
     // Populate the page table. Fill each entry with corresponding physical address (increased by 0x1000 bytes each entry).
     for (unsigned int i = 0; i < 1024; i++) {
@@ -30,17 +30,21 @@ void paging_map(unsigned int virtual_addr, unsigned int phys_addr, unsigned int 
 
     unsigned int pde = virtual_addr_to_pde(virtual_addr);
     page_dir[pde] = ((unsigned int)page_table - 0x0) | 3;
+    _dbg_log("Mapped\n");
 }
 
 // We're already in high-half kernel after kboot. So all addresses below are virtual.
 public
 void paging_init() {
     // Allocate memory for 1 page table
-    unsigned int *page_tables = kmalloc_align(4096, 4096);
+    unsigned int *page_tables = kmalloc_align(4096 * 2, 4096);
     _dbg_log("[MMU]Page Table at 0x%x in kheap.\n", page_tables);
 
-    // Map 1st page to 3GiB (kernel page)
-    paging_map(0x0, 0, kernel_page_directory, page_tables + 1024 * 0);
+    // Map two 1st page to 3GiB (kernel page)
+    for (int i = 0; i < 2; ++i) {
+        paging_map(0x400000 * i, 0x400000 * i, kernel_page_directory, page_tables + 1024 * i);
+    }
+
 
     unsigned int kernel_page_directory_phys = (unsigned int)kernel_page_directory - 0x0;
 

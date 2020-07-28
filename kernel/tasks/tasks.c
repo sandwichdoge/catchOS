@@ -114,7 +114,6 @@ void task_switch_to(struct task_struct* next) {
     - Exit function as thread B.
     - Maybe switch page tables as well in the future?
     */
-    //_dbg_log("Switch from task 0x%x to task 0x%x\n", _current, next);
     if (_current == next) return;
     struct task_struct* prev = _current;
     _current = next;

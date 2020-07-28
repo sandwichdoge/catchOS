@@ -1,6 +1,7 @@
 #include "kheap.h"
 
 #include "builddef.h"
+#include "utils/debug.h"
 #include "kinfo.h"
 // Kernel stack pointer is at 0x1fffff
 // Kernel program is at 0x200000 in phys memory
@@ -33,6 +34,7 @@ void *kmalloc_align(unsigned int size, unsigned int alignment) {
     }
 
     heap_cur = (char *)(next + size);
+    _dbg_log("kmalloc returns [0x%x]\n", next);
     return (void *)next;
 }
 

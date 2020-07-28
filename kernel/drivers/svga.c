@@ -116,7 +116,33 @@ public void svga_draw_char(const unsigned int x, const unsigned int y, unsigned 
 }
 
 #define SCR_W 640
+#define SCR_H 480
 #define SCR_COLUMNS (SCR_W / FONT_W)
+#define SCR_ROWS (SCR_H / (FONT_H + 2))
+
+public void svga_scroll_down(unsigned int lines) {
+    struct kinfo *kinfo = get_kernel_info();
+    struct multiboot_tag_framebuffer *tagfb = &kinfo->tagfb;
+    unsigned char* fb = get_lfb_addr();
+    if (lines > SCR_ROWS) {
+        lines = SCR_ROWS;
+    }
+
+    static unsigned char buf[2560 * SCR_H]; // Max possible lfb size for 640x480x32 vga (2560 = 32bit fb pitch).
+    //_memset(buf, 0, sizeof(buf));
+    /*
+    unsigned int fb_size = SCR_H * tagfb->common.framebuffer_pitch;
+    unsigned int row_size = tagfb->common.framebuffer_pitch;
+    _dbg_log("lfb size: %u\n", fb_size);
+    fb_size = 1;
+    row_size = 80;
+
+    _memcpy(buf, fb + (lines * row_size), fb_size);
+    _memcpy(fb, buf, fb_size);
+    */
+    _dbg_log("OK\n");
+}
+
 public void svga_draw_char_cell(const unsigned int scrpos, unsigned char c, unsigned int color) {
     unsigned int y = scrpos / SCR_COLUMNS;
     unsigned int x = scrpos % SCR_COLUMNS;
@@ -145,4 +171,5 @@ public void svga_init() {
         svga_draw_char_cell(160 + i, msg[i], color);
         svga_draw_char_cell(240 + i, msg[i], color);
     }
+    svga_scroll_down(1);
 }
