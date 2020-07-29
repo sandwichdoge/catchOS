@@ -75,5 +75,6 @@
 #endif
 
 void _dbg_log(char *format, ...);
+void _dbg_screen(char *format, ...);
 
 #endif

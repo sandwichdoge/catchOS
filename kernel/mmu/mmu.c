@@ -12,6 +12,7 @@ private
 void test_pageframe_firstpage() {
     void* p = pageframe_alloc(1);
     _dbg_log("Userland heap at: %x\n", p);
+    _dbg_screen("Userland heap at: %x\n", p);
     pageframe_free(p, 1);
 }
 
@@ -35,6 +36,7 @@ void* mmu_mmap(unsigned int size) {
     // return out + 0x0;
     void* ret = _malloc(size);
     _dbg_log("[MMU]Requested [%u], ret [0x%x]\n", size, ret);
+    _dbg_screen("MMU Requested [%u], ret [0x%x]|", size, ret);
     return ret;
 }
 

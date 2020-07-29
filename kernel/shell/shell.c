@@ -18,7 +18,7 @@ uptime\n\
 program\n\
 tests\n\
 reboot"
-
+/*
 char* greeting =
 " ______     ______     ______   ______     __  __     ______     ______    \n"
 "/\\  ___\\   /\\  __ \\   /\\__  _\\ /\\  ___\\   /\\ \\_\\ \\   /\\  __ \\   /\\  ___\\   \n"
@@ -26,6 +26,8 @@ char* greeting =
 " \\ \\_____\\  \\ \\_\\ \\_\\    \\ \\_\\  \\ \\_____\\  \\ \\_\\ \\_\\  \\ \\_____\\  \\/\\_____\\ \n"
 "  \\/_____/   \\/_/\\/_/     \\/_/   \\/_____/   \\/_/\\/_/   \\/_____/   \\/_____/ \n"
 "                                                                           \n";
+*/
+char *greeting = "";
 
 unsigned int SCREEN_WIDTH, SCREEN_HEIGHT;
 
@@ -87,7 +89,7 @@ void shell_cin(char* out) {
     _cin_pos = 0;
     _receiving_user_input = 1;
     while (_receiving_user_input) {
-        //asm("hlt");
+        asm("hlt");
     }
 
     if ((unsigned long)_cin_pos <= sizeof(_cin_buf_)) {
@@ -109,7 +111,7 @@ void shell_init() {
     SCREEN_WIDTH = syscall_fb_get_scr_w();
     SCREEN_HEIGHT = syscall_fb_get_scr_h();
     syscall_register_kb_handler(shell_handle_keypress);
-    syscall_fb_clr_scr();
+    //syscall_fb_clr_scr();
     _cur = 0;
     shell_cout(greeting, _strlen(greeting));
     syscall_fb_brush_set_color(0xff, 0x0, 0x0);
@@ -146,6 +148,8 @@ int call_user_module() {
 private
 void test_multitasking(void* screenpos) {
     _dbg_log("Test multitasking..\n");
+    char t[] = "Multi\n\0";
+    shell_cout(t, _strlen(t));
     char msg[16];
     for (int i = 0; i < 10; ++i) {
         _memset(msg, 0, sizeof(msg));
@@ -162,6 +166,7 @@ void run_tests() {
     static unsigned int pos2 = 85 * 8;
     struct task_struct* task1 = task_new(test_multitasking, &pos1, 4096 * 2, 5);
     struct task_struct* task2 = task_new(test_multitasking, &pos2, 4096 * 2, 5);
+    _dbg_screen("task1:0x%x", task1);
     task_detach(task1);
     task_detach(task2);
 }
@@ -179,6 +184,7 @@ void shell_handle_cmd(char* cmd) {
         shell_cout(MSG_HELP, _strlen(MSG_HELP));
         shell_cout("\n", 1);
     } else if (_strncmp(cmd, "program", _strlen("program")) == 0) {
+        _dbg_break();
         int ret = call_user_module();
         static char ret_s[12];
         _memset(ret_s, 0, sizeof(ret_s));

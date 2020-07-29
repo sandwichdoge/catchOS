@@ -77,6 +77,7 @@ struct task_struct* task_new(void (*fp)(void*), void* arg, unsigned int stack_si
     newtask->state = TASK_RUNNING;
     newtask->cpu_state.esp = (unsigned int)newtask->stack_bottom + stack_size;
     _dbg_log("Allocated TCB[%d]:[0x%x], stack top:[0x%x], stack size:[0x%x]\n", pid, newtask, newtask->cpu_state.esp, stack_size);
+    _dbg_screen("Allocated TCB[%d]:[0x%x], stack top:[0x%x], stack size:[0x%x]\n", pid, newtask, newtask->cpu_state.esp, stack_size);
     *(unsigned int*)(newtask->cpu_state.esp) = (unsigned int)arg;
     newtask->cpu_state.esp -= 4;
     *(unsigned int*)(newtask->cpu_state.esp) = (unsigned int)&on_current_task_return_cb;
@@ -137,7 +138,7 @@ void* schedule(void* unused) {
                 next = i;
             }
         }
-        if (c > 0) {
+        if (c) {
             break;
         }
         for (int i = 0; i < MAX_CONCURRENT_TASKS; ++i) {

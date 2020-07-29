@@ -35,6 +35,7 @@ void *kmalloc_align(unsigned int size, unsigned int alignment) {
 
     heap_cur = (char *)(next + size);
     _dbg_log("kmalloc returns [0x%x]\n", next);
+    _dbg_screen("kmalloc returns [0x%x]\n", next);
     return (void *)next;
 }
 

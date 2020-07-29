@@ -31,7 +31,8 @@ unsigned int* get_page_table(unsigned int phys_addr) {
 public
 void paging_map_page(unsigned int virtual_addr, unsigned int phys_addr, unsigned int *page_dir) {
     unsigned int *page_table = get_page_table(phys_addr);
-    _dbg_log("Mapping 1 page 0x%x to 0x%x, kernel_page_dir[0x%x], page_table[0x%x]\n", phys_addr, virtual_addr, page_dir, page_table);
+    _dbg_log("Map page 0x%x to 0x%x,kernel_page_dir[0x%x],page_table[0x%x]\n", phys_addr, virtual_addr, page_dir, page_table);
+    _dbg_screen("Map page 0x%x to 0x%x,kernel_page_dir[0x%x],page_table[0x%x]\n", phys_addr, virtual_addr, page_dir, page_table);
     unsigned int pte = ((virtual_addr % 0x400000) / 0x1000);
     page_table[pte] = phys_addr | 3;
 
@@ -44,6 +45,7 @@ public
 void paging_map_table(unsigned int virtual_addr, unsigned int phys_addr, unsigned int *page_dir) {
     unsigned int *page_table = get_page_table(phys_addr);
     _dbg_log("Mapping 1 table 0x%x to 0x%x, kernel_page_dir[0x%x], page_table[0x%x]\n", phys_addr, virtual_addr, page_dir, page_table);
+    _dbg_screen("Map table 0x%x to 0x%x,kernel_page_dir[0x%x],page_table[0x%x]\n", phys_addr, virtual_addr, page_dir, page_table);
 
     // Populate the page table. Fill each entry with corresponding physical address (increased by 0x1000 bytes each entry).
     for (unsigned int i = 0; i < 1024; i++) {

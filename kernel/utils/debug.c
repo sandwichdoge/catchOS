@@ -1,5 +1,6 @@
 #include "utils/debug.h"
 
+#include "drivers/svga.h"
 #include "builddef.h"
 
 public
@@ -59,6 +60,78 @@ void _dbg_log(char *format, ...) {
                 i = va_arg(arg, unsigned int);  // Fetch Hexadecimal representation
                 s = _int_to_str_static(i, 16);
                 serial_write(SERIAL_COM1_BASE, s, _strlen(s));
+                break;
+            case '\0':
+                break;
+        }
+    }
+
+    // Module 3: Closing argument list to necessary clean-up
+    va_end(arg);
+#endif
+}
+
+public
+void _dbg_screen(char *format, ...) {
+#ifdef TARGET_HOST
+    printf(format);
+#else
+    char *traverse;
+    int i;
+    unsigned int u;
+    char *s;
+    static unsigned int scrpos = 0;
+
+    va_list arg;
+    va_start(arg, format);
+
+    for (traverse = format; *traverse != '\0'; traverse++) {
+        while (*traverse != '%') {
+            if (*traverse == '\n') {
+                scrpos += 80 - ((scrpos + 80) % 80);
+            }
+            svga_draw_char_cell(&scrpos, *traverse, svga_translate_rgb(0xff, 0xff, 0xff));
+            traverse++;
+            if (*traverse == '\0') {
+                return;
+            }
+        }
+
+        traverse++;
+
+        // Module 2: Fetching and executing arguments
+        switch (*traverse) {
+            case 'c':
+                i = va_arg(arg, int);  // Fetch char argument
+                svga_draw_char_cell(&scrpos, i, svga_translate_rgb(0xff, 0xff, 0xff));
+                break;
+            case 'u':
+                u = va_arg(arg, unsigned int);
+                s = _int_to_str_static(u, 10);
+                svga_write_str(s, &scrpos, _strlen(s), svga_translate_rgb(0xff, 0xff, 0xff));
+                break;
+            case 'd':
+                i = va_arg(arg, int);  // Fetch Decimal/Integer argument
+                if (i < 0) {
+                    i = -i;
+                    svga_draw_char_cell(&scrpos, '-', svga_translate_rgb(0xff, 0xff, 0xff));
+                }
+                s = _int_to_str_static(i, 10);
+                svga_write_str(s, &scrpos, _strlen(s), svga_translate_rgb(0xff, 0xff, 0xff));
+                break;
+            case 'o':
+                i = va_arg(arg, unsigned int);  // Fetch Octal representation
+                s = _int_to_str_static(i, 8);
+                svga_write_str(s, &scrpos, _strlen(s), svga_translate_rgb(0xff, 0xff, 0xff));
+                break;
+            case 's':
+                s = va_arg(arg, char *);  // Fetch string
+                svga_write_str(s, &scrpos, _strlen(s), svga_translate_rgb(0xff, 0xff, 0xff));
+                break;
+            case 'x':
+                i = va_arg(arg, unsigned int);  // Fetch Hexadecimal representation
+                s = _int_to_str_static(i, 16);
+                svga_write_str(s, &scrpos, _strlen(s), svga_translate_rgb(0xff, 0xff, 0xff));
                 break;
             case '\0':
                 break;

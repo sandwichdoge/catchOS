@@ -7,6 +7,7 @@
 #include "utils/bitmap.h"
 #include "utils/debug.h"
 #include "font.h"
+#include "mmu.h"
 #include "builddef.h"
 
 #define SCR_W 640
