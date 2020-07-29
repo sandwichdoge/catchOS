@@ -1,4 +1,3 @@
-+ [[Home](README.md)]
 - [4. Kernel](#4-kernel)
   * [4.1 Memory](#41-memory)
     + [4.1.1 Detecting Memory's Limits](#411-detecting-memory-s-limits)
@@ -21,7 +20,11 @@
       - [4.2.5.2 System Calls](#4252-system-calls)
   * [4.3 I/O](#43-i-o)
     + [4.3.1 stdin](#431-stdin)
-  * [4.3 Context Switching](#43-context-switching)
+    + [4.3.2 Video](#432-video)
+  * [4.3 Multitasking](#43-multitasking)
+    + [4.3.1 Context Switching](#431-context-switching)
+    + [4.3.2 Scheduler](#432-scheduler)
+    + [4.3.3 Multitasking API](#433-multitasking-api)
   * [4.4 System Calls](#44-system-calls)
   * [4.5 Clock Sources](#45-clock-sources)
     + [4.5.1 Programmable Interval Timer](#451-programmable-interval-timer)
@@ -155,6 +158,21 @@ vs USB:
 ```
 Key press -> keyboard controller recognizes press -> stores keypress until USB poll -> sends status to USB controller -> USB controller sends interrupt to CPU
 ```
+
+#### 4.3.2 Video
+
+To display data on VGA monitors. We stick to the safest resolution for now which is 640x480x16.
+
+We can change this resolution by modifying multiboot header asm file.
+
+We use VESA BIOS Extension 3.0 standard. This gives us direct access to the linear framebuffer on compliant video cards. Multiboot2 will detect and expose this structure for us during boot.
+
+We use hardcoded bitmap font for ASCII text.
+
+The brush color is a global state. Call the function to set brush color if you want to change graphics or text color.
+
+https://wiki.osdev.org/VESA_Video_Modes (Outdated).
+
 
 ### 4.3 Multitasking
 - We use Preemptive Multitasking model with priority based round-robin scheduling algorithm.
