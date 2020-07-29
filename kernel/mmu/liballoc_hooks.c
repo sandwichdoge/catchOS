@@ -23,14 +23,14 @@ void* pageframe_alloc_liballoc(unsigned int pages) {
     void* ret = pageframe_alloc(pages);
     if (ret) {
         // 1-1 map TODO bug here, lost old page table if request fewer than 1024
-        unsigned int* page_tables = kmalloc_align(4096, 4096);
         for (unsigned int i = 0; i < pages; ++i) {
-            paging_map((unsigned int)ret + 0x0 + i * PAGE_SIZE, (unsigned int)ret + i * PAGE_SIZE, kernel_page_directory, page_tables);
+            paging_map_page((unsigned int)ret + 0x0 + i * PAGE_SIZE, (unsigned int)ret + i * PAGE_SIZE, kernel_page_directory);
         }
         ret = (char*)ret + 0x0;
     } else {  // Out of memory
         _dbg_log("[MMU]Out of pages.\n");
     }
+    _dbg_break();
     return ret;
 }
 
