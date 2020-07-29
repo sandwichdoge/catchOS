@@ -17,6 +17,7 @@
 uptime\n\
 program\n\
 tests\n\
+clear\n\
 reboot"
 /*
 char* greeting =
@@ -195,6 +196,9 @@ void shell_handle_cmd(char* cmd) {
         run_tests();
     } else if (_strncmp(cmd, "reboot", _strlen("reboot")) == 0) {
         reboot();
+    } else if (_strncmp(cmd, "clear", _strlen("clear")) == 0) {
+        syscall_fb_clr_scr();
+        _cur = 0;
     } else {
     }
 }
