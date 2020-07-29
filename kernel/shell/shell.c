@@ -87,7 +87,7 @@ void shell_cin(char* out) {
     _cin_pos = 0;
     _receiving_user_input = 1;
     while (_receiving_user_input) {
-        asm("hlt");
+        //asm("hlt");
     }
 
     if ((unsigned long)_cin_pos <= sizeof(_cin_buf_)) {
