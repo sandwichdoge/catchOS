@@ -4,6 +4,7 @@
 #include "drivers/keyboard.h"  // For key defs
 #include "multiboot.h"
 #include "power/shutdown_reboot.h"
+#include "kinfo.h"
 #include "syscall.h"
 #include "tasks.h"
 #include "timer.h"
@@ -124,14 +125,14 @@ void shell_init() {
 
 private
 unsigned int shell_gettime() { return getticks(); }
-/*
-private
-int call_user_module(multiboot_info_t* mbinfo) {
-    struct multiboot_mod_list* mods = (struct multiboot_mod_list*)(mbinfo->mods_addr + 0x0);
-    unsigned int mcount = mbinfo->mods_count;
 
-    if (mcount > 0) {
-        unsigned int prog_addr = (mods->mod_start + 0x0);
+private
+int call_user_module() {
+    struct multiboot_tag_module *mod = &(get_kernel_info()->mod);
+    _dbg_log("Call user module at 0x%x\n", mod->mod_start);
+
+    if (mod->size > 0) {
+        unsigned int prog_addr = (mod->mod_start + 0x0);
         typedef void (*call_module_t)(void);
         call_module_t start_program = (call_module_t)prog_addr;
 
@@ -142,7 +143,7 @@ int call_user_module(multiboot_info_t* mbinfo) {
         return 0;
     }
 }
-*/
+
 
 private
 void test_multitasking(void* screenpos) {
@@ -180,10 +181,10 @@ void shell_handle_cmd(char* cmd) {
         shell_cout(MSG_HELP, _strlen(MSG_HELP));
         shell_cout("\n", 1);
     } else if (_strncmp(cmd, "program", _strlen("program")) == 0) {
-        //        int ret = call_user_module(mb);
+        int ret = call_user_module();
         static char ret_s[12];
         _memset(ret_s, 0, sizeof(ret_s));
-        //        _int_to_str(ret_s, sizeof(ret_s), ret);
+        _int_to_str(ret_s, sizeof(ret_s), ret);
         shell_cout(ret_s, _strlen(ret_s));
         shell_cout("\n", 1);
     } else if (_strncmp(cmd, "tests", _strlen("tests")) == 0) {

@@ -10,6 +10,7 @@ struct kinfo {
     unsigned int phys_mem_lower;
     unsigned int phys_mem_upper;
     struct multiboot_tag_framebuffer tagfb;
+    struct multiboot_tag_module mod;
 };
 struct kinfo *get_kernel_info();
 // Get kernel and hardware info
