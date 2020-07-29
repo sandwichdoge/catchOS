@@ -72,15 +72,12 @@ void kmain(unsigned int magic, unsigned int addr) {
     _dbg_log("kmain\n");
 
     // Setup interrupts
-    write_cstr("Setting up interrupts..", 0);
     interrupt_init();
     timer_init();
 
-    write_cstr("Setting up memory..", 80);
     kheap_init();
     mmu_init();
     syscall_init();
-
     svga_init();
 
     // Perform tests

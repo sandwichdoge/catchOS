@@ -210,4 +210,5 @@ public void svga_init() {
 
     struct multiboot_tag_framebuffer *tagfb = &kinfo->tagfb;
     _dbg_log("[SVGA]fb type: [%u], bpp:[%u]\n", tagfb->common.framebuffer_type, tagfb->common.framebuffer_bpp);
+    _dbg_screen("[SVGA]fb type: [%u], bpp:[%u], address:[0x%x]\n", tagfb->common.framebuffer_type, tagfb->common.framebuffer_bpp, fb);
 }

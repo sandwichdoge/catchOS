@@ -123,9 +123,12 @@ private
 void pageframe_alloc_init() {
     struct kinfo *kinfo = get_kernel_info();
     _pages_total_phys = (kinfo->phys_mem_upper * 1024) / 4096;
+    _dbg_log("Total phys pages [%u]\n", _pages_total_phys);
     // 1 bit represents 1 page in phys mem (4 KiB). We assign just enough memory to contain the bitmap of physical
     // memory.
-    _pageframe_bitmap = kmalloc_align(_pages_total_phys / 8, 4096);
+    _pageframe_bitmap = kmalloc_align(_pages_total_phys / 8, 4096); // 131072 bytes allocated
+
+    _memset(_pageframe_bitmap, 0, _pages_total_phys / 8);
 
     // Reserved Kernel data area (2048 pages - 8 MiB) starting from 0x0.
     for (unsigned int i = 0; i < 1024 * 2; i++) {
@@ -150,6 +153,14 @@ void *pageframe_alloc(unsigned int pages) {
     }
 
     _dbg_log("[MMU]%u pages requested. Return: [0x%x]\n", pages, ret);
+    _dbg_screen("Total phys pages [%u]\n", _pages_total_phys);
+    _dbg_screen("[MMU]%u pages requested. Return: [0x%x]\n", pages, ret);
+    _dbg_screen("bitmap at 0x%x\n", _pageframe_bitmap);
+    for (int i = 2032 / 8; i < 2196 / 8; ++i) {
+        if (i > 2032 / 8 && i % 8 == 0) _dbg_screen("\n");
+        _dbg_screen("0x%x ", _pageframe_bitmap[i]);
+    }
+    _dbg_screen("\n");
     // If out of memory (not enough pages), ret is NULL
     return ret;
 }
