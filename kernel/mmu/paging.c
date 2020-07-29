@@ -42,7 +42,7 @@ void paging_map_page(unsigned int virtual_addr, unsigned int phys_addr, unsigned
 
 // Map 1 page table (4MiB) from virtual address to phys_addr. Page table must persist in memory at all times.
 public
-void paging_map(unsigned int virtual_addr, unsigned int phys_addr, unsigned int *page_dir) {
+void paging_map_table(unsigned int virtual_addr, unsigned int phys_addr, unsigned int *page_dir) {
     unsigned int *page_table = get_page_table(phys_addr);
     _dbg_log("Mapping 1 table 0x%x to 0x%x, kernel_page_dir[0x%x], page_table[0x%x]\n", phys_addr, virtual_addr, page_dir, page_table);
 
@@ -65,7 +65,7 @@ void paging_init() {
 
     // Map two 1st page tables to 3GiB (kernel page)
     for (int i = 0; i < 2; ++i) {
-        paging_map(0x0 + 0x400000 * i, 0x400000 * i, kernel_page_directory);
+        paging_map_table(0x0 + 0x400000 * i, 0x400000 * i, kernel_page_directory);
     }
 
     unsigned int kernel_page_directory_phys = (unsigned int)kernel_page_directory - 0x0;

@@ -4,7 +4,7 @@
 #define PAGE_SIZE 0x1000  // 4096
 
 void paging_init();
-void paging_map(unsigned int virtual_addr, unsigned int phys_addr, unsigned int *page_dir);
+void paging_map_table(unsigned int virtual_addr, unsigned int phys_addr, unsigned int *page_dir);
 void paging_map_page(unsigned int virtual_addr, unsigned int phys_addr, unsigned int *page_dir);
 unsigned int *get_kernel_pd();
 #endif

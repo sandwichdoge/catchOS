@@ -204,7 +204,7 @@ public void svga_init() {
 
     unsigned char *fb = kinfo->tagfb.common.framebuffer_addr;
     unsigned int *kpd = get_kernel_pd();
-    paging_map((unsigned int)fb, (unsigned int)fb, kpd);
+    paging_map_table((unsigned int)fb, (unsigned int)fb, kpd);
     set_lfb_addr(fb);
 
     struct multiboot_tag_framebuffer *tagfb = &kinfo->tagfb;

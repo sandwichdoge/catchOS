@@ -30,7 +30,6 @@ void* pageframe_alloc_liballoc(unsigned int pages) {
     } else {  // Out of memory
         _dbg_log("[MMU]Out of pages.\n");
     }
-    _dbg_break();
     return ret;
 }
 
