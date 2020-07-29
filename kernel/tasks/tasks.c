@@ -12,9 +12,9 @@
 private
 struct task_struct* _tasks[MAX_CONCURRENT_TASKS];
 private
-unsigned int _nr_tasks;                            // Current running tasks in the system.
-struct task_struct kmaint = {.interruptible = 0};  // Initial _current value, so we won't have to to if _current is NULL later.
-struct task_struct* _current = &kmaint;            // Current task that controls CPU.
+unsigned int _nr_tasks;                                          // Current running tasks in the system.
+struct task_struct kmaint = {.interruptible = 0, .counter = 1};  // Initial _current value, so we won't have to to if _current is NULL later.
+struct task_struct* _current = &kmaint;                          // Current task that controls CPU.
 
 // Read current EFLAGS register.
 private
@@ -73,11 +73,12 @@ struct task_struct* task_new(void (*fp)(void*), void* arg, unsigned int stack_si
 
     struct task_struct* newtask = NULL;
     newtask = mmu_mmap(sizeof(struct task_struct));
+    _memset(newtask, 0, sizeof(*newtask));
     newtask->stack_bottom = mmu_mmap(stack_size);
+    _memset(newtask->stack_bottom, 0, sizeof(stack_size));
     newtask->state = TASK_RUNNING;
     newtask->cpu_state.esp = (unsigned int)newtask->stack_bottom + stack_size;
     _dbg_log("Allocated TCB[%d]:[0x%x], stack top:[0x%x], stack size:[0x%x]\n", pid, newtask, newtask->cpu_state.esp, stack_size);
-    _dbg_screen("Allocated TCB[%d]:[0x%x], stack top:[0x%x], stack size:[0x%x]\n", pid, newtask, newtask->cpu_state.esp, stack_size);
     *(unsigned int*)(newtask->cpu_state.esp) = (unsigned int)arg;
     newtask->cpu_state.esp -= 4;
     *(unsigned int*)(newtask->cpu_state.esp) = (unsigned int)&on_current_task_return_cb;

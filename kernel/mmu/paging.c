@@ -1,5 +1,6 @@
-#include "builddef.h"
 #include "paging.h"
+
+#include "builddef.h"
 #include "kheap.h"
 #include "kinfo.h"
 #include "utils/debug.h"
@@ -10,13 +11,13 @@ extern void enable_paging();
 // Page index 123 in table index 456 will be mapped to (456 * 1024) + 123 = 467067. 467067 * 4 = 1868268 KiB.
 
 unsigned int kernel_page_directory[1024] __attribute__((aligned(4096)));  // 1024 page tables in page directory
-static unsigned int* allocated_page_tables[1024];
+static unsigned int *allocated_page_tables[1024];
 
 private
 unsigned int virtual_addr_to_pde(unsigned int virtual_addr) { return virtual_addr >> 22; }
 
 private
-unsigned int* get_page_table(unsigned int phys_addr) {
+unsigned int *get_page_table(unsigned int phys_addr) {
     // Divide by 0x400000 for index
     unsigned int index = phys_addr / 0x400000;
 
@@ -45,7 +46,6 @@ public
 void paging_map_table(unsigned int virtual_addr, unsigned int phys_addr, unsigned int *page_dir) {
     unsigned int *page_table = get_page_table(phys_addr);
     _dbg_log("Mapping 1 table 0x%x to 0x%x, kernel_page_dir[0x%x], page_table[0x%x]\n", phys_addr, virtual_addr, page_dir, page_table);
-    _dbg_screen("Map table 0x%x to 0x%x,kernel_page_dir[0x%x],page_table[0x%x]\n", phys_addr, virtual_addr, page_dir, page_table);
 
     // Populate the page table. Fill each entry with corresponding physical address (increased by 0x1000 bytes each entry).
     for (unsigned int i = 0; i < 1024; i++) {
@@ -62,7 +62,7 @@ void paging_map_table(unsigned int virtual_addr, unsigned int phys_addr, unsigne
 public
 void paging_init() {
     // Allocate memory for 2 page table
-    //unsigned int *page_tables = kmalloc_align(4096 * 2, 4096);
+    // unsigned int *page_tables = kmalloc_align(4096 * 2, 4096);
 
     // Map two 1st page tables to 3GiB (kernel page)
     for (int i = 0; i < 2; ++i) {

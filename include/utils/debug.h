@@ -63,7 +63,7 @@
     { asm("xchg %bx, %bx"); }
 #else
 #define _dbg_break() \
-    { asm volatile ("1: jmp 1b"); }
+    { asm volatile("1: jmp 1b"); }
 #endif  // TARGET_BOCHS
 
 #ifdef TARGET_HOST

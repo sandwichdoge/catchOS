@@ -1,7 +1,7 @@
 #include "utils/debug.h"
 
-#include "drivers/svga.h"
 #include "builddef.h"
+#include "drivers/svga.h"
 
 public
 void _dbg_log(char *format, ...) {

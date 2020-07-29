@@ -126,7 +126,7 @@ void pageframe_alloc_init() {
     _dbg_log("Total phys pages [%u]\n", _pages_total_phys);
     // 1 bit represents 1 page in phys mem (4 KiB). We assign just enough memory to contain the bitmap of physical
     // memory.
-    _pageframe_bitmap = kmalloc_align(_pages_total_phys / 8, 4096); // 131072 bytes allocated
+    _pageframe_bitmap = kmalloc_align(_pages_total_phys / 8, 4096);  // 131072 bytes allocated
 
     _memset(_pageframe_bitmap, 0, _pages_total_phys / 8);
 
@@ -151,16 +151,7 @@ void *pageframe_alloc(unsigned int pages) {
     } else {  // Fewer than 8 pages requested
         ret = pageframe_alloc_bestfit(pages);
     }
-
     _dbg_log("[MMU]%u pages requested. Return: [0x%x]\n", pages, ret);
-    _dbg_screen("Total phys pages [%u]\n", _pages_total_phys);
-    _dbg_screen("[MMU]%u pages requested. Return: [0x%x]\n", pages, ret);
-    _dbg_screen("bitmap at 0x%x\n", _pageframe_bitmap);
-    for (int i = 2032 / 8; i < 2196 / 8; ++i) {
-        if (i > 2032 / 8 && i % 8 == 0) _dbg_screen("\n");
-        _dbg_screen("0x%x ", _pageframe_bitmap[i]);
-    }
-    _dbg_screen("\n");
     // If out of memory (not enough pages), ret is NULL
     return ret;
 }
