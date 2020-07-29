@@ -18,20 +18,6 @@
 #include "utils/list.h"
 #include "utils/string.h"
 
-void test_memory_32bit_mode() {
-    volatile unsigned char *p = (volatile unsigned char *)(0x0 + 3000000);  // 32MB for testing 32-bit mode
-    *p = 55;
-
-    if (*p == 55) {
-        write_cstr("Memtest success.", 80);
-    } else {
-        write_cstr("Memtest failed.", 80);
-        _dbg_break();
-    }
-}
-
-void halt() { asm("hlt"); }
-
 struct semaphore s;
 void test_multitask(void *done_cb) {
     _dbg_log("test start\n");
@@ -46,11 +32,6 @@ void test_multitask(void *done_cb) {
 }
 
 void test_done_cb() { _dbg_log("Test done! Callback complete!\n"); }
-
-void permaloop(void *unused) {
-    while (1)
-        ;
-}
 
 void kmain(unsigned int magic, unsigned int addr) {
     // First thing first, gather all info about our hardware capabilities, store it in kinfo singleton
