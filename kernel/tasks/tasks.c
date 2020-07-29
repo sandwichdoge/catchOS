@@ -75,7 +75,6 @@ struct task_struct* task_new(void (*fp)(void*), void* arg, unsigned int stack_si
     newtask = mmu_mmap(sizeof(struct task_struct));
     _memset(newtask, 0, sizeof(*newtask));
     newtask->stack_bottom = mmu_mmap(stack_size);
-    _memset(newtask->stack_bottom, 0, sizeof(stack_size));
     newtask->state = TASK_RUNNING;
     newtask->cpu_state.esp = (unsigned int)newtask->stack_bottom + stack_size;
     _dbg_log("Allocated TCB[%d]:[0x%x], stack top:[0x%x], stack size:[0x%x]\n", pid, newtask, newtask->cpu_state.esp, stack_size);
