@@ -33,8 +33,7 @@ void paging_map_page(unsigned int virtual_addr, unsigned int phys_addr, unsigned
     unsigned int *page_table = get_page_table(phys_addr);
     _dbg_log("Mapping 1 page 0x%x to 0x%x, kernel_page_dir[0x%x], page_table[0x%x]\n", phys_addr, virtual_addr, page_dir, page_table);
     unsigned int pte = ((virtual_addr % 0x400000) / 0x1000);
-
-    page_table[pte] = (phys_addr + (pte * 0x1000)) | 3;
+    page_table[pte] = phys_addr | 3;
 
     unsigned int pde = virtual_addr_to_pde(virtual_addr);
     page_dir[pde] = ((unsigned int)page_table - 0x0) | 3;
