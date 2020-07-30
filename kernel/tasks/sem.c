@@ -26,7 +26,6 @@ void sem_wait(struct semaphore* sem) {
 
         spinlock_lock(&sem->lock);
         queue_push(&sem->task_queue, &curtask, sizeof(curtask));
-        _dbg_log("created head %x\n", sem->task_queue.tail);
         spinlock_unlock(&sem->lock);
         curtask->state = TASK_WAITING;
         task_yield();
@@ -35,8 +34,8 @@ void sem_wait(struct semaphore* sem) {
 
 void sem_signal(struct semaphore* sem) {
     // Update task_queue (pop head).
-    spinlock_lock(&sem->lock);
     struct task_struct* popped_task;
+    spinlock_lock(&sem->lock);
     int is_queue_empty = queue_pop(&sem->task_queue, (void*)&popped_task, sizeof(popped_task));
     sem->count++;
     spinlock_unlock(&sem->lock);

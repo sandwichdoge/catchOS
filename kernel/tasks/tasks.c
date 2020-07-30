@@ -39,8 +39,8 @@ void on_current_task_return_cb() {
     } else {
         _current->state = TASK_JOINABLE;
     }
-    _current->interruptible = 1;
     _nr_tasks--;
+    _current->interruptible = 1;
     task_yield();
 }
 
