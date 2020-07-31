@@ -1,5 +1,5 @@
+#include "drivers/acpi/acpi.h"
 #include "kinfo.h"
-#include "stdint.h"
 #include "builddef.h"
 #include "pageframe_alloc.h"
 #include "paging.h"
@@ -22,26 +22,9 @@ struct RSDPDescriptor20 {
     uint8_t reserved[3];
 } __attribute__ ((packed));
 
-struct ACPISDTHeader {  // 36 bytes size
-    char Signature[4];
-    uint32_t Length;
-    uint8_t Revision;
-    uint8_t Checksum;
-    char OEMID[6];
-    char OEMTableID[8];
-    uint32_t OEMRevision;
-    uint32_t CreatorID;
-    uint32_t CreatorRevision;
-} __attribute__ ((packed));
-
-struct RSDT {
-    struct ACPISDTHeader h;
-    uint32_t *others;
-};
-
 static struct RSDT *_rsdt;
 
-void traverse_SDT(int is_paging_enabled) {
+private void traverse_SDT(int is_paging_enabled) {
     int entries = (_rsdt->h.Length - sizeof(struct ACPISDTHeader)) / 4;
     _dbg_log("SDT entries:%d..\n", entries);
     for (int i = 0; i < entries; ++i) {
@@ -56,6 +39,10 @@ void traverse_SDT(int is_paging_enabled) {
     }
 }
 
+public struct RSDT *acpi_get_rsdt() {
+    return _rsdt;
+}
+
 public void acpi_init(int is_paging_enabled) {
     struct kinfo* kinfo = get_kernel_info();
     int acpi_ver = kinfo->acpi_ver;
@@ -64,6 +51,9 @@ public void acpi_init(int is_paging_enabled) {
         rsdp = (struct RSDPDescriptor *)kinfo->rsdp;
     } else {
         rsdp = &((struct RSDPDescriptor20 *)kinfo->rsdp)->firstPart;
+    }
+    if (!rsdp) {
+        return;
     }
     _dbg_log("ACPI detected, RSDP at [0x%x], signature[%s], OEMID[%s], RSDT at[0x%x]\n", rsdp, rsdp->Signature, rsdp->OEMID, rsdp->RsdtAddress);
     // TODO validate checksum
@@ -74,5 +64,4 @@ public void acpi_init(int is_paging_enabled) {
     }
 
     traverse_SDT(is_paging_enabled);
-    _dbg_break();
 }

@@ -29,7 +29,8 @@ OBJECTS=$(KBOOT_DIR)/multiboot_header.o $(KBOOT_DIR)/kboot.o \
 		$(SHELL_DIR)/shell.o $(SHELL_DIR)/font.o \
 		$(DRIVERS_DIR)/serial.o $(DRIVERS_DIR)/io.o \
 		$(DRIVERS_DIR)/framebuffer.o $(DRIVERS_DIR)/keyboard.o \
-		$(DRIVERS_DIR)/pic.o $(DRIVERS_DIR)/pit.o $(DRIVERS_DIR)/acpi.o \
+		$(DRIVERS_DIR)/pic.o $(DRIVERS_DIR)/pit.o \
+		$(DRIVERS_DIR)/acpi/fadt.o $(DRIVERS_DIR)/acpi/acpi.o \
 		$(DRIVERS_DIR)/cpuid.o $(DRIVERS_DIR)/svga.o \
 		$(INTERRUPT_DIR)/interrupt.o $(INTERRUPT_DIR)/interrupt_hnd.o \
 		$(MMU_DIR)/paging.o $(MMU_DIR)/paging_en.o $(MMU_DIR)/kheap.o \
