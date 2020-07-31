@@ -23,7 +23,7 @@ unsigned int *get_page_table(unsigned int phys_addr) {
 
     // See if a pagetable for this address already exists. If not then allocate, otherwise return it.
     if (!allocated_page_tables[index]) {
-        allocated_page_tables[index] = kmalloc_align(4096, 4096);
+        allocated_page_tables[index] = kmalloc_align(PAGE_SIZE, 4096);
     }
     return allocated_page_tables[index];
 }
@@ -33,8 +33,11 @@ public
 void paging_map_page(unsigned int virtual_addr, unsigned int phys_addr, unsigned int *page_dir) {
     unsigned int *page_table = get_page_table(phys_addr);
     _dbg_log("Map page 0x%x to 0x%x,kernel_page_dir[0x%x],page_table[0x%x]\n", phys_addr, virtual_addr, page_dir, page_table);
-    //_dbg_screen("Map page 0x%x to 0x%x,kernel_page_dir[0x%x],page_table[0x%x]\n", phys_addr, virtual_addr, page_dir, page_table);
+
     unsigned int pte = ((virtual_addr % 0x400000) / 0x1000);
+    if (page_table[pte] != 0) { // Already allocated
+        return;
+    }
     page_table[pte] = phys_addr | 3;
 
     unsigned int pde = virtual_addr_to_pde(virtual_addr);

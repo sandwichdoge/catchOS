@@ -128,8 +128,6 @@ void pageframe_alloc_init() {
     // memory.
     _pageframe_bitmap = kmalloc_align(_pages_total_phys / 8, 4096);  // 131072 bytes allocated
 
-    _memset(_pageframe_bitmap, 0, _pages_total_phys / 8);
-
     // Reserved Kernel data area (2048 pages - 8 MiB) starting from 0x0.
     for (unsigned int i = 0; i < 1024 * 2; i++) {
         pageframe_alloc_set_page(i);
