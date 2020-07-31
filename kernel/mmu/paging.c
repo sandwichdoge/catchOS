@@ -28,7 +28,7 @@ unsigned int *get_page_table(unsigned int phys_addr) {
     return allocated_page_tables[index];
 }
 
-// Map 1 page (4096 bytes)
+// Map 1 page (4096 bytes), reuse page table if this addr belongs in an addr space that's already allocated before.
 public
 void paging_map_page(unsigned int virtual_addr, unsigned int phys_addr, unsigned int *page_dir) {
     unsigned int *page_table = get_page_table(phys_addr);

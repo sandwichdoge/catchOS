@@ -2,6 +2,7 @@
 #include "drivers/framebuffer.h"
 #include "drivers/serial.h"
 #include "drivers/svga.h"
+#include "drivers/acpi.h"
 #include "interrupt.h"
 #include "kheap.h"
 #include "kinfo.h"
@@ -59,6 +60,7 @@ void kmain(unsigned int magic, unsigned int addr) {
     kheap_init();
     mmu_init();
     syscall_init();
+    acpi_init(1);
     svga_init();
 
     // Perform tests

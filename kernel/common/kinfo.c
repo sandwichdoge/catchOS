@@ -65,8 +65,14 @@ void kinfo_init(struct multiboot_tag *mb2) {
             }
             case MULTIBOOT_TAG_TYPE_ACPI_OLD: {
                 struct multiboot_tag_old_acpi *acpi = (struct multiboot_tag_old_acpi *)tag;
-                _dbg_log("ACPI old detected, RSDP at [0x%x]\n", acpi->rsdp);
-                _dbg_break();
+                _kinfo.rsdp = acpi->rsdp;
+                _kinfo.acpi_ver = 1;
+                break;
+            }
+            case MULTIBOOT_TAG_TYPE_ACPI_NEW: {
+                struct multiboot_tag_new_acpi *acpi = (struct multiboot_tag_new_acpi *)tag;
+                _kinfo.rsdp = acpi->rsdp;
+                _kinfo.acpi_ver = 2;
                 break;
             }
         }
