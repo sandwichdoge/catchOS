@@ -50,7 +50,7 @@ public struct RSDT *acpi_get_rsdt() {
     return _rsdt;
 }
 
-public void acpi_init(int is_paging_enabled) {
+public void acpi_init() {
     struct kinfo* kinfo = get_kernel_info();
     int acpi_ver = kinfo->acpi_ver;
     struct RSDPDescriptor *rsdp;
@@ -66,9 +66,9 @@ public void acpi_init(int is_paging_enabled) {
     // TODO validate checksum
 
     _rsdt = (struct RSDT*)rsdp->RsdtAddress;
-    if (is_paging_enabled) {
+    if (kinfo->is_paging_enabled) {
         pageframe_set_page_from_addr((void*)_rsdt, 1);
         paging_map_page((uint32_t)_rsdt, (uint32_t)_rsdt, get_kernel_pd());
-        map_sdt_entries(is_paging_enabled);
+        map_sdt_entries();
     }
 }

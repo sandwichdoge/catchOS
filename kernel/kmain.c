@@ -60,7 +60,7 @@ void kmain(unsigned int magic, unsigned int addr) {
     kheap_init();
     mmu_init();
     syscall_init();
-    acpi_init(1);
+    acpi_init();
     svga_init();
 
     // Perform tests

@@ -20,6 +20,6 @@ struct RSDT {
 };
 
 struct RSDT* acpi_get_rsdt();
-void acpi_init(int is_paging_enabled);
+void acpi_init();
 
 #endif

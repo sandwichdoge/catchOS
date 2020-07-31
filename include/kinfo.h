@@ -13,6 +13,7 @@ struct kinfo {
     struct multiboot_tag_module mod;
     char* rsdp;
     int acpi_ver;
+    int is_paging_enabled;
 };
 struct kinfo *get_kernel_info();
 // Get kernel and hardware info

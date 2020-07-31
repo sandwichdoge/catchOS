@@ -61,9 +61,6 @@ void paging_map_table(unsigned int virtual_addr, unsigned int phys_addr, unsigne
 // We're already in high-half kernel after kboot. So all addresses below are virtual.
 public
 void paging_init() {
-    // Allocate memory for 2 page table
-    // unsigned int *page_tables = kmalloc_align(4096 * 2, 4096);
-
     // Map two 1st page tables to 3GiB (kernel page)
     for (int i = 0; i < 2; ++i) {
         paging_map_table(0x0 + 0x400000 * i, 0x400000 * i, kernel_page_directory);
@@ -74,6 +71,9 @@ void paging_init() {
     // load_page_directory() only accepts physical addresses.
     load_page_directory((void *)kernel_page_directory_phys);
     enable_paging();
+
+    struct kinfo *kinfo = get_kernel_info();
+    kinfo->is_paging_enabled = 1;
 }
 
 public

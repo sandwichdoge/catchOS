@@ -41,7 +41,7 @@ OBJECTS=$(KBOOT_DIR)/multiboot_header.o $(KBOOT_DIR)/kboot.o \
 		$(POWER_DIR)/shutdown.o $(POWER_DIR)/reboot.o \
 		$(COMMON_DIR)/kinfo.o \
 		$(UTILS_DIR)/string.o $(UTILS_DIR)/debug.o $(UTILS_DIR)/printf.o $(UTILS_DIR)/bitmap.o \
-		$(UTILS_DIR)/queue.o $(UTILS_DIR)/list.o $(UTILS_DIR)/spinlock.o
+		$(UTILS_DIR)/queue.o $(UTILS_DIR)/list.o $(UTILS_DIR)/spinlock.o $(UTILS_DIR)/maths.o
 
 all: kernel.elf program
 
