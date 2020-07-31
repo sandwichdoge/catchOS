@@ -9,6 +9,7 @@
 #include "stdint.h"
 #include "utils/bitmap.h"
 #include "utils/debug.h"
+#include "utils/maths.h"
 
 #define SCR_W 640
 #define SCR_H 480
@@ -168,9 +169,6 @@ void svga_draw_char_cell(unsigned int *scrpos, unsigned char c, unsigned int col
     svga_draw_char(FONT_W * x, (FONT_H + 2) * y, c, color);
     *scrpos = *scrpos + 1;
 }
-
-private
-unsigned int ceiling(unsigned int dividend, unsigned int divisor) { return (dividend + (divisor / 2)) / divisor; }
 
 public
 void svga_write_str(const char *str, unsigned int *scrpos, unsigned int len, unsigned int color) {

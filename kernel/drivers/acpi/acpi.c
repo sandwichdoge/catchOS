@@ -4,6 +4,7 @@
 #include "pageframe_alloc.h"
 #include "paging.h"
 #include "utils/debug.h"
+#include "utils/maths.h"
 
 struct RSDPDescriptor {
     char Signature[8];
@@ -31,8 +32,16 @@ private void map_sdt_entries() {
         uint32_t* tail = &_rsdt->others;
         tail += i;
         struct ACPISDTHeader *sdt = (struct ACPISDTHeader *)*tail;
-        pageframe_set_page_from_addr((void*)sdt, 1);
-        paging_map_page((uint32_t)sdt, (uint32_t)sdt, get_kernel_pd());
+
+        // Allocate exact number of pages needed.
+        uint32_t start_page = (uint32_t)sdt / PAGE_SIZE;
+        uint32_t end_page = ((uint32_t)sdt + sdt->Length) / PAGE_SIZE;
+        uint32_t pages_to_alloc = end_page - start_page + 1;
+
+        pageframe_set_page_from_addr((void*)sdt, pages_to_alloc);
+        for (uint32_t j = 0; j < pages_to_alloc; ++j) {
+            paging_map_page((uint32_t)sdt + PAGE_SIZE, (uint32_t)sdt + PAGE_SIZE, get_kernel_pd());
+        }
         _dbg_log("i[%d],sdt[0x%x], signature[%s]\n", i, sdt, sdt->Signature);
     }
 }
