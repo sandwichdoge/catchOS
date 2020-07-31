@@ -23,17 +23,17 @@ unsigned int _strlen_u(unsigned char *s) {
 }
 
 public
-int _strncmp(char *s1, char *s2, unsigned int len) {
-    // Probably gonna hate myself for this later.
-    while (len--) {
-        if (*s1 == 0 || *s2 == 0) break;
-        if (*(s1++) != *(s2++)) {
-            s1--;
-            s2--;
-            break;
-        }
+int _strncmp(char *s1, char *s2, unsigned int n) {
+    register unsigned char u1, u2;
+    while (n-- > 0) {
+        u1 = (unsigned char) *s1++;
+        u2 = (unsigned char) *s2++;
+        if (u1 != u2)
+            return u1 - u2;
+        if (u1 == '\0')
+            return 0;
     }
-    return (*s1 - *s2);
+    return 0;
 }
 
 public
