@@ -60,10 +60,10 @@ void kmain(unsigned int magic, unsigned int addr) {
     kheap_init();
     mmu_init();
     syscall_init();
-    acpi_init();
-    char* s5 = acpi_dsdt_get_s5obj();
-    _dbg_log("s5 object: 0x%x\n", s5);
     svga_init();
+    acpi_init();
+    //char* s5 = acpi_dsdt_get_s5obj();
+    //_dbg_screen("s5 object: 0x%x\n", s5);
 
     // Perform tests
     // test_memory_32bit_mode();
