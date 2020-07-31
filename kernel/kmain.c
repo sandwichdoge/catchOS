@@ -2,7 +2,7 @@
 #include "drivers/framebuffer.h"
 #include "drivers/serial.h"
 #include "drivers/svga.h"
-#include "drivers/acpi.h"
+#include "drivers/acpi/acpi.h"
 #include "interrupt.h"
 #include "kheap.h"
 #include "kinfo.h"

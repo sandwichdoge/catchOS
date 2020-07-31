@@ -24,17 +24,15 @@ struct RSDPDescriptor20 {
 
 static struct RSDT *_rsdt;
 
-private void traverse_SDT(int is_paging_enabled) {
+private void map_sdt_entries() {
     int entries = (_rsdt->h.Length - sizeof(struct ACPISDTHeader)) / 4;
     _dbg_log("SDT entries:%d..\n", entries);
     for (int i = 0; i < entries; ++i) {
         uint32_t* tail = &_rsdt->others;
         tail += i;
-        struct ACPISDTHeader *sdt = *tail;
-        if (is_paging_enabled) {
-            pageframe_set_page_from_addr((void*)sdt, 1);
-            paging_map_page(sdt, sdt, get_kernel_pd());
-        }
+        struct ACPISDTHeader *sdt = (struct ACPISDTHeader *)*tail;
+        pageframe_set_page_from_addr((void*)sdt, 1);
+        paging_map_page((uint32_t)sdt, (uint32_t)sdt, get_kernel_pd());
         _dbg_log("i[%d],sdt[0x%x], signature[%s]\n", i, sdt, sdt->Signature);
     }
 }
@@ -57,11 +55,11 @@ public void acpi_init(int is_paging_enabled) {
     }
     _dbg_log("ACPI detected, RSDP at [0x%x], signature[%s], OEMID[%s], RSDT at[0x%x]\n", rsdp, rsdp->Signature, rsdp->OEMID, rsdp->RsdtAddress);
     // TODO validate checksum
+
     _rsdt = (struct RSDT*)rsdp->RsdtAddress;
     if (is_paging_enabled) {
         pageframe_set_page_from_addr((void*)_rsdt, 1);
-        paging_map_page(_rsdt, _rsdt, get_kernel_pd());
+        paging_map_page((uint32_t)_rsdt, (uint32_t)_rsdt, get_kernel_pd());
+        map_sdt_entries(is_paging_enabled);
     }
-
-    traverse_SDT(is_paging_enabled);
 }
