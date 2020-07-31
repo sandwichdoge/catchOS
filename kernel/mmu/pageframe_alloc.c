@@ -173,3 +173,9 @@ void pageframe_free(void *phys_addr, unsigned int pages) {
         }
     }
 }
+
+public
+void pageframe_set_page_from_addr(void *phys_addr, unsigned int pages) {
+    unsigned int page_start = page_from_addr((unsigned int)phys_addr);
+    pageframe_alloc_set_pages(page_start, pages);
+}
