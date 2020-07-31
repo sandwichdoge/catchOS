@@ -19,7 +19,14 @@ struct RSDT {
     uint32_t others;
 };
 
+struct XSDT {
+    struct ACPISDTHeader h;
+    uint64_t others;
+};
+
+struct XSDT* acpi_get_xsdt();
 struct RSDT* acpi_get_rsdt();
 void acpi_init();
+int acpi_get_ver();
 
 #endif

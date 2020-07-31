@@ -18,7 +18,8 @@ uptime\n\
 program\n\
 tests\n\
 clear\n\
-reboot"
+reboot\n\
+2200"
 
 char* greeting =
 " ______     ______     ______   ______     __  __     ______     ______    \n"

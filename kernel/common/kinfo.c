@@ -69,6 +69,12 @@ void kinfo_init(struct multiboot_tag *mb2) {
                 _kinfo.acpi_ver = 1;
                 break;
             }
+            case MULTIBOOT_TAG_TYPE_ACPI_NEW: {
+                struct multiboot_tag_new_acpi *acpi = (struct multiboot_tag_new_acpi *)tag;
+                _kinfo.rsdp = acpi->rsdp;
+                _kinfo.acpi_ver = 2;
+                break;
+            }
         }
     }
 
