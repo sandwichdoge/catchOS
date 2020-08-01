@@ -19,5 +19,25 @@ void hashtable_uninit(struct hashtable* ht) {
 }
 
 void hashtable_insert(struct hashtable* ht, char* key, void* data, size_t data_size) {
-    
+    size_t index = ht->hash(key, ht->size);
+    if (!ht->nodes[index]) {
+        ht->nodes[index] = list_create(data, data_size);
+    } else {
+        list_insert_back(ht->nodes[index], data, data_size);
+    }
+}
+
+int hashtable_get(struct hashtable* ht, char* key, void* out, size_t data_size) {
+    size_t index = ht->hash(key, ht->size);
+    if (ht->nodes[index]) {
+        struct list_head* real = list_find(ht->nodes[index], _strcmp, key);
+        if (real) {
+            _memcpy(out, real->data, data_size);
+            return 0;
+        } else {
+            return -1;
+        }
+    } else {
+        return -1;
+    }
 }

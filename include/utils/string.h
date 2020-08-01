@@ -6,6 +6,9 @@ extern "C" {
 #define INCLUDE_STRING_H
 #include "stddef.h"
 #include "stdint.h"
+
+int _strcmp(const char *cs, const char *ct);
+
 int _strncmp(char *s1, char *s2, unsigned int len);
 
 // s1: mother string, s2: substring to search for, len: max number of chars to search.

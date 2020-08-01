@@ -35,6 +35,20 @@ int _strncmp(char *s1, char *s2, unsigned int n) {
 }
 
 public
+int _strcmp(const char *cs, const char *ct) {
+    unsigned char c1, c2;
+
+    while (1) {
+        c1 = *cs++;
+        c2 = *ct++;
+        if (c1 != c2)
+            return c1 < c2 ? -1 : 1;
+        if (!c1)
+            break;
+    }
+    return 0;
+}
+public
 void _memset_s(char *dst, char c, unsigned int len) {
     while (len--) {
         *(dst++) = c;
