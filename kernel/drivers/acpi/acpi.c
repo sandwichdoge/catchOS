@@ -69,6 +69,7 @@ void map_sdt_entries() {
         uint32_t pages_to_alloc = end_page - start_page + 1;
         _dbg_screen("sdt[0x%x], start[%u], len[%u], pages_to_alloc:%u, sig[%s]\n", sdt, start_page, sdt->Length, pages_to_alloc, sdt->Signature);
         _dbg_log("i[%d],sdt[0x%x], signature[%s]\n", i, sdt, sdt->Signature);
+        // TODO save SDTs' addresses in a table for lookup later.
 
         pageframe_set_page_from_addr((void *)sdt, pages_to_alloc);
         for (uint32_t j = 0; j < pages_to_alloc; ++j) {
