@@ -56,25 +56,26 @@ private void map_sdt_entries() {
             sdt = (struct ACPISDTHeader *)*tail;
         }
 
-        // Map page before we can do anything.
-        pageframe_set_page_from_addr((void*)sdt, 1);
+        // Map 2 pages before we can do anything. 2 in case the header overflows to the next page.
+        pageframe_set_page_from_addr((void*)sdt, 2);
         paging_map_page((uint32_t)sdt, (uint32_t)sdt, get_kernel_pd());
-        if (!doChecksum(sdt)) {
-            _dbg_screen("Invalid checksum.\n");
-        }
+        paging_map_page((uint32_t)sdt + 1 * PAGE_SIZE, (uint32_t)sdt + 1 * PAGE_SIZE, get_kernel_pd());
 
         // Allocate exact number of pages needed.
         uint32_t start_page = (uint32_t)sdt / PAGE_SIZE;
         uint32_t end_page = ((uint32_t)sdt + sdt->Length) / PAGE_SIZE;
         uint32_t pages_to_alloc = end_page - start_page + 1;
-        _dbg_screen("sdt[0x%x], start[%u], end[%u], len[%u], pages_to_alloc:%u\n", sdt, start_page, end_page, sdt->Length, pages_to_alloc);
+        _dbg_screen("sdt[0x%x], start[%u], len[%u], pages_to_alloc:%u, sig[%s]\n", sdt, start_page, sdt->Length, pages_to_alloc, sdt->Signature);
         _dbg_log("i[%d],sdt[0x%x], signature[%s]\n", i, sdt, sdt->Signature);
-        _dbg_screen("i[%d],sdt[0x%x], signature[%s]\n", i, sdt, sdt->Signature);
 
         pageframe_set_page_from_addr((void*)sdt, pages_to_alloc);
         for (uint32_t j = 0; j < pages_to_alloc; ++j) {
             paging_map_page((uint32_t)sdt + j * PAGE_SIZE, (uint32_t)sdt + j * PAGE_SIZE, get_kernel_pd());
         }
+        if (!doChecksum(sdt)) {
+            _dbg_screen("Invalid checksum.\n");
+        }
+        _dbg_screen("Checksum OK\n");
     }
     _dbg_screen("Done acpi init\n");
 }
@@ -120,12 +121,10 @@ public void acpi_init() {
     }
     //_dbg_log("ACPI %d detected, RSDP at [0x%x], signature[%s], OEMID[%s], RSDT at[0x%x]\n", acpi_ver, rsdp, rsdp->Signature, rsdp->OEMID, rsdp->RsdtAddress);
     if (kinfo->is_paging_enabled) {
-        _dbg_screen("Mapping\n");
         pageframe_set_page_from_addr((void*)to_map, 1);
         paging_map_page(to_map, to_map, get_kernel_pd());
         _dbg_screen("Map sdt entries..\n");
         map_sdt_entries();
-        _dbg_screen("Done mapping\n");
     }
     // TODO validate checksum
 }
