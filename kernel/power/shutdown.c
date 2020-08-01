@@ -2,6 +2,7 @@
 #include "drivers/acpi/fadt.h"
 #include "stddef.h"
 #include "stdint.h"
+#include "drivers/io.h"
 #include "utils/debug.h"
 
 //
@@ -27,12 +28,19 @@ void shutdown() {
         s5obj += ((*s5obj & 0xC0) >> 6) + 2;  // Calculate PkgLength size
 
         if (*s5obj == 0x0A) s5obj++;  // Skip byteprefix
-        unsigned char SLP_TYPa = *(s5obj) << 10;
+        uint8_t SLP_TYPa = *(s5obj) << 10;
         s5obj++;
+
+        if (*s5obj == 0x0A) s5obj++;  // Skip byteprefix
+        uint8_t SLP_TYPb = *(s5obj) << 10;
 
         unsigned short SLP_EN = 1 << 13;
         uint32_t PM1a_CNT = acpi_get_fadt()->PM1aControlBlock;
+        uint32_t PM1b_CNT = acpi_get_fadt()->PM1bControlBlock;
+        _dbg_screen("Shutting down. PM1a_CNT[%u], SLP_TYPa[%u], PM1b_CNT[%u], SLP_TYPb[%u]\n", PM1a_CNT, SLP_TYPa, PM1b_CNT, SLP_TYPb);
         outw(PM1a_CNT, SLP_TYPa | SLP_EN);
+        outw(PM1b_CNT, SLP_TYPb | SLP_EN);
+        _dbg_screen("Power off failed.\n");
     } else {
         _dbg_log("Parse error\n");
     }

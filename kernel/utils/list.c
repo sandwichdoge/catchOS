@@ -41,7 +41,7 @@ struct list_head *list_insert_after(struct list_head *node, void *data, int data
 
 struct list_head *list_insert_after_noalloc(struct list_head *node, void *data, int data_size, struct list_head *newnode) {
     if (node == NULL) return NULL;
-    _memcpy(newnode->data, data, data_size);
+    list_create_noalloc(data, data_size, newnode);
     newnode->next = node->next;
     if (node) node->next = newnode;
     return newnode;

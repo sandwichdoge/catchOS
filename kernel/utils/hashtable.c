@@ -42,7 +42,6 @@ void hashtable_uninit(struct hashtable* ht) {
 
 void hashtable_insert(struct hashtable* ht, char* key, void* data, size_t data_size) {
     size_t index = ht->hash(key, ht->size);
-    _dbg_log("index %u\n", index);
     if (!ht->nodes[index]) {    // Nothing at this index yet.
         ht->nodes[index] = mmu_mmap(sizeof(*ht->nodes[index]));
         list_create_noalloc(data, data_size, ht->nodes[index]);
@@ -51,7 +50,7 @@ void hashtable_insert(struct hashtable* ht, char* key, void* data, size_t data_s
     } else {
         struct ht_pair *newnode = mmu_mmap(sizeof(*newnode));
         newnode->head.next = NULL;
-        list_insert_back_noalloc(ht->nodes[index], data, data_size, newnode);
+        list_insert_back_noalloc(ht->nodes[index], data, data_size, (struct list_head*)newnode);
         _memset(newnode->key, 0, sizeof(newnode->key));
         _strncpy(newnode->key, key, sizeof(newnode->key));
     }
@@ -65,7 +64,7 @@ int hashtable_get(struct hashtable* ht, char* key, void* out, size_t data_size) 
             if (_strcmp(real->key, key) == 0) {
                 break;
             } else {
-                real = real->head.next;
+                real = (struct ht_pair*)real->head.next;
             }
         }
         if (real) {

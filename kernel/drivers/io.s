@@ -1,4 +1,5 @@
 global inb
+global inw
 global outb
 global outw
 global io_wait
@@ -7,6 +8,11 @@ inb:
     mov dx, [esp + 4] ; [esp + 4] is address of I/O port
     in al, dx         ; Read 1 byte from I/O port to al
     ret               ; Return the read byte
+
+inw:
+    mov dx, [esp + 4]
+    in ax, dx
+    ret
 
 outb:
     mov al, [esp + 8]    ; move the data to be sent into the al register

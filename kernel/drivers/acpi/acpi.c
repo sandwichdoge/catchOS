@@ -58,6 +58,7 @@ void map_sdt_entries() {
     _dbg_log("SDT entries:%d..\n", entries);
     _dbg_screen("SDT entries:%d\n", entries);
     for (int i = 0; i < entries; ++i) {
+        _dbg_screen("Entry %d\n", i);
         struct ACPISDTHeader *sdt = NULL;
         if (acpi_ver == 1) {
             uint32_t *tail = &_rsdt->others;
@@ -89,7 +90,6 @@ void map_sdt_entries() {
         if (!sdt_checksum_ok(sdt)) {
             _dbg_screen("Invalid checksum.\n");
         } else {
-            _dbg_screen("Checksum OK\n");
             char sig[5];
             _memset(sig, 0, sizeof(sig));
             _memcpy(sig, sdt->Signature, 4);
@@ -148,5 +148,6 @@ void acpi_init() {
         _dbg_screen("Map sdt entries..\n");
         map_sdt_entries();
     }
+    _dbg_screen("ACPI init done.\n");
     // TODO validate checksum
 }
