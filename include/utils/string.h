@@ -8,6 +8,9 @@ extern "C" {
 #include "stdint.h"
 int _strncmp(char *s1, char *s2, unsigned int len);
 
+// s1: mother string, s2: substring to search for, len: max number of chars to search.
+char *_strnstr(const char *s1, const char *s2, size_t len);
+
 void _memset_s(char *__restrict dst, char c, unsigned int len);
 void _memset_u(unsigned char *__restrict dst, char c, unsigned int len);
 

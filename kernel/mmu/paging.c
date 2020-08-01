@@ -35,7 +35,7 @@ void paging_map_page(unsigned int virtual_addr, unsigned int phys_addr, unsigned
     _dbg_log("Map page 0x%x to 0x%x,kernel_page_dir[0x%x],page_table[0x%x]\n", phys_addr, virtual_addr, page_dir, page_table);
 
     unsigned int pte = ((virtual_addr % 0x400000) / 0x1000);
-    if (page_table[pte] == (phys_addr | 3)) { // Already allocated
+    if (page_table[pte] == (phys_addr | 3)) {  // Already allocated
         return;
     }
     page_table[pte] = phys_addr | 3;

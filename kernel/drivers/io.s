@@ -1,5 +1,6 @@
 global inb
 global outb
+global outw
 global io_wait
 
 inb:
@@ -12,6 +13,12 @@ outb:
     mov dx, [esp + 4]    ; move the address of the I/O port into the dx register
     out dx, al           ; send the data to the I/O port
     ret                  ; return to the calling function
+
+outw:
+    mov ax, [esp + 8]
+    mov dx, [esp + 4]
+    out dx, ax
+    ret
 
 io_wait:
     jmp 1fh

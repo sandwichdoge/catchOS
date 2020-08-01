@@ -55,7 +55,7 @@ void kinfo_init(struct multiboot_tag *mb2) {
                         (unsigned)(mmap->addr >> 32), (unsigned)(mmap->addr & 0xffffffff), (unsigned)(mmap->len >> 32), (unsigned)(mmap->len & 0xffffffff),
                         (unsigned)mmap->type);
                 break;
-            } 
+            }
             case MULTIBOOT_TAG_TYPE_FRAMEBUFFER: {
                 struct multiboot_tag_framebuffer *tagfb = (struct multiboot_tag_framebuffer *)tag;
                 _dbg_log("LFB at[0x%x], w[%u], h[%u], bpp[%u]", tagfb->common.framebuffer_addr, tagfb->common.framebuffer_width,

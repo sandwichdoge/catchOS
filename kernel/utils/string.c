@@ -26,12 +26,10 @@ public
 int _strncmp(char *s1, char *s2, unsigned int n) {
     register unsigned char u1, u2;
     while (n-- > 0) {
-        u1 = (unsigned char) *s1++;
-        u2 = (unsigned char) *s2++;
-        if (u1 != u2)
-            return u1 - u2;
-        if (u1 == '\0')
-            return 0;
+        u1 = (unsigned char)*s1++;
+        u2 = (unsigned char)*s2++;
+        if (u1 != u2) return u1 - u2;
+        if (u1 == '\0') return 0;
     }
     return 0;
 }
@@ -177,6 +175,20 @@ int _int_to_str_u(char *out, size_t bufsize, unsigned int n) {
     }
 
     return 0;
+}
+
+public
+char *_strnstr(const char *s1, const char *s2, size_t len) {
+    size_t l2;
+
+    l2 = _strlen(s2);
+    if (!l2) return (char *)s1;
+    while (len >= l2) {
+        len--;
+        if (!_strncmp(s1, s2, l2)) return (char *)s1;
+        s1++;
+    }
+    return NULL;
 }
 
 public

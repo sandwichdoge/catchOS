@@ -68,7 +68,6 @@ TEST(StringUtils, strncmp) {
     EXPECT_GT('z' - 'Z', 0);
     EXPECT_GT(r, 0);
 
-
     char s7[] = "abcX";
     char *s8 = "abcY";
     r = _strncmp(s7, s8, 3);

@@ -20,7 +20,7 @@ public
 void *kmalloc(unsigned int size) {
     void *ret = heap_cur;
     heap_cur += size;
-    _memset((char*)ret, 0, size);
+    _memset((char *)ret, 0, size);
     return ret;
 }
 
@@ -36,7 +36,7 @@ void *kmalloc_align(unsigned int size, unsigned int alignment) {
 
     heap_cur = (char *)(next + size);
     _dbg_log("kmalloc returns [0x%x]\n", next);
-    _memset((char*)next, 0, size);
+    _memset((char *)next, 0, size);
     return (void *)next;
 }
 

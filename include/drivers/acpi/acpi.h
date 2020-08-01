@@ -12,7 +12,7 @@ struct ACPISDTHeader {  // 36 bytes size
     uint32_t OEMRevision;
     uint32_t CreatorID;
     uint32_t CreatorRevision;
-} __attribute__ ((packed));
+} __attribute__((packed));
 
 struct RSDT {
     struct ACPISDTHeader h;
@@ -28,5 +28,6 @@ struct XSDT* acpi_get_xsdt();
 struct RSDT* acpi_get_rsdt();
 void acpi_init();
 int acpi_get_ver();
+int sdt_checksum_ok(struct ACPISDTHeader* header);
 
 #endif

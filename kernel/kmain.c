@@ -1,8 +1,8 @@
+#include "drivers/acpi/acpi.h"
 #include "drivers/cpuid.h"
 #include "drivers/framebuffer.h"
 #include "drivers/serial.h"
 #include "drivers/svga.h"
-#include "drivers/acpi/acpi.h"
 #include "interrupt.h"
 #include "kheap.h"
 #include "kinfo.h"
@@ -62,20 +62,18 @@ void kmain(unsigned int magic, unsigned int addr) {
     syscall_init();
     svga_init();
     acpi_init();
-    //char* s5 = acpi_dsdt_get_s5obj();
-    //_dbg_screen("s5 object: 0x%x\n", s5);
 
     // Perform tests
     // test_memory_32bit_mode();
-/*
-    sem_init(&s, 1);
-    struct task_struct *t1 = task_new(test_multitask, (void *)test_done_cb, 1024 * 2, 10);
-    struct task_struct *t2 = task_new(test_multitask, (void *)test_done_cb, 1024 * 2, 10);
-    struct task_struct *t3 = task_new(test_multitask, (void *)test_done_cb, 1024 * 2, 10);
-    task_detach(t1);
-    task_detach(t2);
-    task_detach(t3);
-*/
+    /*
+        sem_init(&s, 1);
+        struct task_struct *t1 = task_new(test_multitask, (void *)test_done_cb, 1024 * 2, 10);
+        struct task_struct *t2 = task_new(test_multitask, (void *)test_done_cb, 1024 * 2, 10);
+        struct task_struct *t3 = task_new(test_multitask, (void *)test_done_cb, 1024 * 2, 10);
+        task_detach(t1);
+        task_detach(t2);
+        task_detach(t3);
+    */
     task_new(shell_main, NULL, 4096 * 16, 10);
     asm("sti");  // Enable interrupts
     // task_yield();
