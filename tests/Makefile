@@ -9,11 +9,15 @@ OBJECTS=main.o \
 		test_bitmap_utils.o \
 		test_pageframe_alloc.o \
 		test_spinlock.o \
+		test_hashtable_utils.o \
 		../kernel/utils/string.c \
 		../kernel/utils/printf.o \
 		../kernel/utils/bitmap.o \
+		../kernel/utils/hashtable.o \
+		../kernel/utils/list.o \
 		../kernel/mmu/pageframe_alloc.o \
 		../kernel/mmu/kheap.o \
+		../kernel/mmu/mmu.o \
 		../kernel/common/kinfo.o \
 		../kernel/utils/spinlock.o \
 		../kernel/utils/debug.o 

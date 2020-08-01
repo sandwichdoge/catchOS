@@ -14,6 +14,7 @@ void* count(void* unused) {
         counter++;
     }
     spinlock_unlock(&lock);
+    return NULL;
 }
 
 TEST(Spinlock, basic) {

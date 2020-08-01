@@ -195,7 +195,7 @@ public
 char *_strnstr(const char *s1, const char *s2, size_t len) {
     size_t l2;
 
-    l2 = _strlen(s2);
+    l2 = _strlen_s(s2);
     if (!l2) return (char *)s1;
     while (len >= l2) {
         len--;

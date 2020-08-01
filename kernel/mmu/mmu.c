@@ -8,6 +8,7 @@
 #include "timer.h"
 #include "utils/debug.h"
 
+#ifndef TARGET_HOST
 private
 void test_pageframe_firstpage() {
     void* p = pageframe_alloc(1);
@@ -30,17 +31,29 @@ void mmu_init() {
     paging_init();
     test_pageframe_firstpage();
 }
+#else
+#include <stdlib.h>
+#endif //TARGET_HOST
 
 public
-void* mmu_mmap(unsigned int size) {
-    // return out + 0x0;
+void* mmu_mmap(size_t size) {
+#ifdef TARGET_HOST
+    void* ret = malloc(size);
+#else
     void* ret = _malloc(size);
+#endif
     _dbg_log("[MMU]Requested [%u], ret [0x%x]\n", size, ret);
     return ret;
 }
 
 public
-void mmu_munmap(void* mem) { _free(mem); }
+void mmu_munmap(void* mem) { 
+#ifdef TARGET_HOST
+    free(mem);
+#else
+    _free(mem);
+#endif
+}
 
 /*
 [malloc()]

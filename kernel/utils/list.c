@@ -4,6 +4,17 @@
 #include "stddef.h"
 #include "utils/string.h"
 
+struct list_head *list_create_noalloc(void *data, int data_size, struct list_head *newnode) {
+    void *tmp;
+    if (!(tmp = mmu_mmap(data_size))) {
+        return NULL;
+    }
+    _memcpy(tmp, data, data_size);
+    newnode->data = tmp;
+    newnode->next = NULL;
+    return newnode;
+}
+
 struct list_head *list_create(void *data, int data_size) {
     void *tmp;
     struct list_head *node;
@@ -26,6 +37,19 @@ struct list_head *list_insert_after(struct list_head *node, void *data, int data
     newnode->next = node->next;
     if (node) node->next = newnode;
     return newnode;
+}
+
+struct list_head *list_insert_after_noalloc(struct list_head *node, void *data, int data_size, struct list_head *newnode) {
+    if (node == NULL) return NULL;
+    _memcpy(newnode->data, data, data_size);
+    newnode->next = node->next;
+    if (node) node->next = newnode;
+    return newnode;
+}
+
+struct list_head *list_insert_back_noalloc(struct list_head *node, void *data, int data_size, struct list_head *newnode) {
+    struct list_head *tail = list_get_tail(node);
+    return list_insert_after_noalloc(tail, data, data_size, newnode);
 }
 
 struct list_head *list_insert_back(struct list_head *node, void *data, int data_size) {
@@ -85,10 +109,10 @@ struct list_head *list_get_tail(struct list_head *list) {
     }
     return head;
 }
-
+#include "utils/debug.h"
 struct list_head *list_find(struct list_head *node, int (*func)(void *, void *), void *data) {
     while (node) {
-        if (func(&node->data, data) > 0) return node;
+        if (func(node->data, data) == 0) return node;
         node = node->next;
     }
     return NULL;
