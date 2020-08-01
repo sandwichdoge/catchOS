@@ -10,9 +10,9 @@ static struct FADT* _fadt = NULL;
 struct ACPISDTHeader* _dsdt = NULL;
 
 struct FADT* acpi_get_fadt() {
-    int acpi_ver = get_kernel_info()->acpi_ver;
-    // TODO ask RSDT for saved addr of fadt instead
-    return NULL;
+    struct FADT* ret = acpi_get_sdt_from_sig("FACP");
+    _dbg_log("Found FADT at 0x%x\n", ret);
+    return ret
 }
 
 struct ACPISDTHeader* acpi_get_dsdt() {

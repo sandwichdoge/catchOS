@@ -42,6 +42,7 @@ void hashtable_uninit(struct hashtable* ht) {
 
 void hashtable_insert(struct hashtable* ht, char* key, void* data, size_t data_size) {
     size_t index = ht->hash(key, ht->size);
+    _dbg_log("index %u\n", index);
     if (!ht->nodes[index]) {    // Nothing at this index yet.
         ht->nodes[index] = mmu_mmap(sizeof(*ht->nodes[index]));
         list_create_noalloc(data, data_size, ht->nodes[index]);
@@ -68,15 +69,12 @@ int hashtable_get(struct hashtable* ht, char* key, void* out, size_t data_size) 
             }
         }
         if (real) {
-            _dbg_log("Copying real data\n");
             _memcpy(out, real->head.data, data_size);
             return 0;
         } else {
-            _dbg_log("No real data\n");
             return -1;
         }
     } else {
-        _dbg_log("Empty index\n");
         return -1;
     }
 }

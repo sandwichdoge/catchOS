@@ -5,6 +5,9 @@
 #include "paging.h"
 #include "utils/debug.h"
 #include "utils/maths.h"
+#include "utils/hashtable.h"
+
+static struct hashtable SDTs;
 
 struct RSDPDescriptor {
     char Signature[8];
@@ -35,8 +38,16 @@ int sdt_checksum_ok(struct ACPISDTHeader *header) {
     return sum == 0;
 }
 
+public
+void* acpi_get_sdt_from_sig(char *table_signature) {
+    void* ret = NULL;
+    hashtable_get(&SDTs, table_signature, &ret, sizeof(void*));
+    return ret;
+}
+
 private
 void map_sdt_entries() {
+    hashtable_init(&SDTs, NULL, 64);
     int acpi_ver = acpi_get_ver();
     int entries = 0;
     if (acpi_ver == 1) {
@@ -68,7 +79,7 @@ void map_sdt_entries() {
         uint32_t end_page = ((uint32_t)sdt + sdt->Length) / PAGE_SIZE;
         uint32_t pages_to_alloc = end_page - start_page + 1;
         _dbg_screen("sdt[0x%x], start[%u], len[%u], pages_to_alloc:%u, sig[%s]\n", sdt, start_page, sdt->Length, pages_to_alloc, sdt->Signature);
-        _dbg_log("i[%d],sdt[0x%x], signature[%s]\n", i, sdt, sdt->Signature);
+        _dbg_log("sdt[0x%x], start[%u], len[%u], pages_to_alloc:%u, sig[%s]\n", sdt, start_page, sdt->Length, pages_to_alloc, sdt->Signature);
         // TODO save SDTs' addresses in a table for lookup later.
 
         pageframe_set_page_from_addr((void *)sdt, pages_to_alloc);
@@ -77,8 +88,13 @@ void map_sdt_entries() {
         }
         if (!sdt_checksum_ok(sdt)) {
             _dbg_screen("Invalid checksum.\n");
+        } else {
+            _dbg_screen("Checksum OK\n");
+            char sig[5];
+            _memset(sig, 0, sizeof(sig));
+            _memcpy(sig, sdt->Signature, 4);
+            hashtable_insert(&SDTs, sig, &sdt, sizeof(sdt));
         }
-        _dbg_screen("Checksum OK\n");
     }
 }
 
