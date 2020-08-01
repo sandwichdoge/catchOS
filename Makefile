@@ -86,15 +86,4 @@ isohw: kernel.elf
 
 clean:
 	rm -rf *.o *.elf
-	rm -f $(KERNEL_DIR)/*.o
-	rm -f $(KBOOT_DIR)/*.o
-	rm -f $(UTILS_DIR)/*.o
-	rm -f $(MMU_DIR)/*.o
-	rm -f $(SYS_DIR)/*.o
-	rm -f $(INTERRUPT_DIR)/*.o
-	rm -f $(DRIVERS_DIR)/*.o
-	rm -f $(COMMON_DIR)/*.o
-	rm -f $(SHELL_DIR)/*.o
-	rm -f $(TIMER_DIR)/*.o
-	rm -f $(TASKS_DIR)/*.o
-	rm -f $(TESTS_DIR)/*.o
+	find . -type f -name '*.o' -delete
