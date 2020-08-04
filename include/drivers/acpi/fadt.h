@@ -79,6 +79,5 @@ struct FADT {
 };
 
 struct FADT* acpi_get_fadt();
-char* acpi_dsdt_get_s5obj();
 
 #endif

@@ -45,19 +45,3 @@ struct ACPISDTHeader* acpi_get_dsdt() {
     _dbg_log("DSDT at 0x%x\n", _dsdt);
     return _dsdt;
 }
-
-// S5 Object is basically an encoded device tree. It contains info on the hardware that's hooked into our system.
-char* acpi_dsdt_get_s5obj() {
-    struct ACPISDTHeader* h = acpi_get_dsdt();  // DSDT has a header just like other tables.
-    _dbg_screen("DSDT: 0x%x\n", h);
-    if (!sdt_checksum_ok(h) || _strncmp(h->Signature, "DSDT", 4) != 0) {
-        _dbg_screen("Invalid DSDT\n");
-        return NULL;
-    } else {
-        _dbg_screen("DSDT len %u\n", h->Length);
-        char* dsdt_noheader = (char*)h + sizeof(*h);  // Skip SDT header
-        char* s5obj = _strnstr(dsdt_noheader, "_S5_", h->Length);
-        _dbg_break();
-        return s5obj;
-    }
-}

@@ -17,6 +17,21 @@
 // PackageOP | PkgLength | NumElements  | byteprefix Num | byteprefix Num | byteprefix Num | byteprefix Num
 // 12        | 0A        | 04           | 0A         05  | 0A          05 | 0A         05  | 0A         05
 //
+// S5 Object is basically an encoded device tree. It contains info on the hardware that's hooked into our system.
+char* acpi_dsdt_get_s5obj() {
+    struct ACPISDTHeader* h = acpi_get_dsdt();  // DSDT has a header just like other tables.
+    _dbg_screen("DSDT: 0x%x\n", h);
+    if (!sdt_checksum_ok(h) || _strncmp(h->Signature, "DSDT", 4) != 0) {
+        _dbg_screen("Invalid DSDT\n");
+        return NULL;
+    } else {
+        _dbg_screen("DSDT len %u\n", h->Length);
+        char* dsdt_noheader = (char*)h + sizeof(*h);  // Skip SDT header
+        char* s5obj = _strnstr(dsdt_noheader, "_S5_", h->Length);
+        _dbg_break();
+        return s5obj;
+    }
+}
 
 void shutdown() {
     char *s5obj = NULL;
@@ -39,7 +54,7 @@ void shutdown() {
         uint32_t PM1b_CNT = acpi_get_fadt()->PM1bControlBlock;
         _dbg_screen("Shutting down. PM1a_CNT[%u], SLP_TYPa[%u], PM1b_CNT[%u], SLP_TYPb[%u]\n", PM1a_CNT, SLP_TYPa, PM1b_CNT, SLP_TYPb);
         outw(PM1a_CNT, SLP_TYPa | SLP_EN);
-        outw(PM1b_CNT, SLP_TYPb | SLP_EN);
+        if (SLP_TYPb) outw(PM1b_CNT, SLP_TYPb | SLP_EN);
         _dbg_screen("Power off failed.\n");
     } else {
         _dbg_log("Parse error\n");
