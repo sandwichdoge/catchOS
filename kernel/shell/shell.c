@@ -111,7 +111,7 @@ void shell_init() {
     SCREEN_WIDTH = syscall_fb_get_scr_w();
     SCREEN_HEIGHT = syscall_fb_get_scr_h();
     syscall_register_kb_handler(shell_handle_keypress);
-    // syscall_fb_clr_scr();
+    syscall_fb_clr_scr();
     _cur = 0;
     shell_cout(greeting, _strlen(greeting));
     syscall_fb_brush_set_color(0xff, 0x0, 0x0);
