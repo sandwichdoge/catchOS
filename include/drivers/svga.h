@@ -18,6 +18,7 @@ void svga_draw_char_cell(unsigned int *scrpos, unsigned char c, unsigned int col
 void svga_write_str(const char *str, unsigned int *scrpos, unsigned int len, unsigned int color);
 void svga_draw_rect(const unsigned int x1, const unsigned int y1, const unsigned int x2, const unsigned int y2, unsigned int color);
 void svga_draw_pixel(const unsigned int x, const unsigned int y, unsigned int color);
+void swap_backbuffer_to_front();
 void svga_init();
 
 #endif

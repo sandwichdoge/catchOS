@@ -17,6 +17,7 @@
 #define SCR_ROWS (SCR_H / (FONT_H + 2))
 
 static unsigned char *_svga_lfb = NULL;
+static unsigned char *_backbuffer = NULL;
 
 private
 unsigned char *get_lfb_addr() { return _svga_lfb; }
@@ -26,6 +27,16 @@ void set_lfb_addr(unsigned char *fb) { _svga_lfb = fb; }
 
 static struct rgb_color black = {0x0, 0x0, 0x0};
 static struct rgb_color yellow = {0xff, 0xff, 0x0};
+
+public
+void swap_backbuffer_to_front() {
+    // Copy all data in backbuffer to front buffer to show on screen.
+    struct kinfo *kinfo = get_kernel_info();
+    struct multiboot_tag_framebuffer *tagfb = &kinfo->tagfb;
+    unsigned char *fb = get_lfb_addr();
+    unsigned int fb_size = SCR_H * tagfb->common.framebuffer_pitch;
+    _memcpy(fb, _backbuffer, fb_size);
+}
 
 public
 unsigned int svga_translate_rgb(unsigned char r, unsigned char g, unsigned char b) {
@@ -92,21 +103,29 @@ void svga_draw_pixel(unsigned int x, unsigned int y, unsigned int color) {
         case 8: {
             multiboot_uint8_t *pixel = fb + tagfb->common.framebuffer_pitch * y + x;
             *pixel = color;
+            pixel = _backbuffer + tagfb->common.framebuffer_pitch * y + x;
+            *pixel = color;
             break;
         }
         case 15:
         case 16: {
             multiboot_uint16_t *pixel = fb + tagfb->common.framebuffer_pitch * y + 2 * x;
             *pixel = color;
+            pixel = _backbuffer + tagfb->common.framebuffer_pitch * y + 2 * x;
+            *pixel = color;
             break;
         }
         case 24: {
             multiboot_uint32_t *pixel = fb + tagfb->common.framebuffer_pitch * y + 3 * x;
             *pixel = (color & 0xffffff) | (*pixel & 0xff000000);
+            pixel = _backbuffer + tagfb->common.framebuffer_pitch * y + 3 * x;
+            *pixel = color;
             break;
         }
         case 32: {
             multiboot_uint32_t *pixel = fb + tagfb->common.framebuffer_pitch * y + 4 * x;
+            *pixel = color;
+            pixel = _backbuffer + tagfb->common.framebuffer_pitch * y + 4 * x;
             *pixel = color;
             break;
         }
@@ -147,14 +166,13 @@ void svga_scroll_down(unsigned int lines) {
 
     _dbg_log("Lines to scroll: %u\n", lines);
 
-    static char buf[2560 * SCR_H];  // Max possible lfb size for 640x480x32 vga (2560 = 32bit fb pitch).
-    _memset(buf, 0, sizeof(buf));
+    unsigned int line_size = tagfb->common.framebuffer_pitch;
+    unsigned int fb_size = SCR_H * line_size;
+    unsigned int row_size = line_size * (FONT_H + 2);
 
-    unsigned int fb_size = SCR_H * tagfb->common.framebuffer_pitch;
-    unsigned int row_size = tagfb->common.framebuffer_pitch * (FONT_H + 2);
-
-    _memcpy(buf, fb + (lines * row_size), fb_size);
-    _memcpy(fb, buf, fb_size);
+    _memcpy(_backbuffer, _backbuffer + (lines * row_size), fb_size - line_size);
+    _memset(_backbuffer + fb_size - row_size, 0, row_size);
+    _memcpy(fb, _backbuffer, fb_size);
 }
 
 public
@@ -209,5 +227,10 @@ void svga_init() {
     set_lfb_addr(fb);
 
     struct multiboot_tag_framebuffer *tagfb = &kinfo->tagfb;
+
+    _backbuffer = mmu_mmap(SCR_H * tagfb->common.framebuffer_pitch);    // Max possible lfb size for 640x480x32 vga (2560 = 32bit fb pitch).
+    _memset(_backbuffer, 0, SCR_H * tagfb->common.framebuffer_pitch);
+
     _dbg_log("[SVGA]fb type: [%u], bpp:[%u]\n", tagfb->common.framebuffer_type, tagfb->common.framebuffer_bpp);
+    _dbg_screen("[SVGA]fb type: [%u], bpp:[%u]\n", tagfb->common.framebuffer_type, tagfb->common.framebuffer_bpp);
 }
