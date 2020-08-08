@@ -10,7 +10,7 @@ struct kinfo {
     unsigned int phys_mem_lower;
     unsigned int phys_mem_upper;
     struct multiboot_tag_framebuffer tagfb;
-    struct multiboot_tag_module mod;
+    struct multiboot_tag_module mods[2];
     char *rsdp;
     int acpi_ver;
     int is_paging_enabled;

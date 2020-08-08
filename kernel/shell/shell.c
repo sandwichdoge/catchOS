@@ -16,6 +16,7 @@
     "help\n\
 uptime\n\
 program\n\
+clock.jpg\n\
 tests\n\
 clear\n\
 reboot\n\
@@ -128,7 +129,7 @@ unsigned int shell_gettime() { return getticks(); }
 
 private
 int call_user_module() {
-    struct multiboot_tag_module* mod = &(get_kernel_info()->mod);
+    struct multiboot_tag_module* mod = &(get_kernel_info()->mods[0]);
     _dbg_log("Call user module at 0x%x\n", mod->mod_start);
 
     if (mod->size > 0) {
@@ -180,12 +181,14 @@ void shell_handle_cmd(char* cmd) {
         shell_cout(MSG_HELP, _strlen(MSG_HELP));
         shell_cout("\n", 1);
     } else if (_strncmp(cmd, "program", _strlen("program")) == 0) {
-        _dbg_break();
         int ret = call_user_module();
         static char ret_s[12];
         _memset(ret_s, 0, sizeof(ret_s));
         _int_to_str(ret_s, sizeof(ret_s), ret);
         shell_cout(ret_s, _strlen(ret_s));
+        shell_cout("\n", 1);
+    } else if (_strncmp(cmd, "clock.jpg", _strlen("clock.jpg")) == 0) {
+        shell_cout("Show picture", _strlen("Show picture"));
         shell_cout("\n", 1);
     } else if (_strncmp(cmd, "tests", _strlen("tests")) == 0) {
         run_tests();
