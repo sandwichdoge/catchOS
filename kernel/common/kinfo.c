@@ -34,7 +34,7 @@ void kinfo_init(struct multiboot_tag *mb2) {
                 _dbg_log("Module at 0x%x-0x%x. Command line %s\n", ((struct multiboot_tag_module *)tag)->mod_start,
                          ((struct multiboot_tag_module *)tag)->mod_end, ((struct multiboot_tag_module *)tag)->cmdline);
                 static int modcount = 0;
-                _memcpy(&_kinfo.mods[modcount++], (struct multiboot_tag_module *)tag, sizeof(_kinfo));
+                _memcpy(&_kinfo.mods[modcount++], (char*)tag, sizeof(struct multiboot_tag_module));
                 break;
             case MULTIBOOT_TAG_TYPE_BASIC_MEMINFO:
                 _dbg_log("mem_lower = %uKB, mem_upper = %uKB\n", ((struct multiboot_tag_basic_meminfo *)tag)->mem_lower,

@@ -65,9 +65,18 @@ unsigned int svga_translate_rgb(unsigned char r, unsigned char g, unsigned char 
             break;
         }
         case MULTIBOOT_FRAMEBUFFER_TYPE_RGB: {  // Max mask size 0x1f instead of 0xff
-            unsigned char r_real = ((1 << tagfb->framebuffer_red_mask_size) - 1) * (r / 0xff);
-            unsigned char g_real = ((1 << tagfb->framebuffer_green_mask_size) - 1) * (g / 0xff);
-            unsigned char b_real = ((1 << tagfb->framebuffer_blue_mask_size) - 1) * (b / 0xff);
+            unsigned char r_real, g_real, b_real;
+            switch (tagfb->framebuffer_red_mask_size) {
+                case 8: // 32-bit
+                    r_real = r;
+                    g_real = g;
+                    b_real = b;
+                    break;
+                default:
+                    r_real = ((1 << tagfb->framebuffer_red_mask_size) - 1) * (((float)r / 0xff) * tagfb->framebuffer_red_mask_size);
+                    g_real = ((1 << tagfb->framebuffer_green_mask_size) - 1) * (((float)g / 0xff) * tagfb->framebuffer_green_mask_size);
+                    b_real = ((1 << tagfb->framebuffer_blue_mask_size) - 1) * (((float)b / 0xff) * tagfb->framebuffer_blue_mask_size);
+            }
             color = (r_real << tagfb->framebuffer_red_field_position) | (g_real << tagfb->framebuffer_green_field_position) |
                     (b_real << tagfb->framebuffer_blue_field_position);
             break;

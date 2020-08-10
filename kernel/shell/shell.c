@@ -10,13 +10,15 @@
 #include "timer.h"
 #include "utils/debug.h"
 #include "utils/string.h"
+#include "bmp.h"
+#include "drivers/svga.h"
 
 #define CIN_BUFSZ 256
 #define MSG_HELP \
     "help\n\
 uptime\n\
 program\n\
-clock.jpg\n\
+rei.bmp\n\
 tests\n\
 clear\n\
 reboot\n\
@@ -115,7 +117,7 @@ void shell_init() {
     syscall_fb_clr_scr();
     _cur = 0;
     shell_cout(greeting, _strlen(greeting));
-    syscall_fb_brush_set_color(0xff, 0x0, 0x0);
+    syscall_fb_brush_set_color(254, 206, 166);
     syscall_fb_draw_rect(300, 200, 350, 250);
     syscall_fb_brush_set_color(0x00, 0xff, 0x0);
     syscall_fb_draw_rect(350, 200, 400, 250);
@@ -187,8 +189,21 @@ void shell_handle_cmd(char* cmd) {
         _int_to_str(ret_s, sizeof(ret_s), ret);
         shell_cout(ret_s, _strlen(ret_s));
         shell_cout("\n", 1);
-    } else if (_strncmp(cmd, "clock.jpg", _strlen("clock.jpg")) == 0) {
-        shell_cout("Show picture", _strlen("Show picture"));
+    } else if (_strncmp(cmd, "rei.bmp", _strlen("rei.bmp")) == 0) {
+        struct kinfo *kinfo = get_kernel_info();
+        void* img_rei = kinfo->mods[1].mod_start;
+        unsigned int img_rei_sz = kinfo->mods[1].mod_end - kinfo->mods[1].mod_start;
+        _dbg_log("Rei size [%u]\n", img_rei_sz);
+        struct bmp bmp_rei;
+        libbmp_decode_bmp(img_rei, &bmp_rei);
+        struct bmp_pixel pix;
+        for (unsigned int i = 0; i < bmp_rei.h; ++i) {
+            for (unsigned int j = 0; j < bmp_rei.w; ++j) {
+                libbmp_get_pixel(&bmp_rei, j, i, &pix);
+                unsigned int color = svga_translate_rgb(pix.r, pix.g, pix.b);
+                svga_draw_pixel(450 + j, 100 + bmp_rei.h - i, color);
+            }
+        }
         shell_cout("\n", 1);
     } else if (_strncmp(cmd, "tests", _strlen("tests")) == 0) {
         run_tests();
