@@ -49,15 +49,9 @@ int libbmp_decode_bmp(void* rawbmp, struct bmp* out) {
     }
 
     unsigned int filesize = *(unsigned int*)(bmp + BMP_FILESIZE_OFF);
-    if (filesize < 0) {
-        return -2;  // Error. Invalid file size.
-    }
     out->filesize = filesize;
 
     unsigned int pixelarray_offset = *(unsigned int*)(bmp + BMP_PIXELARRAY_OFF);
-    if (pixelarray_offset < 0) {
-        return -3;  // Error. Invalid pixel array offset.
-    }
     out->pixelarray_offset = pixelarray_offset;
     out->pixelarray = bmp + pixelarray_offset;
 
@@ -88,7 +82,7 @@ void libbmp_get_pixel(struct bmp* bmp, unsigned int x, unsigned int y, struct bm
 
     void* pixelarray = bmp->pixelarray;
     unsigned int pixel_offset = (row_sz * y) + x * (bmp->bpp / 8);
-    void* pixel = pixelarray + pixel_offset;
+    char* pixel = pixelarray + pixel_offset;
 
     switch (bmp->bpp) {
         case 24: {

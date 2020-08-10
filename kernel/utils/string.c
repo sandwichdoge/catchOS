@@ -2,20 +2,11 @@
 extern "C" {
 #endif
 #include "utils/string.h"
-
 #include "builddef.h"
 
 public
-unsigned int _strlen_s(char *s) {
-    unsigned int ret = 0;
-    while (*(s++)) {
-        ret++;
-    }
-    return ret;
-}
-
-unsigned int _strlen_u(unsigned char *s) {
-    unsigned int ret = 0;
+size_t _strlen(const char *s) {
+    size_t ret = 0;
     while (*(s++)) {
         ret++;
     }
@@ -23,15 +14,18 @@ unsigned int _strlen_u(unsigned char *s) {
 }
 
 public
-int _strncmp(char *s1, char *s2, unsigned int n) {
-    register unsigned char u1, u2;
-    while (n-- > 0) {
-        u1 = (unsigned char)*s1++;
-        u2 = (unsigned char)*s2++;
-        if (u1 != u2) return u1 - u2;
-        if (u1 == '\0') return 0;
-    }
-    return 0;
+int _strncmp(const char *cs, const char *ct, size_t count) {
+	unsigned char c1, c2;
+	while (count) {
+		c1 = *cs++;
+		c2 = *ct++;
+		if (c1 != c2)
+			return c1 < c2 ? -1 : 1;
+		if (!c1)
+			break;
+		count--;
+	}
+	return 0;
 }
 
 public
@@ -48,17 +42,12 @@ int _strcmp(const char *cs, const char *ct) {
     }
     return 0;
 }
-public
-void _memset_s(char *dst, char c, unsigned int len) {
-    while (len--) {
-        *(dst++) = c;
-    }
-}
 
 public
-void _memset_u(unsigned char *dst, char c, unsigned int len) {
+void _memset(void *dst, char c, unsigned int len) {
+    char *xs = dst;
     while (len--) {
-        *(dst++) = c;
+        *(xs++) = c;
     }
 }
 
@@ -195,7 +184,7 @@ public
 char *_strnstr(const char *s1, const char *s2, size_t len) {
     size_t l2;
 
-    l2 = _strlen_s(s2);
+    l2 = _strlen(s2);
     if (!l2) return (char *)s1;
     while (len >= l2) {
         len--;

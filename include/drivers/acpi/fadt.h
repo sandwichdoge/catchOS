@@ -79,5 +79,6 @@ struct FADT {
 };
 
 struct FADT* acpi_get_fadt();
+struct ACPISDTHeader* acpi_get_dsdt();
 
 #endif

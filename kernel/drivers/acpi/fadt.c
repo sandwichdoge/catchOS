@@ -29,8 +29,8 @@ struct ACPISDTHeader* acpi_get_dsdt() {
         int is_paging_enabled = get_kernel_info()->is_paging_enabled;
         if (is_paging_enabled) {
             pageframe_set_page_from_addr((void*)_dsdt, 2);
-            paging_map_page(_dsdt, _dsdt, get_kernel_pd());
-            paging_map_page((char*)_dsdt + PAGE_SIZE, (char*)_dsdt + PAGE_SIZE, get_kernel_pd());
+            paging_map_page((unsigned int)_dsdt, (unsigned int)_dsdt, get_kernel_pd());
+            paging_map_page((unsigned int)_dsdt + PAGE_SIZE, (unsigned int)_dsdt + PAGE_SIZE, get_kernel_pd());
 
             uint32_t start_page = (uint32_t)_dsdt / PAGE_SIZE;
             uint32_t end_page = ((uint32_t)_dsdt + _dsdt->Length) / PAGE_SIZE;
