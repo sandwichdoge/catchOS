@@ -11,10 +11,10 @@
 #include "utils/debug.h"
 #include "utils/maths.h"
 
-#define SCR_W 640
-#define SCR_H 480
-#define SCR_COLUMNS (SCR_W / FONT_W)
-#define SCR_ROWS (SCR_H / (FONT_H + 2))
+static unsigned int SCR_W;
+static unsigned int SCR_H;
+static unsigned int SCR_COLUMNS;
+static unsigned int SCR_ROWS;
 
 static unsigned char *_svga_lfb = NULL;
 static unsigned char *_backbuffer = NULL;
@@ -228,9 +228,15 @@ void svga_init() {
 
     struct multiboot_tag_framebuffer *tagfb = &kinfo->tagfb;
 
+    SCR_W = tagfb->common.framebuffer_width;
+    SCR_H = tagfb->common.framebuffer_height;
+    SCR_COLUMNS = SCR_W / FONT_W;
+    SCR_ROWS = SCR_H / (FONT_H + 2);
+
     _backbuffer = mmu_mmap(SCR_H * tagfb->common.framebuffer_pitch);    // Max possible lfb size for 640x480x32 vga (2560 = 32bit fb pitch).
     _memset(_backbuffer, 0, SCR_H * tagfb->common.framebuffer_pitch);
 
     _dbg_log("[SVGA]fb type: [%u], bpp:[%u]\n", tagfb->common.framebuffer_type, tagfb->common.framebuffer_bpp);
+    _dbg_log("[SVGA]width: [%u], height:[%u]\n", tagfb->common.framebuffer_width, tagfb->common.framebuffer_height);
     _dbg_screen("[SVGA]fb type: [%u], bpp:[%u]\n", tagfb->common.framebuffer_type, tagfb->common.framebuffer_bpp);
 }

@@ -12,8 +12,8 @@ framebuffer_header_start: align 8
     dw 5
     dw 1
     dd framebuffer_header_end - framebuffer_header_start
-    dd 640
-    dd 480
+    dd 800
+    dd 600
     dd 16
 framebuffer_header_end: align 8
 
