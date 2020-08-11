@@ -19,5 +19,6 @@ struct bmp_pixel {
 
 int libbmp_decode_bmp(void* rawbmp, struct bmp* out);
 void libbmp_get_pixel(struct bmp* bmp, unsigned int x, unsigned int y, struct bmp_pixel* out);
+void libbmp_get_all_pixels(struct bmp* bmp, struct bmp_pixel* array_out);
 
 #endif

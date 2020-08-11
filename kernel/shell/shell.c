@@ -10,6 +10,7 @@
 #include "timer.h"
 #include "utils/debug.h"
 #include "utils/string.h"
+#include "mmu.h"
 #include "bmp.h"
 #include "drivers/svga.h"
 
@@ -193,17 +194,20 @@ void shell_handle_cmd(char* cmd) {
         struct kinfo *kinfo = get_kernel_info();
         void* img_rei = (void*)kinfo->mods[1].mod_start;
         unsigned int img_rei_sz = kinfo->mods[1].mod_end - kinfo->mods[1].mod_start;
-        _dbg_log("Rei size [%u]\n", img_rei_sz);
         struct bmp bmp_rei;
         libbmp_decode_bmp(img_rei, &bmp_rei);
-        struct bmp_pixel pix;
+
+        struct bmp_pixel *pix = mmu_mmap(bmp_rei.h * bmp_rei.w * sizeof(struct bmp_pixel));
+        libbmp_get_all_pixels(&bmp_rei, pix);
+        unsigned int index = 0;
         for (unsigned int i = 0; i < bmp_rei.h; ++i) {
             for (unsigned int j = 0; j < bmp_rei.w; ++j) {
-                libbmp_get_pixel(&bmp_rei, j, i, &pix);
-                unsigned int color = svga_translate_rgb(pix.r, pix.g, pix.b);
+                unsigned int color = svga_translate_rgb(pix[index].r, pix[index].g, pix[index].b);
+                index++;
                 svga_draw_pixel(450 + j, 100 + bmp_rei.h - i, color);
             }
         }
+        mmu_munmap(pix);
         shell_cout("\n", 1);
     } else if (_strncmp(cmd, "tests", _strlen("tests")) == 0) {
         run_tests();

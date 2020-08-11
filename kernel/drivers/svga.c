@@ -19,6 +19,8 @@ static unsigned int SCR_ROWS;
 static unsigned char *_svga_lfb = NULL;
 static unsigned char *_backbuffer = NULL;
 
+struct multiboot_tag_framebuffer *_tagfb;
+
 private
 unsigned char *get_lfb_addr() { return _svga_lfb; }
 
@@ -30,10 +32,8 @@ static struct rgb_color black = {0x0, 0x0, 0x0};
 public
 void swap_backbuffer_to_front() {
     // Copy all data in backbuffer to front buffer to show on screen.
-    struct kinfo *kinfo = get_kernel_info();
-    struct multiboot_tag_framebuffer *tagfb = &kinfo->tagfb;
     unsigned char *fb = get_lfb_addr();
-    unsigned int fb_size = SCR_H * tagfb->common.framebuffer_pitch;
+    unsigned int fb_size = SCR_H * _tagfb->common.framebuffer_pitch;
     _memcpy(fb, _backbuffer, fb_size);
 }
 
@@ -41,19 +41,17 @@ public
 unsigned int svga_translate_rgb(unsigned char r, unsigned char g, unsigned char b) {
     unsigned int color = 0xffffff;
 
-    struct kinfo *kinfo = get_kernel_info();
-    struct multiboot_tag_framebuffer *tagfb = &kinfo->tagfb;
-    switch (tagfb->common.framebuffer_type) {
+    switch (_tagfb->common.framebuffer_type) {
         case MULTIBOOT_FRAMEBUFFER_TYPE_INDEXED: {
             unsigned best_distance, distance;
             struct multiboot_color *palette;
 
-            palette = tagfb->framebuffer_palette;
+            palette = _tagfb->framebuffer_palette;
 
             color = 0;
             best_distance = 4 * 256 * 256;
 
-            for (unsigned short i = 0; i < tagfb->framebuffer_palette_num_colors; i++) {
+            for (unsigned short i = 0; i < _tagfb->framebuffer_palette_num_colors; i++) {
                 distance = (b - palette[i].blue) * (b - palette[i].blue) + (r - palette[i].red) * (r - palette[i].red) +
                            (g - palette[i].green) * (g - palette[i].green);
                 if (distance < best_distance) {
@@ -65,12 +63,12 @@ unsigned int svga_translate_rgb(unsigned char r, unsigned char g, unsigned char 
         }
         case MULTIBOOT_FRAMEBUFFER_TYPE_RGB: {  // Max mask size 0x1f instead of 0xff
             unsigned char r_real, g_real, b_real;
-            r_real = ((1 << tagfb->framebuffer_red_mask_size) - 1) & (uint8_t)(r * ((float)((1 << tagfb->framebuffer_red_mask_size) - 1) / 0xff));
-            g_real = ((1 << tagfb->framebuffer_green_mask_size) - 1) & (uint8_t)(g * ((float)((1 << tagfb->framebuffer_green_mask_size) - 1) / 0xff));
-            b_real = ((1 << tagfb->framebuffer_blue_mask_size) - 1) & (uint8_t)(b * ((float)((1 << tagfb->framebuffer_blue_mask_size) - 1) / 0xff));
+            r_real = ((1 << _tagfb->framebuffer_red_mask_size) - 1) & (uint8_t)(r * ((float)((1 << _tagfb->framebuffer_red_mask_size) - 1) / 0xff));
+            g_real = ((1 << _tagfb->framebuffer_green_mask_size) - 1) & (uint8_t)(g * ((float)((1 << _tagfb->framebuffer_green_mask_size) - 1) / 0xff));
+            b_real = ((1 << _tagfb->framebuffer_blue_mask_size) - 1) & (uint8_t)(b * ((float)((1 << _tagfb->framebuffer_blue_mask_size) - 1) / 0xff));
 
-            color = (r_real << tagfb->framebuffer_red_field_position) | (g_real << tagfb->framebuffer_green_field_position) |
-                    (b_real << tagfb->framebuffer_blue_field_position);
+            color = (r_real << _tagfb->framebuffer_red_field_position) | (g_real << _tagfb->framebuffer_green_field_position) |
+                    (b_real << _tagfb->framebuffer_blue_field_position);
             break;
         }
         case MULTIBOOT_FRAMEBUFFER_TYPE_EGA_TEXT: {
@@ -96,37 +94,34 @@ void svga_move_cursor(unsigned int scrpos) {}
 
 public
 void svga_draw_pixel(unsigned int x, unsigned int y, unsigned int color) {
-    struct kinfo *kinfo = get_kernel_info();
-    struct multiboot_tag_framebuffer *tagfb = &kinfo->tagfb;
-
     unsigned char *fb = get_lfb_addr();
-    switch (tagfb->common.framebuffer_bpp) {
+    switch (_tagfb->common.framebuffer_bpp) {
         case 8: {
-            multiboot_uint8_t *pixel = fb + tagfb->common.framebuffer_pitch * y + x;
+            multiboot_uint8_t *pixel = fb + _tagfb->common.framebuffer_pitch * y + x;
             *pixel = color;
-            pixel = _backbuffer + tagfb->common.framebuffer_pitch * y + x;
+            pixel = _backbuffer + _tagfb->common.framebuffer_pitch * y + x;
             *pixel = color;
             break;
         }
         case 15:
         case 16: {
-            multiboot_uint16_t *pixel = fb + tagfb->common.framebuffer_pitch * y + 2 * x;
+            multiboot_uint16_t *pixel = fb + _tagfb->common.framebuffer_pitch * y + 2 * x;
             *pixel = color;
-            pixel = _backbuffer + tagfb->common.framebuffer_pitch * y + 2 * x;
+            pixel = _backbuffer + _tagfb->common.framebuffer_pitch * y + 2 * x;
             *pixel = color;
             break;
         }
         case 24: {
-            multiboot_uint32_t *pixel = fb + tagfb->common.framebuffer_pitch * y + 3 * x;
+            multiboot_uint32_t *pixel = fb + _tagfb->common.framebuffer_pitch * y + 3 * x;
             *pixel = (color & 0xffffff) | (*pixel & 0xff000000);
-            pixel = _backbuffer + tagfb->common.framebuffer_pitch * y + 3 * x;
+            pixel = _backbuffer + _tagfb->common.framebuffer_pitch * y + 3 * x;
             *pixel = color;
             break;
         }
         case 32: {
-            multiboot_uint32_t *pixel = fb + tagfb->common.framebuffer_pitch * y + 4 * x;
+            multiboot_uint32_t *pixel = fb + _tagfb->common.framebuffer_pitch * y + 4 * x;
             *pixel = color;
-            pixel = _backbuffer + tagfb->common.framebuffer_pitch * y + 4 * x;
+            pixel = _backbuffer + _tagfb->common.framebuffer_pitch * y + 4 * x;
             *pixel = color;
             break;
         }
@@ -158,8 +153,6 @@ void svga_draw_char(const unsigned int x, const unsigned int y, unsigned char c,
 
 public
 void svga_scroll_down(unsigned int lines) {
-    struct kinfo *kinfo = get_kernel_info();
-    struct multiboot_tag_framebuffer *tagfb = &kinfo->tagfb;
     unsigned char *fb = get_lfb_addr();
     if (lines > SCR_ROWS) {
         lines = SCR_ROWS;
@@ -167,7 +160,7 @@ void svga_scroll_down(unsigned int lines) {
 
     _dbg_log("Lines to scroll: %u\n", lines);
 
-    unsigned int line_size = tagfb->common.framebuffer_pitch;
+    unsigned int line_size = _tagfb->common.framebuffer_pitch;
     unsigned int fb_size = SCR_H * line_size;
     unsigned int row_size = line_size * (FONT_H + 2);
 
@@ -223,21 +216,23 @@ void svga_init() {
     struct kinfo *kinfo = get_kernel_info();
 
     unsigned char *fb = (unsigned char*)kinfo->tagfb.common.framebuffer_addr;
+    set_lfb_addr(fb);
+    // Map address space for fb.
     unsigned int *kpd = get_kernel_pd();
     paging_map_table((unsigned int)fb, (unsigned int)fb, kpd);
-    set_lfb_addr(fb);
 
-    struct multiboot_tag_framebuffer *tagfb = &kinfo->tagfb;
+    // Set global fb info so we won't have to get it again later.
+    _tagfb = &kinfo->tagfb;
 
-    SCR_W = tagfb->common.framebuffer_width;
-    SCR_H = tagfb->common.framebuffer_height;
+    SCR_W = _tagfb->common.framebuffer_width;
+    SCR_H = _tagfb->common.framebuffer_height;
     SCR_COLUMNS = SCR_W / FONT_W;
     SCR_ROWS = SCR_H / (FONT_H + 2);
 
-    _backbuffer = mmu_mmap(SCR_H * tagfb->common.framebuffer_pitch);    // Max possible lfb size for 640x480x32 vga (2560 = 32bit fb pitch).
-    _memset(_backbuffer, 0, SCR_H * tagfb->common.framebuffer_pitch);
+    _backbuffer = mmu_mmap(SCR_H * _tagfb->common.framebuffer_pitch);    // Max possible lfb size for 640x480x32 vga (2560 = 32bit fb pitch).
+    _memset(_backbuffer, 0, SCR_H * _tagfb->common.framebuffer_pitch);
 
-    _dbg_log("[SVGA]fb type: [%u], bpp:[%u]\n", tagfb->common.framebuffer_type, tagfb->common.framebuffer_bpp);
-    _dbg_log("[SVGA]width: [%u], height:[%u]\n", tagfb->common.framebuffer_width, tagfb->common.framebuffer_height);
-    _dbg_screen("[SVGA]fb type: [%u], bpp:[%u]\n", tagfb->common.framebuffer_type, tagfb->common.framebuffer_bpp);
+    _dbg_log("[SVGA]fb type: [%u], bpp:[%u]\n", _tagfb->common.framebuffer_type, _tagfb->common.framebuffer_bpp);
+    _dbg_log("[SVGA]width: [%u], height:[%u]\n", _tagfb->common.framebuffer_width, _tagfb->common.framebuffer_height);
+    _dbg_screen("[SVGA]fb type: [%u], bpp:[%u]\n", _tagfb->common.framebuffer_type, _tagfb->common.framebuffer_bpp);
 }

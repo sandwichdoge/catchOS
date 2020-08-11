@@ -1,4 +1,5 @@
 #include "bmp.h"
+#include "utils/debug.h"
 
 #define BMP_MAGIC_OFF 0
 #define BMP_FILESIZE_OFF 2
@@ -67,7 +68,7 @@ int libbmp_decode_bmp(void* rawbmp, struct bmp* out) {
     return 0;
 }
 
-unsigned int round_up(unsigned int n, unsigned int alignment) {
+static unsigned int round_up(unsigned int n, unsigned int alignment) {
     unsigned int ret = n;
     while (ret % alignment != 0) {
         ret++;
@@ -96,6 +97,27 @@ void libbmp_get_pixel(struct bmp* bmp, unsigned int x, unsigned int y, struct bm
         }
         default: {
             return;
+        }
+    }
+}
+
+void libbmp_get_all_pixels(struct bmp* bmp, struct bmp_pixel* array_out) {
+    unsigned int row_sz = round_up((bmp->bpp * bmp->w + 31) / 8, 4);   // In bytes
+    void* pixelarray = bmp->pixelarray;
+    static unsigned int index = 0;
+
+    for (unsigned int y = 0; y < bmp->h; ++y) {
+        for (unsigned int x = 0; x < bmp->w; ++x) {
+            unsigned int pixel_offset = (row_sz * y) + x * (bmp->bpp / 8);
+            char* pixel = (char*)pixelarray + pixel_offset;
+            unsigned int data = *(unsigned int*)pixel;
+            switch (bmp->bpp) {
+                case 24: {
+                    array_out[index].r = (data >> 16) & 0xff;
+                    array_out[index].g = (data >> 8) & 0xff;
+                    array_out[index++].b = (data >> 0) & 0xff;
+                }
+            }
         }
     }
 }
