@@ -31,7 +31,8 @@ char* greeting =
     "  \\/_____/   \\/_/\\/_/     \\/_/   \\/_____/   \\/_/\\/_/   \\/_____/   \\/_____/ \n"
     "                                                                           \n";
 
-size_t SCREEN_WIDTH, SCREEN_HEIGHT;
+// Screen size in characters instead of in pixels.
+size_t SCREEN_COLUMNS, SCREEN_ROWS;
 
 size_t _cur;  // Global cursor position
 char _receiving_user_input;
@@ -73,10 +74,10 @@ void shell_cout(const char* str) {
     char* tmp = (char*)str;
     while (*tmp) {
         if (*tmp == '\n') {
-            _cur = _cur + (SCREEN_WIDTH - (_cur % SCREEN_WIDTH));  // Go to start of next line.
-            if (_cur >= SCREEN_WIDTH * SCREEN_HEIGHT) {            // Scrolldown if screen limit is reached.
+            _cur = _cur + (SCREEN_COLUMNS - (_cur % SCREEN_COLUMNS));  // Go to start of next line.
+            if (_cur >= SCREEN_COLUMNS * SCREEN_ROWS) {            // Scrolldown if screen limit is reached.
                 syscall_fb_scroll_down(1);
-                _cur -= SCREEN_WIDTH;
+                _cur -= SCREEN_COLUMNS;
             }
         } else {                                // Normal character, just write it out to screen.
             syscall_fb_write_chr(*tmp, &_cur);  // This already automatically scrolls down screen if screen height is reached.
@@ -111,8 +112,8 @@ void shell_init() {
     _cin = _cin_buf_;
     _receiving_user_input = 0;
     _cur = 0;
-    SCREEN_WIDTH = syscall_fb_get_scr_w();
-    SCREEN_HEIGHT = syscall_fb_get_scr_h();
+    SCREEN_COLUMNS = syscall_fb_get_scr_cols();
+    SCREEN_ROWS = syscall_fb_get_scr_rows();
     syscall_register_kb_handler(shell_handle_keypress);
     syscall_fb_clr_scr();
     _cur = 0;

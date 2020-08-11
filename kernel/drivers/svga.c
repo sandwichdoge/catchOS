@@ -80,10 +80,10 @@ uint32_t svga_translate_rgb(uint8_t r, uint8_t g, uint8_t b) {
 }
 
 public
-int svga_get_scr_columns() { return SCR_COLUMNS; }
+uint32_t svga_get_scr_columns() { return SCR_COLUMNS; }
 
 public
-int svga_get_scr_rows() { return SCR_ROWS; }
+uint32_t svga_get_scr_rows() { return SCR_ROWS; }
 
 public
 void svga_move_cursor(uint32_t scrpos) {}

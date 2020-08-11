@@ -12,8 +12,8 @@ void (*_kb_handler_cb)(unsigned char c);
 void syscall_init();
 
 // Get VGA size
-int syscall_fb_get_scr_w();
-int syscall_fb_get_scr_h();
+uint32_t syscall_fb_get_scr_cols();
+uint32_t syscall_fb_get_scr_rows();
 
 void syscall_fb_scroll_down(size_t lines);
 

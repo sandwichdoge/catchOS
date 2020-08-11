@@ -39,9 +39,9 @@ void syscall_init() { interrupt_register(INT_SYSCALL, ISR_SYSCALL); }
 
 void syscall_register_kb_handler(void (*kb_handler)(uint8_t c)) { _kb_handler_cb = kb_handler; }
 
-int syscall_fb_get_scr_w() { return svga_get_scr_columns(); }
+uint32_t syscall_fb_get_scr_cols() { return svga_get_scr_columns(); }
 
-int syscall_fb_get_scr_h() { return svga_get_scr_rows(); }
+uint32_t syscall_fb_get_scr_rows() { return svga_get_scr_rows(); }
 
 void syscall_fb_scroll_down(size_t lines) { svga_scroll_down(lines); }
 

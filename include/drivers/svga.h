@@ -9,8 +9,8 @@ struct rgb_color {
     uint8_t b;
 };
 
-int svga_get_scr_columns();
-int svga_get_scr_rows();
+uint32_t svga_get_scr_columns();
+uint32_t svga_get_scr_rows();
 void svga_move_cursor(uint32_t scrpos);
 uint32_t svga_translate_rgb(uint8_t r, uint8_t g, uint8_t b);
 void svga_clr_cell(uint32_t *scrpos);
