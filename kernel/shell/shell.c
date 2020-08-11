@@ -109,6 +109,7 @@ void shell_cin(char* out) {
 
 private
 void shell_init() {
+    keyboard_init();
     _cin = _cin_buf_;
     _receiving_user_input = 0;
     _cur = 0;
@@ -193,7 +194,6 @@ void shell_handle_cmd(char* cmd) {
     } else if (_strncmp(cmd, "rei.bmp", _strlen("rei.bmp")) == 0) {
         struct kinfo* kinfo = get_kernel_info();
         void* img_rei = (void*)kinfo->mods[1].mod_start;
-        size_t img_rei_sz = kinfo->mods[1].mod_end - kinfo->mods[1].mod_start;
         struct bmp bmp_rei;
         libbmp_decode_bmp(img_rei, &bmp_rei);
 
@@ -208,7 +208,6 @@ void shell_handle_cmd(char* cmd) {
             }
         }
         mmu_munmap(pix);
-        shell_cout("\n", 1);
     } else if (_strncmp(cmd, "tests", _strlen("tests")) == 0) {
         run_tests();
     } else if (_strncmp(cmd, "reboot", _strlen("reboot")) == 0) {

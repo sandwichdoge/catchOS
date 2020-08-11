@@ -3,6 +3,8 @@
 #include "builddef.h"
 #include "drivers/io.h"
 #include "utils/debug.h"
+#include "interrupt.h"
+#include "syscall.h"    // _kb_handler_cb()
 
 #define KBD_DATA_PORT 0x60
 
@@ -210,4 +212,21 @@ uint8_t scan_code_to_ascii(uint8_t scan_code, int is_shift_depressed) {
     } else {
         return sc_table_noshift[scan_code];
     }
+}
+
+private
+void ISR_KEYBOARD(size_t* return_reg, struct cpu_state* unused) {
+    static int is_shift_key_depressed = 0;
+    unsigned char scan_code = read_scan_code();
+    unsigned char ascii = scan_code_to_ascii(scan_code, is_shift_key_depressed);
+    if (ascii == KEY_LSHIFT || ascii == KEY_RSHIFT) {
+        is_shift_key_depressed ^= 1;
+    } else if (_kb_handler_cb) {
+        _kb_handler_cb(ascii);
+    }
+}
+
+public
+void keyboard_init() {
+    interrupt_register(INT_KEYBOARD, ISR_KEYBOARD);
 }
