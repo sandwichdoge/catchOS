@@ -156,6 +156,7 @@ void test_multitasking(void* screenpos) {
 private
 void run_tests() {
     _dbg_log("Running tests\n");
+    shell_cout("Test VGA..\n");
     syscall_fb_brush_set_color(0xff, 0, 0);
     syscall_fb_draw_rect(300, 200, 350, 250);
     syscall_fb_brush_set_color(0x00, 0xff, 0x0);
@@ -163,8 +164,10 @@ void run_tests() {
     syscall_fb_brush_set_color(0x00, 0x0, 0xff);
     syscall_fb_draw_rect(400, 200, 450, 250);
     syscall_fb_brush_set_color(0xff, 0xff, 0x0);
-    static size_t pos1 = 85 * 7;
-    static size_t pos2 = 85 * 8;
+    shell_cout("Test multitask..\n");
+    static size_t pos1, pos2;
+    pos1 = syscall_fb_get_scr_cols() * 7 + 30;
+    pos2 = syscall_fb_get_scr_cols() * 8 + 30;
     struct task_struct* task1 = task_new(test_multitasking, &pos1, 4096 * 2, 5);
     struct task_struct* task2 = task_new(test_multitasking, &pos2, 4096 * 2, 5);
     task_detach(task1);
