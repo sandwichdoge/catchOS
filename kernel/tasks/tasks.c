@@ -18,7 +18,7 @@ struct task_struct* _current = &kmaint;                          // Current task
 
 // Read current EFLAGS register.
 private
-size_t get_eflags() {
+size_t get_flags_reg() {
     size_t ret;
     asm("pushf\n"
         "movl (%%esp), %%eax\n"
@@ -82,7 +82,7 @@ struct task_struct* task_new(void (*fp)(void*), void* arg, size_t stack_size, in
     newtask->cpu_state.esp -= 4;
     *(size_t*)(newtask->cpu_state.esp) = (size_t)&on_current_task_return_cb;
     newtask->cpu_state.esp -= 36;
-    *(size_t*)(newtask->cpu_state.esp) = get_eflags() | EFLAGS_IF;  // Always enable interrupt flag for new tasks.
+    *(size_t*)(newtask->cpu_state.esp) = get_flags_reg() | EFLAGS_IF;  // Always enable interrupt flag for new tasks.
     newtask->priority = priority;
     newtask->pid = pid;
     newtask->stack_state.eip = (size_t)fp;

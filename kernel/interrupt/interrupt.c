@@ -5,6 +5,7 @@
 #include "drivers/pic.h"
 #include "syscall.h"  // _kb_handler_cb()
 #include "utils/debug.h"
+#include "panic.h"
 
 #define IDT_SIZE 256
 
@@ -54,7 +55,7 @@ void ISR_KEYBOARD(size_t* return_reg, struct cpu_state* unused) {
 private
 void ISR_GPF(size_t* return_reg, struct cpu_state* unused) {
     _dbg_log("General Protection Fault!\n");
-    _dbg_break();
+    panic();
 }
 
 private
