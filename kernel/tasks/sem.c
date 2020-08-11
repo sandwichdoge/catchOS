@@ -2,13 +2,16 @@
 
 #include "tasks.h"
 #include "utils/string.h"
+#include "builddef.h"
 
+public
 void sem_init(struct semaphore* sem, int32_t count) {
     _memset(&sem->task_queue, 0, sizeof(sem->task_queue));
     _memset(&sem->lock, 0, sizeof(sem->lock));
     sem->count = count;
 }
 
+public
 void sem_wait(struct semaphore* sem) {
     spinlock_lock(&sem->lock);
     int32_t c = sem->count;
@@ -30,11 +33,12 @@ void sem_wait(struct semaphore* sem) {
     }
 }
 
+public
 void sem_signal(struct semaphore* sem) {
     // Update task_queue (pop head).
     struct task_struct* popped_task;
     spinlock_lock(&sem->lock);
-    int32_t is_queue_empty = queue_pop(&sem->task_queue, (void*)&popped_task, sizeof(popped_task));
+    int32_t is_queue_empty = queue_pop(&sem->task_queue, &popped_task, sizeof(popped_task));
     sem->count++;
     spinlock_unlock(&sem->lock);
 

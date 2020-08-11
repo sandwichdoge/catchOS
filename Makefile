@@ -28,7 +28,7 @@ OBJECTS=$(KBOOT_DIR)/multiboot_header.o $(KBOOT_DIR)/kboot.o \
 		$(KERNEL_DIR)/kmain.o \
 		$(SHELL_DIR)/shell.o $(SHELL_DIR)/font.o $(SHELL_DIR)/bmp.o \
 		$(DRIVERS_DIR)/serial.o $(DRIVERS_DIR)/io.o \
-		$(DRIVERS_DIR)/framebuffer.o $(DRIVERS_DIR)/keyboard.o \
+		$(DRIVERS_DIR)/keyboard.o \
 		$(DRIVERS_DIR)/pic.o $(DRIVERS_DIR)/pit.o \
 		$(DRIVERS_DIR)/acpi/fadt.o $(DRIVERS_DIR)/acpi/acpi.o \
 		$(DRIVERS_DIR)/cpuid.o $(DRIVERS_DIR)/svga.o \
