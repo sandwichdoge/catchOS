@@ -39,30 +39,30 @@ void syscall_init() { interrupt_register(INT_SYSCALL, ISR_SYSCALL); }
 
 void syscall_register_kb_handler(void (*kb_handler)(uint8_t c)) { _kb_handler_cb = kb_handler; }
 
-uint32_t syscall_fb_get_scr_cols() { return svga_get_scr_columns(); }
+inline uint32_t syscall_fb_get_scr_cols() { return svga_get_scr_columns(); }
 
-uint32_t syscall_fb_get_scr_rows() { return svga_get_scr_rows(); }
+inline uint32_t syscall_fb_get_scr_rows() { return svga_get_scr_rows(); }
 
-void syscall_fb_scroll_down(size_t lines) { svga_scroll_down(lines); }
+inline void syscall_fb_scroll_down(size_t lines) { svga_scroll_down(lines); }
 
-void syscall_fb_write_chr(const char c, size_t *scrpos) { svga_draw_char_cell(scrpos, c, svga_translate_rgb(brush.r, brush.g, brush.b)); }
+inline void syscall_fb_write_chr(const char c, size_t *scrpos) { svga_draw_char_cell(scrpos, c, svga_translate_rgb(brush.r, brush.g, brush.b)); }
 
-void syscall_fb_write_str(const char *str, size_t *scrpos, size_t len) { svga_write_str(str, scrpos, len, svga_translate_rgb(brush.r, brush.g, brush.b)); }
+inline void syscall_fb_write_str(const char *str, size_t *scrpos, size_t len) { svga_write_str(str, scrpos, len, svga_translate_rgb(brush.r, brush.g, brush.b)); }
 
-void syscall_fb_brush_set_color(uint8_t r, uint8_t g, uint8_t b) {
+inline void syscall_fb_brush_set_color(uint8_t r, uint8_t g, uint8_t b) {
     brush.r = r;
     brush.g = g;
     brush.b = b;
 }
 
-void syscall_fb_draw_rect(const uint32_t x1, const uint32_t y1, const uint32_t x2, const uint32_t y2) {
+inline void syscall_fb_draw_rect(const uint32_t x1, const uint32_t y1, const uint32_t x2, const uint32_t y2) {
     svga_draw_rect(x1, y1, x2, y2, svga_translate_rgb(brush.r, brush.g, brush.b));
 }
 
-void syscall_fb_clr_cell(size_t *scrpos) { svga_clr_cell(scrpos); }
+inline void syscall_fb_clr_cell(size_t *scrpos) { svga_clr_cell(scrpos); }
 
-void syscall_fb_clr_scr() { svga_clr_scr(); }
+inline void syscall_fb_clr_scr() { svga_clr_scr(); }
 
-void syscall_fb_mov_cursr(size_t scrpos) { svga_move_cursor(scrpos); }
+inline void syscall_fb_mov_cursr(size_t scrpos) { svga_move_cursor(scrpos); }
 
-void syscall_serial_writestr(char *str, size_t len) { serial_write(SERIAL_COM1_BASE, str, len); }
+inline void syscall_serial_writestr(char *str, size_t len) { serial_write(SERIAL_COM1_BASE, str, len); }
