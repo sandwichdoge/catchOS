@@ -5,6 +5,7 @@
 #include "drivers/svga.h"
 #include "kinfo.h"
 #include "mmu.h"
+#include "panic.h"
 #include "power/shutdown_reboot.h"
 #include "syscall.h"
 #include "tasks.h"
@@ -33,7 +34,7 @@ char* greeting =
 size_t SCREEN_WIDTH, SCREEN_HEIGHT;
 
 size_t _cur;  // Global cursor position
-static char _receiving_user_input;
+char _receiving_user_input;
 
 static uint8_t _cin_buf_[CIN_BUFSZ];
 uint8_t* _cin;
@@ -67,10 +68,10 @@ void shell_handle_keypress(uint8_t ascii) {
 }
 
 private
-void shell_cout(const char* str, size_t len) {
+void shell_cout(const char* str) {
     // Print a string to screen, taking into account linebreaks because framebuffer doesn't know what a linebreak is.
     char* tmp = (char*)str;
-    while (len--) {
+    while (*tmp) {
         if (*tmp == '\n') {
             _cur = _cur + (SCREEN_WIDTH - (_cur % SCREEN_WIDTH));  // Go to start of next line.
             if (_cur >= SCREEN_WIDTH * SCREEN_HEIGHT) {            // Scrolldown if screen limit is reached.
@@ -98,7 +99,7 @@ void shell_cin(char* out) {
         _memset(_cin, 0, sizeof(_cin_buf_));
     } else {
         // Handle stdin overflow (user enters more than 256 chars)
-        _dbg_break();
+        panic();
     }
 
     _cin_pos = 0;
@@ -115,14 +116,7 @@ void shell_init() {
     syscall_register_kb_handler(shell_handle_keypress);
     syscall_fb_clr_scr();
     _cur = 0;
-    shell_cout(greeting, _strlen(greeting));
-    syscall_fb_brush_set_color(0xff, 0, 0);
-    syscall_fb_draw_rect(300, 200, 350, 250);
-    syscall_fb_brush_set_color(0x00, 0xff, 0x0);
-    syscall_fb_draw_rect(350, 200, 400, 250);
-    syscall_fb_brush_set_color(0x00, 0x0, 0xff);
-    syscall_fb_draw_rect(400, 200, 450, 250);
-    syscall_fb_brush_set_color(0xff, 0xff, 0x0);
+    shell_cout(greeting);
 }
 
 private
@@ -161,6 +155,13 @@ void test_multitasking(void* screenpos) {
 private
 void run_tests() {
     _dbg_log("Running tests\n");
+    syscall_fb_brush_set_color(0xff, 0, 0);
+    syscall_fb_draw_rect(300, 200, 350, 250);
+    syscall_fb_brush_set_color(0x00, 0xff, 0x0);
+    syscall_fb_draw_rect(350, 200, 400, 250);
+    syscall_fb_brush_set_color(0x00, 0x0, 0xff);
+    syscall_fb_draw_rect(400, 200, 450, 250);
+    syscall_fb_brush_set_color(0xff, 0xff, 0x0);
     static size_t pos1 = 85 * 7;
     static size_t pos2 = 85 * 8;
     struct task_struct* task1 = task_new(test_multitasking, &pos1, 4096 * 2, 5);
@@ -176,18 +177,18 @@ void shell_handle_cmd(char* cmd) {
         _memset(ticksbuf, 0, sizeof(ticksbuf));
         size_t ticks = shell_gettime() * 10;
         _int_to_str(ticksbuf, sizeof(ticksbuf), ticks);
-        shell_cout(ticksbuf, _strlen(ticksbuf));
-        shell_cout("\n", 1);
+        shell_cout(ticksbuf);
+        shell_cout("\n");
     } else if (_strncmp(cmd, "help", _strlen("help")) == 0) {
-        shell_cout(MSG_HELP, _strlen(MSG_HELP));
-        shell_cout("\n", 1);
+        shell_cout(MSG_HELP);
+        shell_cout("\n");
     } else if (_strncmp(cmd, "program", _strlen("program")) == 0) {
         int ret = call_user_module();
         static char ret_s[12];
         _memset(ret_s, 0, sizeof(ret_s));
         _int_to_str(ret_s, sizeof(ret_s), ret);
-        shell_cout(ret_s, _strlen(ret_s));
-        shell_cout("\n", 1);
+        shell_cout(ret_s);
+        shell_cout("\n");
     } else if (_strncmp(cmd, "rei.bmp", _strlen("rei.bmp")) == 0) {
         struct kinfo* kinfo = get_kernel_info();
         void* img_rei = (void*)kinfo->mods[1].mod_start;
@@ -226,10 +227,10 @@ void shell_main(void* unused) {
 
     for (;;) {
         _memset(buf, 0, CIN_BUFSZ);
-        shell_cout(">", 1);
+        shell_cout(">");
 
         shell_cin(buf);
-        shell_cout("\n", 1);
+        shell_cout("\n");
 
         shell_handle_cmd(buf);
     }

@@ -1,4 +1,5 @@
 #include "drivers/svga.h"
+
 #include "builddef.h"
 #include "font.h"
 #include "kinfo.h"
@@ -36,8 +37,7 @@ void swap_backbuffer_to_front() {
 
 public
 uint32_t svga_translate_rgb(uint8_t r, uint8_t g, uint8_t b) {
-    uint32_t color = 0xffffff;
-
+    uint32_t color;
     switch (_tagfb->common.framebuffer_type) {
         case MULTIBOOT_FRAMEBUFFER_TYPE_INDEXED: {
             uint32_t best_distance, distance;
@@ -59,10 +59,9 @@ uint32_t svga_translate_rgb(uint8_t r, uint8_t g, uint8_t b) {
             break;
         }
         case MULTIBOOT_FRAMEBUFFER_TYPE_RGB: {  // Max mask size 0x1f instead of 0xff
-            uint8_t r_real, g_real, b_real;
-            r_real = ((1 << _tagfb->framebuffer_red_mask_size) - 1) & (uint8_t)(r * ((float)((1 << _tagfb->framebuffer_red_mask_size) - 1) / 0xff));
-            g_real = ((1 << _tagfb->framebuffer_green_mask_size) - 1) & (uint8_t)(g * ((float)((1 << _tagfb->framebuffer_green_mask_size) - 1) / 0xff));
-            b_real = ((1 << _tagfb->framebuffer_blue_mask_size) - 1) & (uint8_t)(b * ((float)((1 << _tagfb->framebuffer_blue_mask_size) - 1) / 0xff));
+            uint8_t r_real = ((1 << _tagfb->framebuffer_red_mask_size) - 1) & (uint8_t)(r * ((float)((1 << _tagfb->framebuffer_red_mask_size) - 1) / 0xff));
+            uint8_t g_real = ((1 << _tagfb->framebuffer_green_mask_size) - 1) & (uint8_t)(g * ((float)((1 << _tagfb->framebuffer_green_mask_size) - 1) / 0xff));
+            uint8_t b_real = ((1 << _tagfb->framebuffer_blue_mask_size) - 1) & (uint8_t)(b * ((float)((1 << _tagfb->framebuffer_blue_mask_size) - 1) / 0xff));
 
             color = (r_real << _tagfb->framebuffer_red_field_position) | (g_real << _tagfb->framebuffer_green_field_position) |
                     (b_real << _tagfb->framebuffer_blue_field_position);
@@ -94,7 +93,7 @@ void svga_draw_pixel(uint32_t x, uint32_t y, uint32_t color) {
     uint8_t *fb = get_lfb_addr();
     switch (_tagfb->common.framebuffer_bpp) {
         case 8: {
-            multiboot_uint8_t *pixel = fb + _tagfb->common.framebuffer_pitch * y + x;
+            multiboot_uint8_t *pixel = (multiboot_uint8_t *)(fb + _tagfb->common.framebuffer_pitch * y + x);
             *pixel = color;
             pixel = _backbuffer + _tagfb->common.framebuffer_pitch * y + x;
             *pixel = color;
@@ -102,23 +101,23 @@ void svga_draw_pixel(uint32_t x, uint32_t y, uint32_t color) {
         }
         case 15:
         case 16: {
-            multiboot_uint16_t *pixel = fb + _tagfb->common.framebuffer_pitch * y + 2 * x;
+            multiboot_uint16_t *pixel = (multiboot_uint16_t *)(fb + _tagfb->common.framebuffer_pitch * y + 2 * x);
             *pixel = color;
-            pixel = _backbuffer + _tagfb->common.framebuffer_pitch * y + 2 * x;
+            pixel = (multiboot_uint16_t *)(_backbuffer + _tagfb->common.framebuffer_pitch * y + 2 * x);
             *pixel = color;
             break;
         }
         case 24: {
-            multiboot_uint32_t *pixel = fb + _tagfb->common.framebuffer_pitch * y + 3 * x;
+            multiboot_uint32_t *pixel = (multiboot_uint32_t *)(fb + _tagfb->common.framebuffer_pitch * y + 3 * x);
             *pixel = (color & 0xffffff) | (*pixel & 0xff000000);
-            pixel = _backbuffer + _tagfb->common.framebuffer_pitch * y + 3 * x;
+            pixel = (multiboot_uint32_t *)(_backbuffer + _tagfb->common.framebuffer_pitch * y + 3 * x);
             *pixel = color;
             break;
         }
         case 32: {
-            multiboot_uint32_t *pixel = fb + _tagfb->common.framebuffer_pitch * y + 4 * x;
+            multiboot_uint32_t *pixel = (multiboot_uint32_t *)(fb + _tagfb->common.framebuffer_pitch * y + 4 * x);
             *pixel = color;
-            pixel = _backbuffer + _tagfb->common.framebuffer_pitch * y + 4 * x;
+            pixel = (multiboot_uint32_t *)(_backbuffer + _tagfb->common.framebuffer_pitch * y + 4 * x);
             *pixel = color;
             break;
         }

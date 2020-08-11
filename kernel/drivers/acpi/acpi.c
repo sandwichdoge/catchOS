@@ -1,4 +1,5 @@
 #include "drivers/acpi/acpi.h"
+
 #include "builddef.h"
 #include "kinfo.h"
 #include "pageframe_alloc.h"
@@ -132,7 +133,7 @@ void acpi_init() {
             pageframe_set_page_from_addr((void *)rsdp2, 1);
             paging_map_page((uint32_t)rsdp2, (uint32_t)rsdp2, get_kernel_pd());
         }
-        _xsdt = rsdp2->XsdtAddress;
+        _xsdt = (struct XSDT *)rsdp2->XsdtAddress;
         to_map = (uint32_t)_xsdt;
         _dbg_screen("ACPI %d detected, RSDP at [0x%x], signature[%s], RSDT at[0x%x]\n", acpi_ver, rsdp2, rsdp2->firstPart.Signature, rsdp2->XsdtAddress);
     }

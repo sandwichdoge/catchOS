@@ -2,6 +2,7 @@
 extern "C" {
 #endif
 #include "utils/string.h"
+
 #include "builddef.h"
 
 public

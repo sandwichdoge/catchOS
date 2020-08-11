@@ -1,4 +1,5 @@
 #include "tasks.h"
+
 #include "builddef.h"
 #include "cpu_switch_to.h"
 #include "drivers/pit.h"
@@ -10,12 +11,10 @@
 #define EFLAGS_IF (1 << 9)
 
 // Array of all current tasks. Only 64 tasks can run at a time for now.
-private
-struct task_struct* _tasks[MAX_CONCURRENT_TASKS];
-private
-uint32_t _nr_tasks;                                              // Current running tasks in the system.
-struct task_struct kmaint = {.interruptible = 0, .counter = 1};  // Initial _current value, so we won't have to to if _current is NULL later.
-struct task_struct* _current = &kmaint;                          // Current task that controls CPU.
+static struct task_struct* _tasks[MAX_CONCURRENT_TASKS];
+static uint32_t _nr_tasks;                                              // Current running tasks in the system.
+static struct task_struct kmaint = {.interruptible = 0, .counter = 1};  // Initial _current value, so we won't have to to if _current is NULL later.
+struct task_struct* _current = &kmaint;                                 // Current task that controls CPU.
 
 // Read current EFLAGS register.
 private
@@ -185,51 +184,3 @@ inline struct task_struct* task_get_current() { return _current; }
 
 public
 inline uint32_t task_getpid() { return _current->pid; }
-
-// Begin test section
-struct task_struct *task1, *task2, *task3;
-
-private
-void test_proc1(void* p) {
-    while (1) {
-        for (int i = 0; i < 2000000000; ++i) {
-            _dbg_log("t1 %u:%d\n", getticks(), i);
-            delay(200);
-        }
-    }
-}
-
-private
-void test_proc2(void* p) {
-    while (1) {
-        for (int i = 0; i < 2000000000; ++i) {
-            _dbg_log("t2 %u:%d\n", getticks(), i);
-            delay(200);
-        }
-    }
-}
-
-private
-void test_proc4(void* p) {
-    for (int i = 0; i < 200; ++i) {
-        _dbg_log("t4 [0x%x][%d]\n", p, i);
-        delay(20);
-    }
-}
-
-private
-void test_proc3(void* p) {
-    struct task_struct* task4 = task_new(test_proc4, (void*)0x777, 1024, 1);
-    _dbg_log("t3 %u:%x\n", getticks(), p);
-    task_join(task4);
-    _dbg_log("joined task4\n");
-}
-
-public
-void test_caller() {
-    task1 = task_new(test_proc1, NULL, 1024, 1);
-    task2 = task_new(test_proc2, NULL, 1024, 1);
-    task3 = task_new(test_proc3, (void*)0x123, 1024, 1);
-    task_yield();
-}
-// End test section

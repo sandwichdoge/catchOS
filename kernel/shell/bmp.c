@@ -105,8 +105,7 @@ void libbmp_get_pixel(struct bmp* bmp, uint32_t x, uint32_t y, struct bmp_pixel*
 void libbmp_get_all_pixels(struct bmp* bmp, struct bmp_pixel* array_out) {
     uint32_t row_sz = round_up((bmp->bpp * bmp->w + 31) / 8, 4);  // In bytes
     void* pixelarray = bmp->pixelarray;
-    static uint32_t index = 0;
-    index = 0;
+    uint32_t index = 0;
 
     for (uint32_t y = 0; y < bmp->h; ++y) {
         for (uint32_t x = 0; x < bmp->w; ++x) {
