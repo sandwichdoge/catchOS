@@ -17,8 +17,8 @@ void test_pageframe_firstpage() {
 }
 
 private
-void ISR_PAGEFAULT(unsigned int* return_reg, struct cpu_state* unused) {
-    unsigned int faulting_address;
+void ISR_PAGEFAULT(size_t* return_reg, struct cpu_state* unused) {
+    size_t faulting_address;
     asm volatile("movl %%cr2, %0" : "=r"(faulting_address));
     _dbg_log("Error. Pagefault access [0x%x]!\n", faulting_address);
     _dbg_screen("Error. Pagefault access [0x%x]!\n", faulting_address);
@@ -33,7 +33,7 @@ void mmu_init() {
 }
 #else
 #include <stdlib.h>
-#endif //TARGET_HOST
+#endif  // TARGET_HOST
 
 public
 void* mmu_mmap(size_t size) {
@@ -47,7 +47,7 @@ void* mmu_mmap(size_t size) {
 }
 
 public
-void mmu_munmap(void* mem) { 
+void mmu_munmap(void* mem) {
 #ifdef TARGET_HOST
     free(mem);
 #else

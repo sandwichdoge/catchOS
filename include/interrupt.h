@@ -1,6 +1,8 @@
 #ifndef INCLUDE_INTERRUPT_H
 #define INCLUDE_INTERRUPT_H
 #include "cpu_state.h"
+#include "stddef.h"
+#include "stdint.h"
 
 #define INT_GPF 13
 #define INT_PAGEFAULT 14
@@ -12,20 +14,20 @@
 
 struct idt_entry {
     /* The lowest 32 bits */
-    unsigned short offset_low;        // offset bits 0..15
-    unsigned short segment_selector;  // a code segment selector in GDT or LDT
+    uint16_t offset_low;        // offset bits 0..15
+    uint16_t segment_selector;  // a code segment selector in GDT or LDT
 
     /* The highest 32 bits */
-    unsigned char reserved;       // Just 0.
-    unsigned char type_and_attr;  // type and attributes
-    unsigned short offset_high;   // offset bits 16..31
+    uint8_t reserved;       // Just 0.
+    uint8_t type_and_attr;  // type and attributes
+    uint16_t offset_high;   // offset bits 16..31
 } __attribute__((packed));
 
 struct idt {
-    unsigned short size;
-    unsigned int address;
+    uint16_t size;
+    size_t address;
 } __attribute__((packed));
 
 void interrupt_init(void);
-void interrupt_register(unsigned int irq, void (*isr)(unsigned int* return_reg, struct cpu_state*));
+void interrupt_register(uint32_t irq, void (*isr)(size_t* return_reg, struct cpu_state*));
 #endif

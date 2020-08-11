@@ -1,8 +1,8 @@
 #include "builddef.h"
 #include "drivers/acpi/fadt.h"
+#include "drivers/io.h"
 #include "stddef.h"
 #include "stdint.h"
-#include "drivers/io.h"
 #include "utils/debug.h"
 
 //
@@ -34,7 +34,7 @@ char* acpi_dsdt_get_s5obj() {
 }
 
 void shutdown() {
-    char *s5obj = NULL;
+    char* s5obj = NULL;
     s5obj = acpi_dsdt_get_s5obj();
     _dbg_screen("Found s5obj 0x%x\n", s5obj);
     // Check for valid AML structure

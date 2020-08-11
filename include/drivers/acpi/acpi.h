@@ -29,5 +29,5 @@ struct RSDT* acpi_get_rsdt();
 void acpi_init();
 int acpi_get_ver();
 int sdt_checksum_ok(struct ACPISDTHeader* header);
-void* acpi_get_sdt_from_sig(char *table_signature);
+void* acpi_get_sdt_from_sig(char* table_signature);
 #endif

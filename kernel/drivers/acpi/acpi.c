@@ -4,15 +4,15 @@
 #include "pageframe_alloc.h"
 #include "paging.h"
 #include "utils/debug.h"
-#include "utils/maths.h"
 #include "utils/hashtable.h"
+#include "utils/maths.h"
 
 static struct hashtable SDTs;
 
 struct RSDPDescriptor {
-    char Signature[8];
+    uint8_t Signature[8];
     uint8_t Checksum;
-    char OEMID[6];
+    uint8_t OEMID[6];
     uint8_t Revision;
     uint32_t RsdtAddress;
 } __attribute__((packed));
@@ -31,25 +31,25 @@ static struct XSDT *_xsdt = NULL;
 
 public
 int sdt_checksum_ok(struct ACPISDTHeader *header) {
-    unsigned char sum = 0;
-    for (int i = 0; i < header->Length; i++) {
-        sum += ((char *)header)[i];
+    uint8_t sum = 0;
+    for (uint32_t i = 0; i < header->Length; i++) {
+        sum += ((uint8_t *)header)[i];
     }
     return sum == 0;
 }
 
 public
-void* acpi_get_sdt_from_sig(char *table_signature) {
-    void* ret = NULL;
-    hashtable_get(&SDTs, table_signature, &ret, sizeof(void*));
+void *acpi_get_sdt_from_sig(char *table_signature) {
+    void *ret = NULL;
+    hashtable_get(&SDTs, table_signature, &ret, sizeof(void *));
     return ret;
 }
 
 private
 void map_sdt_entries() {
     hashtable_init(&SDTs, NULL, 64);
-    int acpi_ver = acpi_get_ver();
-    int entries = 0;
+    int32_t acpi_ver = acpi_get_ver();
+    int32_t entries = 0;
     if (acpi_ver == 1) {
         entries = (_rsdt->h.Length - sizeof(_rsdt->h)) / 4;
     } else if (acpi_ver == 2) {
@@ -57,7 +57,7 @@ void map_sdt_entries() {
     }
     _dbg_log("SDT entries:%d..\n", entries);
     _dbg_screen("SDT entries:%d\n", entries);
-    for (int i = 0; i < entries; ++i) {
+    for (int32_t i = 0; i < entries; ++i) {
         _dbg_screen("Entry %d\n", i);
         struct ACPISDTHeader *sdt = NULL;
         if (acpi_ver == 1) {
@@ -117,7 +117,7 @@ int acpi_get_ver() {
 public
 void acpi_init() {
     struct kinfo *kinfo = get_kernel_info();
-    int acpi_ver = kinfo->acpi_ver;
+    int32_t acpi_ver = kinfo->acpi_ver;
     uint32_t to_map = 0;
     if (acpi_ver == 1) {
         struct RSDPDescriptor *rsdp = (struct RSDPDescriptor *)kinfo->rsdp;

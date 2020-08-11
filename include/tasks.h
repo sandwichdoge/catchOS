@@ -2,6 +2,7 @@
 #define INCLUDE_TASKS_H
 #include "cpu_state.h"
 #include "stddef.h"
+#include "stdint.h"
 
 #define MAX_CONCURRENT_TASKS 64
 
@@ -16,18 +17,18 @@ enum TASK_STATE { TASK_READY = 0, TASK_WAITING, TASK_RUNNING, TASK_JOINABLE, TAS
 
 struct task_struct {
     enum TASK_STATE state;
-    unsigned int pid;
-    int priority;
-    int counter;  // How long current task has been running. Add to priority for real priority.
+    uint32_t pid;
+    int32_t priority;
+    int32_t counter;  // How long current task has been running. Add to priority for real priority.
     struct cpu_state cpu_state;
     struct stack_state stack_state;
     void* stack_bottom;  // Keep addr to free on task termination, and stack overflow detection.
-    unsigned int stack_size;
-    int interruptible;  // If non-zero then current task may not be interrupted (e.g. scheduler task)
+    size_t stack_size;
+    int32_t interruptible;  // If non-zero then current task may not be interrupted (e.g. scheduler task)
 };
 
 // Create a new task.
-struct task_struct* task_new(void (*fp)(void*), void* arg, unsigned int stack_size, int priority);
+struct task_struct* task_new(void (*fp)(void*), void* arg, size_t stack_size, int32_t priority);
 
 // Join a running task, release its resources.
 void task_join(struct task_struct*);
@@ -41,7 +42,7 @@ void task_yield();
 void test_caller();
 
 // Get number of running tasks.
-unsigned int task_get_nr();
+uint32_t task_get_nr();
 
 // Called by PIT INT_SYSTIMER.
 void task_isr_priority();
@@ -50,5 +51,5 @@ void task_isr_priority();
 struct task_struct* task_get_current();
 
 // Get current running task's pid.
-unsigned int task_getpid();
+uint32_t task_getpid();
 #endif

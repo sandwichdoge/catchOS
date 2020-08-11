@@ -1,10 +1,11 @@
 #ifndef INCLUDE_CPUID_H
 #define INCLUDE_CPUID_H
-
-int cpuid_hasapic();
+#include "stddef.h"
+#include "stdint.h"
+int32_t cpuid_hasapic();
 // Vendor string is always 12 chars long.
 void cpuid_getvendor(char* out);
-unsigned int cpuid_getcpufeatures(unsigned int* edx_out);
+size_t cpuid_getcpufeatures(size_t* edx_out);
 
 enum ECX_FEAT {
     CPUID_FEAT_ECX_SSE3 = 1 << 0,

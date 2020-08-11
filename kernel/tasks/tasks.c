@@ -12,14 +12,14 @@
 private
 struct task_struct* _tasks[MAX_CONCURRENT_TASKS];
 private
-unsigned int _nr_tasks;                                          // Current running tasks in the system.
+uint32_t _nr_tasks;                                              // Current running tasks in the system.
 struct task_struct kmaint = {.interruptible = 0, .counter = 1};  // Initial _current value, so we won't have to to if _current is NULL later.
 struct task_struct* _current = &kmaint;                          // Current task that controls CPU.
 
 // Read current EFLAGS register.
 private
-unsigned int get_eflags() {
-    unsigned int ret;
+size_t get_eflags() {
+    size_t ret;
     asm("pushf\n"
         "movl (%%esp), %%eax\n"
         "popf\n"
@@ -45,7 +45,7 @@ void on_current_task_return_cb() {
 }
 
 public
-struct task_struct* task_new(void (*fp)(void*), void* arg, unsigned int stack_size, int priority) {
+struct task_struct* task_new(void (*fp)(void*), void* arg, size_t stack_size, int32_t priority) {
     /*
     - Task's stack map -
     [arg]
@@ -76,16 +76,16 @@ struct task_struct* task_new(void (*fp)(void*), void* arg, unsigned int stack_si
     _memset(newtask, 0, sizeof(*newtask));
     newtask->stack_bottom = mmu_mmap(stack_size);
     newtask->state = TASK_RUNNING;
-    newtask->cpu_state.esp = (unsigned int)newtask->stack_bottom + stack_size;
+    newtask->cpu_state.esp = (size_t)newtask->stack_bottom + stack_size;
     _dbg_log("Allocated TCB[%d]:[0x%x], stack top:[0x%x], stack size:[0x%x]\n", pid, newtask, newtask->cpu_state.esp, stack_size);
-    *(unsigned int*)(newtask->cpu_state.esp) = (unsigned int)arg;
+    *(size_t*)(newtask->cpu_state.esp) = (size_t)arg;
     newtask->cpu_state.esp -= 4;
-    *(unsigned int*)(newtask->cpu_state.esp) = (unsigned int)&on_current_task_return_cb;
+    *(size_t*)(newtask->cpu_state.esp) = (size_t)&on_current_task_return_cb;
     newtask->cpu_state.esp -= 36;
-    *(unsigned int*)(newtask->cpu_state.esp) = get_eflags() | EFLAGS_IF;  // Always enable interrupt flag for new tasks.
+    *(size_t*)(newtask->cpu_state.esp) = get_eflags() | EFLAGS_IF;  // Always enable interrupt flag for new tasks.
     newtask->priority = priority;
     newtask->pid = pid;
-    newtask->stack_state.eip = (unsigned int)fp;
+    newtask->stack_state.eip = (size_t)fp;
     newtask->interruptible = 1;
     _nr_tasks++;
 
@@ -177,13 +177,13 @@ void task_isr_priority() {
 }
 
 public
-unsigned int task_get_nr() { return _nr_tasks; }
+uint32_t task_get_nr() { return _nr_tasks; }
 
 public
 inline struct task_struct* task_get_current() { return _current; }
 
 public
-inline unsigned int task_getpid() { return _current->pid; }
+inline uint32_t task_getpid() { return _current->pid; }
 
 // Begin test section
 struct task_struct *task1, *task2, *task3;

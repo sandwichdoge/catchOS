@@ -19,11 +19,11 @@ extern void asm_int_handler_128();  // Handler for syscall
 struct idt IDT;                                  // To be loaded into the CPU
 struct idt_entry idt_entries[IDT_SIZE] = {{0}};  // Main content of IDT
 // Array of void func(uint*, cpu_state*) pointers
-void (*int_handler_table[IDT_SIZE])(unsigned int* return_reg, struct cpu_state*) = {0};
+void (*int_handler_table[IDT_SIZE])(size_t* return_reg, struct cpu_state*) = {0};
 
 // https://wiki.osdev.org/Interrupt_Descriptor_Table
 private
-void interrupt_encode_idt_entry(unsigned int interrupt_num, unsigned int f_ptr_handler) {
+void interrupt_encode_idt_entry(uint32_t interrupt_num, size_t f_ptr_handler) {
     idt_entries[interrupt_num].offset_low = f_ptr_handler & 0xffff;
     idt_entries[interrupt_num].offset_high = (f_ptr_handler >> 16) & 0xffff;
 
@@ -40,7 +40,7 @@ private
 void lidt(struct idt* idt_r) { asm("lidt %0" ::"m"(*idt_r)); }
 
 private
-void ISR_KEYBOARD(unsigned int* return_reg, struct cpu_state* unused) {
+void ISR_KEYBOARD(size_t* return_reg, struct cpu_state* unused) {
     static int is_shift_key_depressed = 0;
     unsigned char scan_code = read_scan_code();
     unsigned char ascii = scan_code_to_ascii(scan_code, is_shift_key_depressed);
@@ -52,16 +52,16 @@ void ISR_KEYBOARD(unsigned int* return_reg, struct cpu_state* unused) {
 }
 
 private
-void ISR_GPF(unsigned int* return_reg, struct cpu_state* unused) {
+void ISR_GPF(size_t* return_reg, struct cpu_state* unused) {
     _dbg_log("General Protection Fault!\n");
     _dbg_break();
 }
 
 private
-int is_hw_irq(unsigned int irq) { return (irq == INT_SYSTIME || irq == INT_KEYBOARD || irq == INT_COM1); }
+int is_hw_irq(uint32_t irq) { return (irq == INT_SYSTIME || irq == INT_KEYBOARD || irq == INT_COM1); }
 
 public
-void interrupt_register(unsigned int irq, void (*isr)(unsigned int* return_reg, struct cpu_state*)) {
+void interrupt_register(uint32_t irq, void (*isr)(size_t* return_reg, struct cpu_state*)) {
     int_handler_table[irq] = isr;
     if (is_hw_irq(irq)) {
         _dbg_log("Enabling HW interrupt %u.\n", irq);
@@ -70,10 +70,10 @@ void interrupt_register(unsigned int irq, void (*isr)(unsigned int* return_reg, 
 }
 
 private
-void ISR_COM1(unsigned int* return_reg, struct cpu_state* unused) { _dbg_break(); }
+void ISR_COM1(size_t* return_reg, struct cpu_state* unused) { _dbg_break(); }
 
 private
-void ISR_DEVICE_NOT_AVAILABLE(unsigned int* return_reg, struct cpu_state* unused) { _dbg_log("Device Not Available\n"); }
+void ISR_DEVICE_NOT_AVAILABLE(size_t* return_reg, struct cpu_state* unused) { _dbg_log("Device Not Available\n"); }
 
 public
 void interrupt_init(void) {
@@ -95,16 +95,16 @@ void interrupt_init(void) {
 
     // Must initialize all asm irq handlers that we'll use here.
     // Keyboard press interrupt, 0x20 + 1 (which is PIC1_START_INTERRUPT + IRQ_1)
-    interrupt_encode_idt_entry(INT_GPF, (unsigned int)asm_int_handler_13);
-    interrupt_encode_idt_entry(INT_SYSTIME, (unsigned int)asm_int_handler_32);
-    interrupt_encode_idt_entry(INT_KEYBOARD, (unsigned int)asm_int_handler_33);
-    interrupt_encode_idt_entry(INT_COM1, (unsigned int)asm_int_handler_36);
-    interrupt_encode_idt_entry(INT_DEVICE_NOT_AVAiLABLE, (unsigned int)asm_int_handler_39);
-    interrupt_encode_idt_entry(INT_PAGEFAULT, (unsigned int)asm_int_handler_14);
-    interrupt_encode_idt_entry(INT_SYSCALL, (unsigned int)asm_int_handler_128);
+    interrupt_encode_idt_entry(INT_GPF, (size_t)asm_int_handler_13);
+    interrupt_encode_idt_entry(INT_SYSTIME, (size_t)asm_int_handler_32);
+    interrupt_encode_idt_entry(INT_KEYBOARD, (size_t)asm_int_handler_33);
+    interrupt_encode_idt_entry(INT_COM1, (size_t)asm_int_handler_36);
+    interrupt_encode_idt_entry(INT_DEVICE_NOT_AVAiLABLE, (size_t)asm_int_handler_39);
+    interrupt_encode_idt_entry(INT_PAGEFAULT, (size_t)asm_int_handler_14);
+    interrupt_encode_idt_entry(INT_SYSCALL, (size_t)asm_int_handler_128);
 
     IDT.size = sizeof(struct idt_entry) * IDT_SIZE - 1;
-    IDT.address = (unsigned int)idt_entries;
+    IDT.address = (size_t)idt_entries;
 
     lidt(&IDT);  // ASM wrapper, load interrupt table
 
@@ -115,7 +115,7 @@ void interrupt_init(void) {
 }
 
 public
-void interrupt_handler(unsigned int* return_reg, struct cpu_state cpu_state, unsigned int interrupt_num, struct stack_state stack_state) {
+void interrupt_handler(size_t* return_reg, struct cpu_state cpu_state, uint32_t interrupt_num, struct stack_state stack_state) {
     //_dbg_log("[Interrupt]num:[%u]\n", interrupt_num);
 
     if (interrupt_num >= sizeof(int_handler_table) / sizeof(*int_handler_table)) {

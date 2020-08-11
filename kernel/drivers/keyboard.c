@@ -7,9 +7,9 @@
 #define KBD_DATA_PORT 0x60
 
 public
-unsigned char read_scan_code() { return inb(KBD_DATA_PORT); }
+uint8_t read_scan_code() { return inb(KBD_DATA_PORT); }
 
-unsigned char sc_table_noshift[256] = {
+uint8_t sc_table_noshift[256] = {
     0,
     27,
     '1',
@@ -101,7 +101,7 @@ unsigned char sc_table_noshift[256] = {
     0 /*F12*/
 };
 
-unsigned char sc_table_shift[256] = {
+uint8_t sc_table_shift[256] = {
     0,
     27,
     '!',
@@ -195,7 +195,7 @@ unsigned char sc_table_shift[256] = {
 
 // https://www.win.tue.nl/~aeb/linux/kbd/scancodes-1.html
 public
-unsigned char scan_code_to_ascii(unsigned char scan_code, int is_shift_depressed) {
+uint8_t scan_code_to_ascii(uint8_t scan_code, int is_shift_depressed) {
     if (scan_code & (1 << 7)) {  // Key release
         // Ignore key release, unless it's SHIFT (sc_table_noshift[42]) then return another SHIFT
         if (scan_code == 170 || scan_code == 182) {

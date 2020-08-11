@@ -11,7 +11,7 @@
 #define PIT_INPUT_FREQ 1193182
 
 public
-void pit_setfreq(unsigned int hz) {
+void pit_setfreq(uint32_t hz) {
     _dbg_log("Setup timer running at %u hz.\n", hz);
 
     if (hz < 20) {
@@ -23,9 +23,9 @@ void pit_setfreq(unsigned int hz) {
     }
 
     // PIT's input clock (1193182 Hz). freq = 1193182 / divisor
-    unsigned short divisor = PIT_INPUT_FREQ / hz;
-    unsigned char l = (unsigned char)(divisor & 0xff);
-    unsigned char h = (unsigned char)((divisor >> 8) & 0xff);
+    uint16_t divisor = PIT_INPUT_FREQ / hz;
+    uint8_t l = (uint8_t)(divisor & 0xff);
+    uint8_t h = (uint8_t)((divisor >> 8) & 0xff);
 
     /*
     Send command byte

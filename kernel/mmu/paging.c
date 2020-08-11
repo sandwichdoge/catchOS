@@ -10,16 +10,16 @@ extern void enable_paging();
 // A page directory can represent all 4GiB of memory, if it has 1024 entries.
 // Page index 123 in table index 456 will be mapped to (456 * 1024) + 123 = 467067. 467067 * 4 = 1868268 KiB.
 
-unsigned int kernel_page_directory[1024] __attribute__((aligned(4096)));  // 1024 page tables in page directory
-static unsigned int *allocated_page_tables[1024];
+uint32_t kernel_page_directory[1024] __attribute__((aligned(4096)));  // 1024 page tables in page directory
+static uint32_t *allocated_page_tables[1024];
 
 private
-unsigned int virtual_addr_to_pde(unsigned int virtual_addr) { return virtual_addr >> 22; }
+uint32_t virtual_addr_to_pde(size_t virtual_addr) { return virtual_addr >> 22; }
 
 private
-unsigned int *get_page_table(unsigned int phys_addr) {
+uint32_t *get_page_table(size_t phys_addr) {
     // Divide by 0x400000 for index
-    unsigned int index = phys_addr / 0x400000;
+    uint32_t index = phys_addr / 0x400000;
 
     // See if a pagetable for this address already exists. If not then allocate, otherwise return it.
     if (!allocated_page_tables[index]) {
@@ -30,35 +30,35 @@ unsigned int *get_page_table(unsigned int phys_addr) {
 
 // Map 1 page (4096 bytes), reuse page table if this addr belongs in an addr space that's already allocated before.
 public
-void paging_map_page(unsigned int virtual_addr, unsigned int phys_addr, unsigned int *page_dir) {
-    unsigned int *page_table = get_page_table(phys_addr);
+void paging_map_page(size_t virtual_addr, size_t phys_addr, uint32_t *page_dir) {
+    uint32_t *page_table = get_page_table(phys_addr);
     _dbg_log("Map page 0x%x to 0x%x,kernel_page_dir[0x%x],page_table[0x%x]\n", phys_addr, virtual_addr, page_dir, page_table);
 
-    unsigned int pte = ((virtual_addr % 0x400000) / 0x1000);
+    uint32_t pte = ((virtual_addr % 0x400000) / 0x1000);
     if (page_table[pte] == (phys_addr | 3)) {  // Already allocated
         return;
     }
     page_table[pte] = phys_addr | 3;
 
-    unsigned int pde = virtual_addr_to_pde(virtual_addr);
-    page_dir[pde] = ((unsigned int)page_table - 0x0) | 3;
+    uint32_t pde = virtual_addr_to_pde(virtual_addr);
+    page_dir[pde] = ((size_t)page_table - 0x0) | 3;
 }
 
 // Map 1 page table (4MiB) from virtual address to phys_addr. Page table must persist in memory at all times.
 public
-void paging_map_table(unsigned int virtual_addr, unsigned int phys_addr, unsigned int *page_dir) {
-    unsigned int *page_table = get_page_table(phys_addr);
+void paging_map_table(size_t virtual_addr, size_t phys_addr, uint32_t *page_dir) {
+    uint32_t *page_table = get_page_table(phys_addr);
     _dbg_log("Mapping 1 table 0x%x to 0x%x, kernel_page_dir[0x%x], page_table[0x%x]\n", phys_addr, virtual_addr, page_dir, page_table);
 
     // Populate the page table. Fill each entry with corresponding physical address (increased by 0x1000 bytes each entry).
-    for (unsigned int i = 0; i < 1024; i++) {
+    for (uint32_t i = 0; i < 1024; i++) {
         // A PTE can contain any address of 4GB physical memory.
         // Since the page must be 4kB aligned, last 12 bits are always zeroes, x86 uses them as access bits cleverly.
         page_table[i] = (phys_addr + (i * 0x1000)) | 3;
     }
 
-    unsigned int pde = virtual_addr_to_pde(virtual_addr);
-    page_dir[pde] = ((unsigned int)page_table - 0x0) | 3;
+    uint32_t pde = virtual_addr_to_pde(virtual_addr);
+    page_dir[pde] = ((size_t)page_table - 0x0) | 3;
 }
 
 // We're already in high-half kernel after kboot. So all addresses below are virtual.
@@ -69,7 +69,7 @@ void paging_init() {
         paging_map_table(0x0 + 0x400000 * i, 0x400000 * i, kernel_page_directory);
     }
 
-    unsigned int kernel_page_directory_phys = (unsigned int)kernel_page_directory - 0x0;
+    size_t kernel_page_directory_phys = (size_t)kernel_page_directory - 0x0;
 
     // load_page_directory() only accepts physical addresses.
     load_page_directory((void *)kernel_page_directory_phys);
@@ -80,4 +80,4 @@ void paging_init() {
 }
 
 public
-unsigned int *get_kernel_pd() { return kernel_page_directory; }
+uint32_t *get_kernel_pd() { return kernel_page_directory; }

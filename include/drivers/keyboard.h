@@ -3,7 +3,8 @@
 #define KEY_LSHIFT 14
 #define KEY_RSHIFT 15
 #define KEY_BACKSPACE 8
+#include "stdint.h"
 
-unsigned char read_scan_code();
-unsigned char scan_code_to_ascii(unsigned char scan_code, int is_shift_depressed);
+uint8_t read_scan_code();
+uint8_t scan_code_to_ascii(uint8_t scan_code, int is_shift_depressed);
 #endif

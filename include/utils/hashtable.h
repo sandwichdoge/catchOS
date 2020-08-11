@@ -1,8 +1,8 @@
 #ifndef INCLUDE_HASHTABLE_H
 #define INCLUDE_HASHTABLE_H
-#include "utils/list.h"
-#include "stdint.h"
 #include "stddef.h"
+#include "stdint.h"
+#include "utils/list.h"
 
 #define HT_MAX_KEY_LEN 64
 

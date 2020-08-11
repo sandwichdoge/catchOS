@@ -23,34 +23,34 @@ enum cpuid_requests {
  *  will be modified by the operation, so we need to tell the compiler about it.
  */
 private
-void cpuid(int code, unsigned int *a, unsigned int *d) { asm volatile("cpuid" : "=a"(*a), "=d"(*d) : "a"(code) : "ecx", "ebx"); }
+void cpuid(int32_t code, size_t *a, size_t *d) { asm volatile("cpuid" : "=a"(*a), "=d"(*d) : "a"(code) : "ecx", "ebx"); }
 
 /** issue a complete request, storing general registers output as a string
  */
 private
-int cpuid_string(int code, unsigned int where[4]) {
+int32_t cpuid_string(int32_t code, size_t where[4]) {
     asm volatile("cpuid" : "=a"(*where), "=b"(*(where + 1)), "=c"(*(where + 2)), "=d"(*(where + 3)) : "a"(code));
-    return (int)where[0];
+    return (int32_t)where[0];
 }
 
 public
-unsigned int cpuid_getcpufeatures(unsigned int *edx_out) {
-    unsigned int eax;
+size_t cpuid_getcpufeatures(size_t *edx_out) {
+    size_t eax;
     cpuid(CPUID_GETFEATURES, &eax, edx_out);
     return eax;
 }
 
 public
 int cpuid_hasapic() {
-    unsigned int edx = 0;
+    size_t edx = 0;
     cpuid_getcpufeatures(&edx);
     return (edx & CPUID_FEAT_EDX_APIC) != 0;
 }
 
 public
 void cpuid_getvendor(char *out) {
-    unsigned int vendor[4];
-    _memset((char *)vendor, 0, 4 * sizeof(unsigned int));
+    size_t vendor[4];
+    _memset(vendor, 0, 4 * sizeof(size_t));
     cpuid_string(CPUID_GETVENDORSTRING, vendor);
     out[0] = vendor[0];
     out[1] = vendor[1];

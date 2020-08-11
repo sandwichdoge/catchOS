@@ -5,15 +5,15 @@
 #include "tasks.h"
 #include "utils/debug.h"
 
-void sem_init(struct semaphore* sem, int count) {
-    _memset((char*)&sem->task_queue, 0, sizeof(sem->task_queue));
-    _memset((char*)&sem->lock, 0, sizeof(sem->lock));
+void sem_init(struct semaphore* sem, int32_t count) {
+    _memset(&sem->task_queue, 0, sizeof(sem->task_queue));
+    _memset(&sem->lock, 0, sizeof(sem->lock));
     sem->count = count;
 }
 
 void sem_wait(struct semaphore* sem) {
     spinlock_lock(&sem->lock);
-    int c = sem->count;
+    int32_t c = sem->count;
     spinlock_unlock(&sem->lock);
 
     if (c > 0) {
@@ -36,7 +36,7 @@ void sem_signal(struct semaphore* sem) {
     // Update task_queue (pop head).
     struct task_struct* popped_task;
     spinlock_lock(&sem->lock);
-    int is_queue_empty = queue_pop(&sem->task_queue, (void*)&popped_task, sizeof(popped_task));
+    int32_t is_queue_empty = queue_pop(&sem->task_queue, (void*)&popped_task, sizeof(popped_task));
     sem->count++;
     spinlock_unlock(&sem->lock);
 

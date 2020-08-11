@@ -1,8 +1,11 @@
 #include "shell.h"
 
+#include "bmp.h"
 #include "builddef.h"
 #include "drivers/keyboard.h"  // For key defs
+#include "drivers/svga.h"
 #include "kinfo.h"
+#include "mmu.h"
 #include "multiboot.h"
 #include "power/shutdown_reboot.h"
 #include "syscall.h"
@@ -10,9 +13,6 @@
 #include "timer.h"
 #include "utils/debug.h"
 #include "utils/string.h"
-#include "mmu.h"
-#include "bmp.h"
-#include "drivers/svga.h"
 
 #define CIN_BUFSZ 256
 #define MSG_HELP \
@@ -33,17 +33,17 @@ char* greeting =
     "  \\/_____/   \\/_/\\/_/     \\/_/   \\/_____/   \\/_/\\/_/   \\/_____/   \\/_____/ \n"
     "                                                                           \n";
 
-unsigned int SCREEN_WIDTH, SCREEN_HEIGHT;
+size_t SCREEN_WIDTH, SCREEN_HEIGHT;
 
-unsigned int _cur;  // Global cursor position
+size_t _cur;  // Global cursor position
 static char _receiving_user_input;
 
-static unsigned char _cin_buf_[CIN_BUFSZ];
-unsigned char* _cin;
+static uint8_t _cin_buf_[CIN_BUFSZ];
+uint8_t* _cin;
 int _cin_pos;
 
 private
-void shell_handle_keypress(unsigned char ascii) {
+void shell_handle_keypress(uint8_t ascii) {
     if (_receiving_user_input) {
         if (ascii == 0) return;
         if (ascii == '\n') {
@@ -70,7 +70,7 @@ void shell_handle_keypress(unsigned char ascii) {
 }
 
 private
-void shell_cout(const char* str, unsigned int len) {
+void shell_cout(const char* str, size_t len) {
     // Print a string to screen, taking into account linebreaks because framebuffer doesn't know what a linebreak is.
     char* tmp = (char*)str;
     while (len--) {
@@ -128,7 +128,7 @@ void shell_init() {
 }
 
 private
-unsigned int shell_gettime() { return getticks(); }
+size_t shell_gettime() { return getticks(); }
 
 private
 int call_user_module() {
@@ -136,7 +136,7 @@ int call_user_module() {
     _dbg_log("Call user module at 0x%x\n", mod->mod_start);
 
     if (mod->size > 0) {
-        unsigned int prog_addr = (mod->mod_start + 0x0);
+        size_t prog_addr = (mod->mod_start + 0x0);
         typedef void (*call_module_t)(void);
         call_module_t start_program = (call_module_t)prog_addr;
 
@@ -155,7 +155,7 @@ void test_multitasking(void* screenpos) {
     for (int i = 0; i < 10; ++i) {
         _memset(msg, 0, sizeof(msg));
         _int_to_str(msg, sizeof(msg), shell_gettime());
-        syscall_fb_write_str(msg, (unsigned int*)screenpos, _strlen(msg) + 1);
+        syscall_fb_write_str(msg, (size_t*)screenpos, _strlen(msg) + 1);
         delay(500);
     }
 }
@@ -163,8 +163,8 @@ void test_multitasking(void* screenpos) {
 private
 void run_tests() {
     _dbg_log("Running tests\n");
-    static unsigned int pos1 = 85 * 7;
-    static unsigned int pos2 = 85 * 8;
+    static size_t pos1 = 85 * 7;
+    static size_t pos2 = 85 * 8;
     struct task_struct* task1 = task_new(test_multitasking, &pos1, 4096 * 2, 5);
     struct task_struct* task2 = task_new(test_multitasking, &pos2, 4096 * 2, 5);
     task_detach(task1);
@@ -176,7 +176,7 @@ void shell_handle_cmd(char* cmd) {
     if (_strncmp(cmd, "uptime", _strlen("uptime")) == 0) {
         static char ticksbuf[12];
         _memset(ticksbuf, 0, sizeof(ticksbuf));
-        unsigned int ticks = shell_gettime() * 10;
+        size_t ticks = shell_gettime() * 10;
         _int_to_str(ticksbuf, sizeof(ticksbuf), ticks);
         shell_cout(ticksbuf, _strlen(ticksbuf));
         shell_cout("\n", 1);
@@ -191,18 +191,18 @@ void shell_handle_cmd(char* cmd) {
         shell_cout(ret_s, _strlen(ret_s));
         shell_cout("\n", 1);
     } else if (_strncmp(cmd, "rei.bmp", _strlen("rei.bmp")) == 0) {
-        struct kinfo *kinfo = get_kernel_info();
+        struct kinfo* kinfo = get_kernel_info();
         void* img_rei = (void*)kinfo->mods[1].mod_start;
-        unsigned int img_rei_sz = kinfo->mods[1].mod_end - kinfo->mods[1].mod_start;
+        size_t img_rei_sz = kinfo->mods[1].mod_end - kinfo->mods[1].mod_start;
         struct bmp bmp_rei;
         libbmp_decode_bmp(img_rei, &bmp_rei);
 
-        struct bmp_pixel *pix = mmu_mmap(bmp_rei.h * bmp_rei.w * sizeof(struct bmp_pixel));
+        struct bmp_pixel* pix = mmu_mmap(bmp_rei.h * bmp_rei.w * sizeof(struct bmp_pixel));
         libbmp_get_all_pixels(&bmp_rei, pix);
-        unsigned int index = 0;
-        for (unsigned int i = 0; i < bmp_rei.h; ++i) {
-            for (unsigned int j = 0; j < bmp_rei.w; ++j) {
-                unsigned int color = svga_translate_rgb(pix[index].r, pix[index].g, pix[index].b);
+        uint32_t index = 0;
+        for (uint32_t i = 0; i < bmp_rei.h; ++i) {
+            for (uint32_t j = 0; j < bmp_rei.w; ++j) {
+                uint32_t color = svga_translate_rgb(pix[index].r, pix[index].g, pix[index].b);
                 index++;
                 svga_draw_pixel(450 + j, 100 + bmp_rei.h - i, color);
             }

@@ -26,8 +26,8 @@ int _strncpy_s(char *__restrict dst, char *__restrict src, unsigned int maxlen);
 int _strncpy_u(unsigned char *__restrict dst, unsigned char *__restrict src, unsigned int maxlen);
 
 size_t _strlen(const char *s);
-//unsigned int _strlen_u(unsigned char *__restrict s);
-//unsigned int _strlen_s(char *__restrict s);
+// unsigned int _strlen_u(unsigned char *__restrict s);
+// unsigned int _strlen_s(char *__restrict s);
 
 int _int_to_str_s(char *out, size_t bufsize, int n);
 int _int_to_str_u(char *out, size_t bufsize, unsigned int n);

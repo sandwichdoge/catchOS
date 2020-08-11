@@ -1,18 +1,19 @@
 #include "utils/hashtable.h"
-#include "mmu.h"
 #include "builddef.h"
+#include "mmu.h"
 #include "utils/debug.h"
 
-private size_t hashFNV(char *str, size_t max) {
-    #define FNV_PRIME 0x811C9DC5;
-	size_t hash = 0;
-	size_t i = 0;
+private
+size_t hashFNV(char* str, size_t max) {
+#define FNV_PRIME 0x811C9DC5;
+    size_t hash = 0;
+    size_t i = 0;
 
-	for (i = 0; str[i]; ++i) {
-		hash *= FNV_PRIME;
-		hash ^= ((uint8_t)str[i]);
-	}
-	return hash % max;
+    for (i = 0; str[i]; ++i) {
+        hash *= FNV_PRIME;
+        hash ^= ((uint8_t)str[i]);
+    }
+    return hash % max;
 }
 
 int hashtable_init(struct hashtable* ht, size_t (*hashfunc)(char*, size_t), size_t size) {
@@ -34,7 +35,7 @@ int hashtable_init(struct hashtable* ht, size_t (*hashfunc)(char*, size_t), size
 void hashtable_uninit(struct hashtable* ht) {
     for (size_t i = 0; i < ht->size; ++i) {
         if (ht->nodes[i]) {
-            list_free((struct list_head **)&ht->nodes[i]);
+            list_free((struct list_head**)&ht->nodes[i]);
         }
     }
     mmu_munmap(ht->nodes);
@@ -42,15 +43,15 @@ void hashtable_uninit(struct hashtable* ht) {
 
 void hashtable_insert(struct hashtable* ht, char* key, void* data, size_t data_size) {
     size_t index = ht->hash(key, ht->size);
-    if (!ht->nodes[index]) {    // Nothing at this index yet.
+    if (!ht->nodes[index]) {  // Nothing at this index yet.
         ht->nodes[index] = mmu_mmap(sizeof(*ht->nodes[index]));
-        list_create_noalloc(data, data_size, (struct list_head *)ht->nodes[index]);
+        list_create_noalloc(data, data_size, (struct list_head*)ht->nodes[index]);
         _memset(ht->nodes[index]->key, 0, sizeof(ht->nodes[index]->key));
         _strncpy(ht->nodes[index]->key, key, sizeof(ht->nodes[index]->key));
     } else {
-        struct ht_pair *newnode = mmu_mmap(sizeof(*newnode));
+        struct ht_pair* newnode = mmu_mmap(sizeof(*newnode));
         newnode->head.next = NULL;
-        list_insert_back_noalloc((struct list_head *)ht->nodes[index], data, data_size, (struct list_head*)newnode);
+        list_insert_back_noalloc((struct list_head*)ht->nodes[index], data, data_size, (struct list_head*)newnode);
         _memset(newnode->key, 0, sizeof(newnode->key));
         _strncpy(newnode->key, key, sizeof(newnode->key));
     }

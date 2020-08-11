@@ -15,17 +15,15 @@ size_t _strlen(const char *s) {
 
 public
 int _strncmp(const char *cs, const char *ct, size_t count) {
-	unsigned char c1, c2;
-	while (count) {
-		c1 = *cs++;
-		c2 = *ct++;
-		if (c1 != c2)
-			return c1 < c2 ? -1 : 1;
-		if (!c1)
-			break;
-		count--;
-	}
-	return 0;
+    unsigned char c1, c2;
+    while (count) {
+        c1 = *cs++;
+        c2 = *ct++;
+        if (c1 != c2) return c1 < c2 ? -1 : 1;
+        if (!c1) break;
+        count--;
+    }
+    return 0;
 }
 
 public
@@ -35,10 +33,8 @@ int _strcmp(const char *cs, const char *ct) {
     while (1) {
         c1 = *cs++;
         c2 = *ct++;
-        if (c1 != c2)
-            return c1 < c2 ? -1 : 1;
-        if (!c1)
-            break;
+        if (c1 != c2) return c1 < c2 ? -1 : 1;
+        if (!c1) break;
     }
     return 0;
 }
