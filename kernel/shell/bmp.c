@@ -76,6 +76,7 @@ static unsigned int round_up(unsigned int n, unsigned int alignment) {
     return ret;
 }
 
+// https://en.wikipedia.org/wiki/BMP_file_format
 void libbmp_get_pixel(struct bmp* bmp, unsigned int x, unsigned int y, struct bmp_pixel* out) {
     if (x > bmp->w || y > bmp->h) {
         return;
@@ -112,6 +113,7 @@ void libbmp_get_all_pixels(struct bmp* bmp, struct bmp_pixel* array_out) {
             char* pixel = (char*)pixelarray + pixel_offset;
             unsigned int data = *(unsigned int*)pixel;
             switch (bmp->bpp) {
+                case 32:
                 case 24: {
                     array_out[index].r = (data >> 16) & 0xff;
                     array_out[index].g = (data >> 8) & 0xff;
