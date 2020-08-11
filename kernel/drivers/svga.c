@@ -26,7 +26,6 @@ private
 void set_lfb_addr(unsigned char *fb) { _svga_lfb = fb; }
 
 static struct rgb_color black = {0x0, 0x0, 0x0};
-static struct rgb_color yellow = {0xff, 0xff, 0x0};
 
 public
 void swap_backbuffer_to_front() {
@@ -230,7 +229,7 @@ void svga_init() {
     _dbg_log("Init svga\n");
     struct kinfo *kinfo = get_kernel_info();
 
-    unsigned char *fb = kinfo->tagfb.common.framebuffer_addr;
+    unsigned char *fb = (unsigned char*)kinfo->tagfb.common.framebuffer_addr;
     unsigned int *kpd = get_kernel_pd();
     paging_map_table((unsigned int)fb, (unsigned int)fb, kpd);
     set_lfb_addr(fb);

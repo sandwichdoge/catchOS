@@ -40,6 +40,7 @@ static int _get_bmp_dimensions_BITMAPINFOHEADER(struct BITMAPINFOHEADER* dib_hea
         //printf("Warning. Compression unsupported [%u].\n", dib_header->compression);
         return -1;
     }
+    return 0;
 }
 
 int libbmp_decode_bmp(void* rawbmp, struct bmp* out) {
@@ -82,7 +83,7 @@ void libbmp_get_pixel(struct bmp* bmp, unsigned int x, unsigned int y, struct bm
 
     void* pixelarray = bmp->pixelarray;
     unsigned int pixel_offset = (row_sz * y) + x * (bmp->bpp / 8);
-    char* pixel = pixelarray + pixel_offset;
+    char* pixel = (char*)pixelarray + pixel_offset;
 
     switch (bmp->bpp) {
         case 24: {

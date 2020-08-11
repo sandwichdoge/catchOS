@@ -191,7 +191,7 @@ void shell_handle_cmd(char* cmd) {
         shell_cout("\n", 1);
     } else if (_strncmp(cmd, "rei.bmp", _strlen("rei.bmp")) == 0) {
         struct kinfo *kinfo = get_kernel_info();
-        void* img_rei = kinfo->mods[1].mod_start;
+        void* img_rei = (void*)kinfo->mods[1].mod_start;
         unsigned int img_rei_sz = kinfo->mods[1].mod_end - kinfo->mods[1].mod_start;
         _dbg_log("Rei size [%u]\n", img_rei_sz);
         struct bmp bmp_rei;
