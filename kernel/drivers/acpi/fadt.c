@@ -4,7 +4,6 @@
 #include "pageframe_alloc.h"
 #include "paging.h"
 #include "utils/debug.h"
-#include "utils/string.h"
 
 static struct ACPISDTHeader* _dsdt = NULL;
 static struct FADT* _fadt = NULL;

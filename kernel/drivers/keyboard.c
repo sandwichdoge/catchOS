@@ -1,10 +1,7 @@
 #include "drivers/keyboard.h"
-
 #include "builddef.h"
 #include "drivers/io.h"
-#include "utils/debug.h"
-#include "interrupt.h"
-#include "syscall.h"    // _kb_handler_cb()
+#include "syscall.h"  // _kb_handler_cb()
 
 #define KBD_DATA_PORT 0x60
 
@@ -227,6 +224,4 @@ void ISR_KEYBOARD(size_t* return_reg, struct cpu_state* unused) {
 }
 
 public
-void keyboard_init() {
-    interrupt_register(INT_KEYBOARD, ISR_KEYBOARD);
-}
+void keyboard_init() { interrupt_register(INT_KEYBOARD, ISR_KEYBOARD); }

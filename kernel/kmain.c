@@ -1,23 +1,16 @@
 #include "drivers/acpi/acpi.h"
-#include "drivers/cpuid.h"
-#include "drivers/framebuffer.h"
 #include "drivers/serial.h"
 #include "drivers/svga.h"
 #include "interrupt.h"
 #include "kheap.h"
 #include "kinfo.h"
 #include "mmu.h"
-#include "multiboot.h"
 #include "sem.h"
 #include "shell.h"
-#include "stddef.h"
-#include "stdint.h"
 #include "syscall.h"
 #include "tasks.h"
 #include "timer.h"
 #include "utils/debug.h"
-#include "utils/list.h"
-#include "utils/string.h"
 
 struct semaphore s;
 void test_multitask(void *done_cb) {

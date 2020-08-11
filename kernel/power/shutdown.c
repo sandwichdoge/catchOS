@@ -1,8 +1,6 @@
-#include "builddef.h"
 #include "drivers/acpi/fadt.h"
 #include "drivers/io.h"
 #include "stddef.h"
-#include "stdint.h"
 #include "utils/debug.h"
 
 //

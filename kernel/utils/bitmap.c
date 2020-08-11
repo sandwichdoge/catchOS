@@ -1,4 +1,3 @@
-#include "utils/bitmap.h"
 
 #include "builddef.h"
 

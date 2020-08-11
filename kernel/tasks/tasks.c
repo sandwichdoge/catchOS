@@ -1,10 +1,11 @@
 #include "tasks.h"
-
 #include "builddef.h"
 #include "cpu_switch_to.h"
+#include "drivers/pit.h"
 #include "mmu.h"
 #include "timer.h"
 #include "utils/debug.h"
+#include "utils/string.h"
 
 #define EFLAGS_IF (1 << 9)
 

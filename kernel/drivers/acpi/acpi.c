@@ -5,7 +5,6 @@
 #include "paging.h"
 #include "utils/debug.h"
 #include "utils/hashtable.h"
-#include "utils/maths.h"
 
 static struct hashtable SDTs;
 

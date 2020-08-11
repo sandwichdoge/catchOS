@@ -1,6 +1,4 @@
 #include "utils/queue.h"
-
-#include "utils/list.h"
 #include "utils/string.h"
 
 void queue_push(struct queue* Q, void* data, int data_size) {

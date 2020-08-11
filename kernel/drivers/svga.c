@@ -1,8 +1,6 @@
 #include "drivers/svga.h"
-
 #include "builddef.h"
 #include "font.h"
-#include "kheap.h"
 #include "kinfo.h"
 #include "mmu.h"
 #include "paging.h"

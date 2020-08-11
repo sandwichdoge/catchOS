@@ -1,7 +1,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-#include "utils/printf.h"
 
 #include "builddef.h"
 #include "stdarg.h"

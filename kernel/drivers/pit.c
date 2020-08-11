@@ -1,5 +1,4 @@
 #include "drivers/pit.h"
-
 #include "builddef.h"
 #include "drivers/io.h"
 #include "utils/debug.h"

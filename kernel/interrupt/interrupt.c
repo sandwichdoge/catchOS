@@ -1,10 +1,8 @@
 #include "interrupt.h"
-
 #include "builddef.h"
-#include "drivers/keyboard.h"
 #include "drivers/pic.h"
-#include "utils/debug.h"
 #include "panic.h"
+#include "utils/debug.h"
 
 #define IDT_SIZE 256
 

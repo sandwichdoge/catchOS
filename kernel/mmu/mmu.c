@@ -1,11 +1,8 @@
-#include "mmu.h"
-
 #include "builddef.h"
 #include "interrupt.h"
 #include "liballoc.h"
 #include "pageframe_alloc.h"
 #include "paging.h"
-#include "timer.h"
 #include "utils/debug.h"
 
 #ifndef TARGET_HOST

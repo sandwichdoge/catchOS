@@ -59,5 +59,5 @@ asm_first_page_table:
     resb 4096
 mbinfo_struct:
     dd 1
-mbinfo_magic
+mbinfo_magic:
     dd 1

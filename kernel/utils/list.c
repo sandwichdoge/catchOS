@@ -1,7 +1,5 @@
 #include "utils/list.h"
-
 #include "mmu.h"
-#include "stddef.h"
 #include "utils/string.h"
 
 struct list_head *list_create_noalloc(void *data, int data_size, struct list_head *newnode) {
@@ -109,7 +107,6 @@ struct list_head *list_get_tail(struct list_head *list) {
     }
     return head;
 }
-#include "utils/debug.h"
 struct list_head *list_find(struct list_head *node, int (*func)(void *, void *), void *data) {
     while (node) {
         if (func(node->data, data) == 0) return node;

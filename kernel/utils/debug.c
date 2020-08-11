@@ -1,6 +1,6 @@
 #include "utils/debug.h"
-
 #include "builddef.h"
+#include "drivers/serial.h"
 #include "drivers/svga.h"
 
 public

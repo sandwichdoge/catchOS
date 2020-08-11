@@ -1,8 +1,6 @@
 #include "builddef.h"
-#include "kheap.h"  // kmalloc_align()
+#include "kheap.h"
 #include "kinfo.h"
-#include "paging.h"
-#include "stddef.h"
 #include "utils/bitmap.h"
 #include "utils/debug.h"
 

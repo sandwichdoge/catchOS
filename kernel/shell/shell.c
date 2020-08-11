@@ -1,4 +1,3 @@
-#include "shell.h"
 
 #include "bmp.h"
 #include "builddef.h"
@@ -6,13 +5,11 @@
 #include "drivers/svga.h"
 #include "kinfo.h"
 #include "mmu.h"
-#include "multiboot.h"
 #include "power/shutdown_reboot.h"
 #include "syscall.h"
 #include "tasks.h"
 #include "timer.h"
 #include "utils/debug.h"
-#include "utils/string.h"
 
 #define CIN_BUFSZ 256
 #define MSG_HELP \

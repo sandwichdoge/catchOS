@@ -1,8 +1,7 @@
-#include "kheap.h"
-
 #include "builddef.h"
 #include "kinfo.h"
 #include "utils/debug.h"
+#include "utils/string.h"
 // Kernel stack pointer is at 0x1fffff
 // Kernel program is at 0x200000 in phys memory
 // A quick way is to start the heap at kernel program's end

@@ -1,9 +1,7 @@
-#include "timer.h"
 
 #include "builddef.h"
 #include "drivers/pit.h"
 #include "interrupt.h"
-#include "stdint.h"
 #include "tasks.h"
 
 #define TICK_FREQ_HZ 100

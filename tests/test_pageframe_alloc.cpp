@@ -1,7 +1,5 @@
 extern "C" {
-#include "kheap.h"
 #include "pageframe_alloc.h"
-#include "utils/string.h"
 }
 #include "gtest/gtest.h"
 

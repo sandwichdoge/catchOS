@@ -1,8 +1,6 @@
 #include "drivers/framebuffer.h"
-
 #include "builddef.h"
 #include "drivers/io.h"
-#include "utils/debug.h"
 #include "utils/string.h"
 
 #define FB_COMMAND_PORT 0x3d4

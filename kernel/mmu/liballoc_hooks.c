@@ -1,5 +1,3 @@
-#include "kheap.h"
-#include "liballoc.h"
 #include "pageframe_alloc.h"
 #include "paging.h"
 #include "utils/debug.h"

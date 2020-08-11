@@ -1,7 +1,7 @@
 #include "kinfo.h"
-
 #include "builddef.h"
 #include "utils/debug.h"
+#include "utils/string.h"
 
 // Kernel code section
 extern size_t KERNEL_START_PHYS;

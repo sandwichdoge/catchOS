@@ -1,7 +1,7 @@
 #include "utils/hashtable.h"
 #include "builddef.h"
 #include "mmu.h"
-#include "utils/debug.h"
+#include "utils/string.h"
 
 private
 size_t hashFNV(char* str, size_t max) {

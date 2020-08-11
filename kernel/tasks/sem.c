@@ -1,9 +1,7 @@
 #include "sem.h"
 
-#include "builddef.h"
-#include "mmu.h"
 #include "tasks.h"
-#include "utils/debug.h"
+#include "utils/string.h"
 
 void sem_init(struct semaphore* sem, int32_t count) {
     _memset(&sem->task_queue, 0, sizeof(sem->task_queue));
