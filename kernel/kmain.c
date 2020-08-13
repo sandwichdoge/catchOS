@@ -46,16 +46,16 @@ void kmain(unsigned int magic, unsigned int addr) {
 #endif
     _dbg_log("kmain\n");
 
-    // Setup interrupts
-    interrupt_init();
-    timer_init();
-
     kheap_init();
     mmu_init();
     syscall_init();
     svga_init();
     acpi_init();
 
+    // Setup interrupts
+    interrupt_init();
+    timer_init();
+    
     // Perform tests
     // test_memory_32bit_mode();
     /*
