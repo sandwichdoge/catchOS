@@ -208,7 +208,11 @@ https://wiki.osdev.org/MADT
 https://wiki.osdev.org/APIC
 ```
 
-Each CPU is made of a "core" and "local APIC". Local APIC handles cpu-specific interrupt config.
+![](resources/APIC.jpg)
+
+Each CPU is made of a "core" and "local APIC". Local APIC handles cpu-specific interrupt config. Local APICs can also send Inter-processor interrupts (IPIs) to another local APIC on another processor.
+
+Every local APIC has a unique ID. When sending IPIs, this ID is the destination field.
 
 Local APIC contains a Local Vector Table that translates "internal clock" and other local interrupt sources into an interrupt vector.
 
