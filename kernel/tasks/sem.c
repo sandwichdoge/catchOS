@@ -7,7 +7,7 @@
 public
 void sem_init(struct semaphore* sem, int32_t count) {
     _memset(&sem->task_queue, 0, sizeof(sem->task_queue));
-    _memset(&sem->lock, 0, sizeof(sem->lock));
+    spinlock_init(&sem->lock);
     sem->count = count;
 }
 

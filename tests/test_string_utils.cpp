@@ -5,7 +5,7 @@
 
 TEST(StringUtils, memset) {
     char s[] = "hello, world";
-    _memset_s(s, 'z', 5);
+    _memset(s, 'z', 5);
     EXPECT_TRUE(0 == std::memcmp(s, "zzzzz, world", sizeof(s)));
 }
 
@@ -32,7 +32,7 @@ TEST(StringUtils, memcpy_void) {
 
 TEST(StringUtils, strlen) {
     char *s = "hello\0";
-    unsigned int len = _strlen_s(s);
+    unsigned int len = _strlen(s);
     EXPECT_EQ(len, 5);
 }
 
