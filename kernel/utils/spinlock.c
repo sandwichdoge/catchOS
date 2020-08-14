@@ -1,7 +1,7 @@
 #include "utils/spinlock.h"
 #include "utils/string.h"
 
-static const int zero = 0;
+int zero = 0;
 
 inline void spinlock_init(struct spinlock* p) {
     _memset(p, 0, sizeof(*p));

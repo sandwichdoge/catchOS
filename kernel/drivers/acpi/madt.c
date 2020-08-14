@@ -1,4 +1,5 @@
 #include "drivers/acpi/madt.h"
+#include "utils/debug.h"
 
 static struct MADT* _madt = NULL;
 

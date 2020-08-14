@@ -56,7 +56,7 @@ struct MADT {
     struct ACPISDTHeader h;
     uint32_t local_apic_addr;
     uint32_t flags; // (1 = Dual 8259 Legacy PICs Installed)
-    uint32_t entries[0];
+    uint32_t entries[];
 };
 
 #endif
