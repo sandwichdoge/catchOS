@@ -26,7 +26,6 @@ char* acpi_dsdt_get_s5obj() {
         _dbg_screen("DSDT len %u\n", h->Length);
         char* dsdt_noheader = (char*)h + sizeof(*h);  // Skip SDT header
         char* s5obj = _strnstr(dsdt_noheader, "_S5_", h->Length);
-        _dbg_break();
         return s5obj;
     }
 }

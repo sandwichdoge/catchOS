@@ -30,4 +30,7 @@ void acpi_init();
 int acpi_get_ver();
 int sdt_checksum_ok(struct ACPISDTHeader* header);
 void* acpi_get_sdt_from_sig(char* table_signature);
+
+// Make sure SDT is accessible without pagefault.
+void acpi_map_sdt(void* acpi_sdt);
 #endif

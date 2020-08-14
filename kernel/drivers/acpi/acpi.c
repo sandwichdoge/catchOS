@@ -45,8 +45,33 @@ void *acpi_get_sdt_from_sig(char *table_signature) {
     return ret;
 }
 
+public
+void acpi_map_sdt(void *acpi_sdt) {
+    // Map 2 pages before we can do anything. 2 in case the header overflows to the next page.
+    pageframe_set_page_from_addr(acpi_sdt, 2);
+    paging_map_page((size_t)acpi_sdt, (size_t)acpi_sdt, get_kernel_pd());
+    paging_map_page((size_t)acpi_sdt + PAGE_SIZE, (size_t)acpi_sdt + PAGE_SIZE, get_kernel_pd());
+
+    struct ACPISDTHeader *sdt = acpi_sdt;
+
+    // Allocate exact number of pages needed.
+    uint32_t start_page = (size_t)sdt / PAGE_SIZE;
+    uint32_t end_page = ((size_t)sdt + sdt->Length) / PAGE_SIZE;
+    uint32_t pages_to_alloc = end_page - start_page + 1;
+    _dbg_screen("sdt[0x%x], start[%u], len[%u], pages_to_alloc:%u, sig[%s]\n", sdt, start_page, sdt->Length, pages_to_alloc, sdt->Signature);
+    _dbg_log("sdt[0x%x], start[%u], len[%u], pages_to_alloc:%u, sig[%s]\n", sdt, start_page, sdt->Length, pages_to_alloc, sdt->Signature);
+
+    pageframe_set_page_from_addr((void *)sdt, pages_to_alloc);
+    for (uint32_t j = 0; j < pages_to_alloc; ++j) {
+        paging_map_page((uint32_t)sdt + j * PAGE_SIZE, (uint32_t)sdt + j * PAGE_SIZE, get_kernel_pd());
+    }
+}
+
+
 private
 void map_sdt_entries() {
+    _dbg_screen("Map sdt entries..\n");
+
     hashtable_init(&SDTs, NULL, 64);
     int32_t acpi_ver = acpi_get_ver();
     int32_t entries = 0;
@@ -70,23 +95,8 @@ void map_sdt_entries() {
             sdt = (struct ACPISDTHeader *)*tail;
         }
 
-        // Map 2 pages before we can do anything. 2 in case the header overflows to the next page.
-        pageframe_set_page_from_addr((void *)sdt, 2);
-        paging_map_page((uint32_t)sdt, (uint32_t)sdt, get_kernel_pd());
-        paging_map_page((uint32_t)sdt + 1 * PAGE_SIZE, (uint32_t)sdt + 1 * PAGE_SIZE, get_kernel_pd());
+        acpi_map_sdt(sdt);
 
-        // Allocate exact number of pages needed.
-        uint32_t start_page = (uint32_t)sdt / PAGE_SIZE;
-        uint32_t end_page = ((uint32_t)sdt + sdt->Length) / PAGE_SIZE;
-        uint32_t pages_to_alloc = end_page - start_page + 1;
-        _dbg_screen("sdt[0x%x], start[%u], len[%u], pages_to_alloc:%u, sig[%s]\n", sdt, start_page, sdt->Length, pages_to_alloc, sdt->Signature);
-        _dbg_log("sdt[0x%x], start[%u], len[%u], pages_to_alloc:%u, sig[%s]\n", sdt, start_page, sdt->Length, pages_to_alloc, sdt->Signature);
-        // TODO save SDTs' addresses in a table for lookup later.
-
-        pageframe_set_page_from_addr((void *)sdt, pages_to_alloc);
-        for (uint32_t j = 0; j < pages_to_alloc; ++j) {
-            paging_map_page((uint32_t)sdt + j * PAGE_SIZE, (uint32_t)sdt + j * PAGE_SIZE, get_kernel_pd());
-        }
         if (!sdt_checksum_ok(sdt)) {
             _dbg_screen("Invalid checksum.\n");
         } else {
@@ -143,9 +153,7 @@ void acpi_init() {
     }
     //_dbg_log("ACPI %d detected, RSDP at [0x%x], signature[%s], OEMID[%s], RSDT at[0x%x]\n", acpi_ver, rsdp, rsdp->Signature, rsdp->OEMID, rsdp->RsdtAddress);
     if (kinfo->is_paging_enabled) {
-        pageframe_set_page_from_addr((void *)to_map, 1);
-        paging_map_page(to_map, to_map, get_kernel_pd());
-        _dbg_screen("Map sdt entries..\n");
+        acpi_map_sdt((void*)to_map);
         map_sdt_entries();
     }
     _dbg_screen("ACPI init done.\n");

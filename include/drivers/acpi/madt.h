@@ -2,6 +2,7 @@
 #define INCLUDE_MADT_H
 #include "drivers/acpi/acpi.h"
 #include "stdint.h"
+#include "stddef.h"
 
 struct MADT_entry_header {
     uint8_t entry_type;
