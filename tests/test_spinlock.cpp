@@ -10,7 +10,7 @@ int counter = 0;
 
 void* count(void* unused) {
     spinlock_lock(&lock);
-    for (int i = 0; i < 50000; ++i) {
+    for (int i = 0; i < 200000; ++i) {
         counter++;
     }
     spinlock_unlock(&lock);
@@ -24,5 +24,5 @@ TEST(Spinlock, basic) {
     pthread_join(t2, NULL);
     pthread_join(t1, NULL);
     printf("%d\n", counter);
-    EXPECT_EQ(counter, 100000);
+    EXPECT_EQ(counter, 400000);
 }

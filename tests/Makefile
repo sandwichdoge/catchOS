@@ -20,6 +20,7 @@ OBJECTS=main.o \
 		../kernel/mmu/mmu.o \
 		../kernel/common/kinfo.o \
 		../kernel/utils/spinlock.o \
+		../kernel/utils/atomic.o \
 		../kernel/utils/debug.o 
 
 GTEST_DIR=./googletest/googletest
