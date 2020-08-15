@@ -9,12 +9,13 @@
 #include "utils/string.h"
 #include "utils/rwlock.h"
 #include "utils/spinlock.h"
+#include "utils/atomic.h"
 
 #define EFLAGS_IF (1 << 9)
 
 // Array of all current tasks. Only 64 tasks can run at a time for now.
 static struct task_struct* _tasks[MAX_CONCURRENT_TASKS];
-static uint32_t _nr_tasks;                                              // Current running tasks in the system.
+static volatile int32_t _nr_tasks;                                      // Current running tasks in the system.
 static struct task_struct kmaint = {.interruptible = 1, .counter = 1};  // Initial _current value, so we won't have to to if _current is NULL later.
 struct task_struct* _current = &kmaint;                                 // Current task that controls local CPU. TASK_STATE should always be TASK_RUNNING here.
 
@@ -44,7 +45,7 @@ void on_current_task_return_cb() {
         mmu_munmap(t->stack_bottom);
         mmu_munmap(t);
     }
-    _nr_tasks--;
+    atomic_fetch_sub(&_nr_tasks, 1);
     t->interruptible = 1;
     task_yield();
 }
@@ -73,7 +74,7 @@ struct task_struct* task_new(void (*fp)(void*), void* arg, size_t stack_size, in
     [reg]
     [EFLAGS reg] <- esp
     */
-    if (_nr_tasks == MAX_CONCURRENT_TASKS) return NULL;  // Max number of tasks reached.
+    if (atomic_compare_exchange(&_nr_tasks, MAX_CONCURRENT_TASKS, MAX_CONCURRENT_TASKS)) return NULL; // Max number of tasks reached.
     int pid = -1;
     for (int i = 0; i < MAX_CONCURRENT_TASKS; ++i) {
         if (_tasks[i] == NULL) {
@@ -102,7 +103,7 @@ struct task_struct* task_new(void (*fp)(void*), void* arg, size_t stack_size, in
     newtask->pid = pid;
     newtask->stack_state.eip = (size_t)task_startup;
     newtask->interruptible = 1;
-    _nr_tasks++;
+    atomic_fetch_add(&_nr_tasks, 1);
 
     _tasks[pid] = newtask;
     return newtask;
@@ -186,16 +187,17 @@ void task_yield() {
 // Called by PIT ISR_TIMER.
 public
 void task_isr_priority() {
-    _current->counter--;
-    if (_current->counter > 0 || !_current->interruptible) {
+    struct task_struct *t = _current;
+    t->counter--;
+    if (t->counter > 0 || !t->interruptible) {
         return;
     }
-    _current->counter = 0;
+    t->counter = 0;
     schedule(NULL);
 }
 
 public
-uint32_t task_get_nr() { return _nr_tasks; }
+inline int32_t task_get_nr() { return atomic_load(&_nr_tasks); }
 
 public
 inline struct task_struct* task_get_current() { return _current; }

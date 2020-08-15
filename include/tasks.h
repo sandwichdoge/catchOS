@@ -44,7 +44,7 @@ void task_yield();
 void test_caller();
 
 // Get number of running tasks.
-uint32_t task_get_nr();
+int32_t task_get_nr();
 
 // Called by PIT INT_SYSTIMER.
 void task_isr_priority();
