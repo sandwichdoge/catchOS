@@ -21,13 +21,20 @@
   * [4.3 I/O](#43-i-o)
     + [4.3.1 stdin](#431-stdin)
     + [4.3.2 Video](#432-video)
-  * [4.5 Multitasking](#43-multitasking)
-    + [4.5.1 Context Switching](#431-context-switching)
-    + [4.5.2 Scheduler](#432-scheduler)
-    + [4.5.3 Multitasking API](#433-multitasking-api)
-  * [4.4 System Calls](#44-system-calls)
-  * [4.5 Clock Sources](#45-clock-sources)
-    + [4.5.1 Programmable Interval Timer](#451-programmable-interval-timer)
+  * [4.4 Symmetric Multiprocessing (SMP)](#44-symmetric-multiprocessing--smp-)
+    + [4.4.1 SMP models](#441-smp-models)
+    + [4.4.2 APIC](#442-apic)
+    + [4.4.3 Inter-processor Communication](#443-inter-processor-communication)
+    + [4.4.4 Cache Coherency](#444-cache-coherency)
+  * [4.5 Multitasking](#45-multitasking)
+    + [4.5.1 Context Switching](#451-context-switching)
+    + [4.5.2 Scheduler](#452-scheduler)
+    + [4.5.3 Multitasking API](#453-multitasking-api)
+    + [4.5.4 Task States](#454-task-states)
+  * [4.6 System Calls](#46-system-calls)
+  * [4.7 Clock Sources](#47-clock-sources)
+    + [4.7.1 Programmable Interval Timer](#471-programmable-interval-timer)
+  * [4.8 ACPI](#48-acpi)
 
 
 ## 4. Kernel
@@ -264,8 +271,9 @@ struct task_struct* task_new(void (*fp)(void*), void* arg, unsigned int stack_si
 ```
 - Task's stack map -
 [arg]
+[fp]
 [address of on_current_task_return_cb()]
-[next eip]
+[next eip]  ; Initial value is task_startup(fp, arg) function
 [reg]
 [reg]
 [reg]
@@ -291,6 +299,9 @@ void task_detach(struct task_struct*)
 void task_yield()
 ```
 - Manually give up control to the scheduler.
+
+#### 4.5.4 Task States
+![](resources/TaskState.png)
 
 
 ### 4.6 System Calls

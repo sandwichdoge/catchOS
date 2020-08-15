@@ -35,16 +35,17 @@ size_t get_flags_reg() {
 // When a task reaches return, it will call this task for cleanup.
 private
 void on_current_task_return_cb() {
-    _dbg_log("On return pid [%u]\n", _current->pid);
-    _current->interruptible = 0;
-    _current->state = TASK_TERMINATED;
-    _tasks[_current->pid] = NULL;
-    if (_current->join_state == JOIN_DETACHED) {
-        mmu_munmap(_current->stack_bottom);
-        mmu_munmap(_current);
+    struct task_struct *t = _current;
+    _dbg_log("On return pid [%u]\n", t->pid);
+    t->interruptible = 0;
+    _tasks[t->pid] = NULL;
+    t->state = TASK_TERMINATED;
+    if (t->join_state == JOIN_DETACHED) {
+        mmu_munmap(t->stack_bottom);
+        mmu_munmap(t);
     }
     _nr_tasks--;
-    _current->interruptible = 1;
+    t->interruptible = 1;
     task_yield();
 }
 
@@ -62,7 +63,7 @@ struct task_struct* task_new(void (*fp)(void*), void* arg, size_t stack_size, in
     [arg]
     [fp]
     [task's ret addr] - When task function reaches return. Should be addr of on_current_task_return_cb().
-    [next eip]
+    [next eip]        - Initial value should be addr of function task_startup(). This func will call fp after some init ritual.
     [reg]
     [reg]
     [reg]
