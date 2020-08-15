@@ -7,6 +7,7 @@
 #include "timer.h"
 #include "utils/debug.h"
 #include "utils/string.h"
+#include "utils/rwlock.h"
 
 #define EFLAGS_IF (1 << 9)
 
@@ -14,7 +15,9 @@
 static struct task_struct* _tasks[MAX_CONCURRENT_TASKS];
 static uint32_t _nr_tasks;                                              // Current running tasks in the system.
 static struct task_struct kmaint = {.interruptible = 0, .counter = 1};  // Initial _current value, so we won't have to to if _current is NULL later.
-struct task_struct* _current = &kmaint;                                 // Current task that controls CPU.
+struct task_struct* _current = &kmaint;                                 // Current task that controls local CPU. TASK_STATE should always be TASK_RUNNING here.
+
+struct rwlock lock_tasks;   // R/W lock for _tasks list.
 
 // Read current EFLAGS register.
 private
@@ -32,12 +35,11 @@ private
 void on_current_task_return_cb() {
     _dbg_log("On return pid [%u]\n", _current->pid);
     _current->interruptible = 0;
+    _current->state = TASK_TERMINATED;
     _tasks[_current->pid] = NULL;
-    if (_current->state == TASK_DETACHED) {
+    if (_current->join_state == JOIN_DETACHED) {
         mmu_munmap(_current->stack_bottom);
         mmu_munmap(_current);
-    } else {
-        _current->state = TASK_JOINABLE;
     }
     _nr_tasks--;
     _current->interruptible = 1;
@@ -75,13 +77,14 @@ struct task_struct* task_new(void (*fp)(void*), void* arg, size_t stack_size, in
     newtask = mmu_mmap(sizeof(struct task_struct));
     _memset(newtask, 0, sizeof(*newtask));
     newtask->stack_bottom = mmu_mmap(stack_size);
-    newtask->state = TASK_RUNNING;
+    newtask->state = TASK_READY;
+    newtask->join_state = JOIN_JOINABLE;
     newtask->cpu_state.esp = (size_t)newtask->stack_bottom + stack_size;
     _dbg_log("Allocated TCB[%d]:[0x%x], stack top:[0x%x], stack size:[0x%x]\n", pid, newtask, newtask->cpu_state.esp, stack_size);
     *(size_t*)(newtask->cpu_state.esp) = (size_t)arg;
-    newtask->cpu_state.esp -= 4;
+    newtask->cpu_state.esp -= sizeof(size_t);
     *(size_t*)(newtask->cpu_state.esp) = (size_t)&on_current_task_return_cb;
-    newtask->cpu_state.esp -= 36;
+    newtask->cpu_state.esp -= (sizeof(struct cpu_state) + sizeof(size_t));
     *(size_t*)(newtask->cpu_state.esp) = get_flags_reg() | EFLAGS_IF;  // Always enable interrupt flag for new tasks.
     newtask->priority = priority;
     newtask->pid = pid;
@@ -96,7 +99,7 @@ struct task_struct* task_new(void (*fp)(void*), void* arg, size_t stack_size, in
 
 public
 void task_join(struct task_struct* task) {
-    while (task->state != TASK_JOINABLE) {
+    while (task->join_state != JOIN_JOINABLE) {
         task->counter = 1;  // So scheduler will switch to a different task next time it's called.
         task_yield();
     }
@@ -105,7 +108,7 @@ void task_join(struct task_struct* task) {
 }
 
 public
-void task_detach(struct task_struct* task) { task->state = TASK_DETACHED; }
+void task_detach(struct task_struct* task) { task->join_state = JOIN_DETACHED; }
 
 private
 void task_switch_to(struct task_struct* next) {
@@ -119,6 +122,8 @@ void task_switch_to(struct task_struct* next) {
     struct task_struct* prev = _current;
     _current = next;
     //_dbg_log("Switch to pid [%u]\n", next->pid);
+    prev->state = TASK_READY;
+    next->state = TASK_RUNNING;
     cpu_switch_to(prev, next);
 }
 
@@ -133,7 +138,7 @@ void* schedule(void* unused) {
         next = 0;
         for (int i = 0; i < MAX_CONCURRENT_TASKS; ++i) {
             struct task_struct* t = _tasks[i];
-            if (t && (t->state == TASK_RUNNING || t->state == TASK_DETACHED) && t->counter > c) {
+            if (t && (t->state == TASK_READY) && t->counter > c) {
                 c = t->counter;
                 next = i;
             }
@@ -143,7 +148,7 @@ void* schedule(void* unused) {
         }
         for (int i = 0; i < MAX_CONCURRENT_TASKS; ++i) {
             struct task_struct* t = _tasks[i];
-            if (t) {
+            if (t && t->state == TASK_READY) {
                 // The more iterations of the second for loop a task passes, the more its counter will be increased.
                 // A task counter can never get larger than 2 * priority.
                 t->counter = (t->counter >> 1) + t->priority;
@@ -184,3 +189,8 @@ inline struct task_struct* task_get_current() { return _current; }
 
 public
 inline uint32_t task_getpid() { return _current->pid; }
+
+public
+void tasks_init() {
+    rwlock_init(&lock_tasks);
+}

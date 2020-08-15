@@ -56,6 +56,7 @@ void kmain(unsigned int magic, unsigned int addr) {
     interrupt_init();
     timer_init();
     
+    tasks_init();
     // Perform tests
     // test_memory_32bit_mode();
     /*

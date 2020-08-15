@@ -13,7 +13,8 @@ RUNNING = being executed by cpu.
 JOINABLE = function has returned, we may terminate task.
 DETACHED = parent task no longer waits for this task.
 */
-enum TASK_STATE { TASK_READY = 0, TASK_WAITING, TASK_RUNNING, TASK_JOINABLE, TASK_DETACHED };
+enum TASK_STATE { TASK_READY = 0, TASK_WAITING, TASK_RUNNING, TASK_TERMINATED };
+enum JOIN_STATE { JOIN_JOINABLE, JOIN_DETACHED };
 
 struct task_struct {
     enum TASK_STATE state;
@@ -25,6 +26,7 @@ struct task_struct {
     void* stack_bottom;  // Keep addr to free on task termination, and stack overflow detection.
     size_t stack_size;
     int32_t interruptible;  // If non-zero then current task may not be interrupted (e.g. scheduler task)
+    enum JOIN_STATE join_state;
 };
 
 // Create a new task.
@@ -52,4 +54,6 @@ struct task_struct* task_get_current();
 
 // Get current running task's pid.
 uint32_t task_getpid();
+
+void tasks_init();
 #endif

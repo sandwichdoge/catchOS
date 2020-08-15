@@ -5,11 +5,11 @@
 
 // Compares *addr with expected. If equal then writes desired into *addr, if not equal then 
 // content in addr is written into &expected. Return result of this comparison.
-int atomic_compare_exchange(int* addr, int expected, int desired);
+int atomic_compare_exchange(volatile int* addr, int expected, int desired);
 
-void atomic_store(int* dst, int value);
-int atomic_load(int* dst);
+void atomic_store(volatile int* dst, int value);
+int atomic_load(volatile int* dst);
 
-int atomic_fetch_add(int* addr, int n);
-int atomic_fetch_sub(int* addr, int n);
+int atomic_fetch_add(volatile int* addr, int n);
+int atomic_fetch_sub(volatile int* addr, int n);
 #endif
