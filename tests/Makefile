@@ -19,6 +19,7 @@ OBJECTS=main.o \
 		../kernel/mmu/kheap.o \
 		../kernel/mmu/mmu.o \
 		../kernel/common/kinfo.o \
+		../kernel/utils/rwlock.o \
 		../kernel/utils/spinlock.o \
 		../kernel/utils/atomic.o \
 		../kernel/utils/debug.o 

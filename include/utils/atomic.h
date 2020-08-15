@@ -8,7 +8,7 @@
 int atomic_compare_exchange(int* addr, int expected, int desired);
 
 void atomic_store(int* dst, int value);
-void atomic_load(int* src, int* dst);
+int atomic_load(int* dst);
 
 int atomic_fetch_add(int* addr, int n);
 int atomic_fetch_sub(int* addr, int n);

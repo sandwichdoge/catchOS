@@ -9,9 +9,8 @@ inline void atomic_store(int* dst, int value) {
     __atomic_store_n(dst, 0, __ATOMIC_SEQ_CST);
 }
 
-// *dst = *src;
-inline void atomic_load(int* src, int* dst) {
-    __atomic_load(src, dst, __ATOMIC_SEQ_CST);
+inline int atomic_load(int* src) {
+    return __atomic_load_n(src, __ATOMIC_SEQ_CST);
 }
 
 // { tmp = *ptr; *ptr += val; return tmp; }
