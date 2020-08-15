@@ -15,7 +15,7 @@
 // Array of all current tasks. Only 64 tasks can run at a time for now.
 static struct task_struct* _tasks[MAX_CONCURRENT_TASKS];
 static uint32_t _nr_tasks;                                              // Current running tasks in the system.
-static struct task_struct kmaint = {.interruptible = 0, .counter = 1};  // Initial _current value, so we won't have to to if _current is NULL later.
+static struct task_struct kmaint = {.interruptible = 1, .counter = 1};  // Initial _current value, so we won't have to to if _current is NULL later.
 struct task_struct* _current = &kmaint;                                 // Current task that controls local CPU. TASK_STATE should always be TASK_RUNNING here.
 
 struct rwlock lock_tasks;   // R/W lock for _tasks list.
@@ -73,7 +73,6 @@ struct task_struct* task_new(void (*fp)(void*), void* arg, size_t stack_size, in
     [EFLAGS reg] <- esp
     */
     if (_nr_tasks == MAX_CONCURRENT_TASKS) return NULL;  // Max number of tasks reached.
-    _current->interruptible = 0;
     int pid = -1;
     for (int i = 0; i < MAX_CONCURRENT_TASKS; ++i) {
         if (_tasks[i] == NULL) {
@@ -105,7 +104,6 @@ struct task_struct* task_new(void (*fp)(void*), void* arg, size_t stack_size, in
     _nr_tasks++;
 
     _tasks[pid] = newtask;
-    _current->interruptible = 1;
     return newtask;
 }
 
