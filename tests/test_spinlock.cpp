@@ -59,7 +59,11 @@ TEST(rwlock, basic) {
     pthread_t pool_r2[4] = {0};
     pthread_t pool_w[4] = {0};
     for (int i = 0; i < sizeof(pool_w) / sizeof(*pool_w); ++i) {
+<<<<<<< HEAD
         pthread_create(&pool_w[i], NULL, rw_write, NULL);
+=======
+        //pthread_create(&pool_w[i], NULL, rw_write, NULL);
+>>>>>>> ae9cb84e2d7bba258dc6512a6f9be4ae18dbe544
     }
     for (int i = 0; i < sizeof(pool_r1) / sizeof(*pool_r1); ++i) {
         pthread_create(&pool_r1[i], NULL, rw_read, NULL);
@@ -108,7 +112,11 @@ TEST(spinlock, versus_rwlock) {
     pthread_t pool_r2[4] = {0};
     pthread_t pool_w[4] = {0};
     for (int i = 0; i < sizeof(pool_w) / sizeof(*pool_w); ++i) {
+<<<<<<< HEAD
         pthread_create(&pool_w[i], NULL, basic_write, NULL);
+=======
+        //pthread_create(&pool_w[i], NULL, basic_write, NULL);
+>>>>>>> ae9cb84e2d7bba258dc6512a6f9be4ae18dbe544
     }
 
     for (int i = 0; i < sizeof(pool_r1) / sizeof(*pool_r1); ++i) {
