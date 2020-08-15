@@ -12,7 +12,7 @@ void rwlock_init(struct rwlock* lock) {
 private
 void _psem_wait(struct rwlock* lock) {
     spinlock_lock(&lock->sem_mtx);
-    while (atomic_load(&lock->sem_count) <= 0)
+    while (atomic_load(&lock->sem_count) == 0)
         ;
     atomic_fetch_sub(&lock->sem_count, 1);
     spinlock_unlock(&lock->sem_mtx);
