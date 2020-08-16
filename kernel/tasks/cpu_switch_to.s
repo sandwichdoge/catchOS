@@ -1,7 +1,7 @@
 global cpu_switch_to
 
-STRUCT_TASK_ESP equ 16
-STRUCT_TASK_EIP equ 52
+STRUCT_TASK_ESP equ 0
+STRUCT_TASK_EIP equ 36
 PUSHED_REGS_SZ equ 32   ; How many bytes ESP has move after storing all 8 cpu regs
 
 ;https://wiki.osdev.org/Brendan%27s_Multi-tasking_Tutorial

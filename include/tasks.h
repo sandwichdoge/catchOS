@@ -17,12 +17,12 @@ enum TASK_STATE { TASK_READY = 0, TASK_WAITING, TASK_RUNNING, TASK_TERMINATED };
 enum JOIN_STATE { JOIN_JOINABLE, JOIN_DETACHED };
 
 struct task_struct {
+    struct cpu_state cpu_state;
+    struct stack_state stack_state;
     enum TASK_STATE state;
     uint32_t pid;
     int32_t priority;
     int32_t counter;  // How long current task has been running. Add to priority for real priority.
-    struct cpu_state cpu_state;
-    struct stack_state stack_state;
     void* stack_bottom;  // Keep addr to free on task termination, and stack overflow detection.
     size_t stack_size;
     int32_t interruptible;  // If non-zero then current task will not be interrupted by timer ISR.
