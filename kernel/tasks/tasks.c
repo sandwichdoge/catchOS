@@ -21,19 +21,27 @@ struct task_struct* _current = &kmaint;                                 // Curre
 struct rwlock lock_tasklist;   // R/W lock for _tasks list.
 struct spinlock lock_context_switch;
 
+private
+void task_cleanup(struct task_struct *task) {
+    mmu_munmap(task->stack_bottom);
+    mmu_munmap(task);
+}
+
 // When a task reaches return, it will call this task for cleanup.
 private
 void on_current_task_return_cb() {
     struct task_struct *t = _current;
+    _dbg_log("On return pid [%u]\n", t->pid);
+
     rwlock_write_acquire(&lock_tasklist);
     _tasks[t->pid] = NULL;
     rwlock_write_release(&lock_tasklist);
-    _dbg_log("On return pid [%u]\n", t->pid);
+
     t->interruptible = 0;
     t->state = TASK_TERMINATED;
-    if (t->join_state == JOIN_DETACHED) {
-        mmu_munmap(t->stack_bottom);
-        mmu_munmap(t);
+    if (t->join_state == JOIN_DETACHED) { 
+        // Clean up if already detached, otherwise task_join() will clean up later from parent task.
+        task_cleanup(t);
     }
     atomic_fetch_sub(&_nr_tasks, 1);
     t->interruptible = 1;
@@ -42,6 +50,9 @@ void on_current_task_return_cb() {
 
 private
 void task_startup(void (*fp)(void*), void* arg) {
+    // Context switch locks sl before switching, first time a task is switched to, it must unlock sl.
+    // Because the first time CPU will jump to fp, not task_switch_to(), thus
+    // => sl is not unlocked => deadlock on next context switch.
     spinlock_unlock(&lock_context_switch);
     fp(arg);
 }
@@ -80,7 +91,7 @@ struct task_struct* task_new(void (*fp)(void*), void* arg, size_t stack_size, in
     newtask->state = TASK_READY;
     newtask->join_state = JOIN_JOINABLE;
     newtask->cpu_state.esp = (size_t)newtask->stack_bottom + stack_size;
-    _dbg_log("Allocated TCB[%d]:[0x%x], stack top:[0x%x], stack size:[0x%x]\n", pid, newtask, newtask->cpu_state.esp, stack_size);
+    _dbg_log("New task pid[%d]:[0x%x], stack top:[0x%x], stack size:[0x%x]\n", pid, newtask, newtask->cpu_state.esp, stack_size);
     *(size_t*)(newtask->cpu_state.esp) = (size_t)arg;
     newtask->cpu_state.esp -= sizeof(size_t);
     *(size_t*)(newtask->cpu_state.esp) = (size_t)fp;
@@ -106,8 +117,7 @@ void task_join(struct task_struct* task) {
         task->counter = 1;  // So scheduler will switch to a different task next time it's called.
         task_yield();
     }
-    mmu_munmap(task->stack_bottom);
-    mmu_munmap(task);
+    task_cleanup(task);
 }
 
 public
@@ -123,19 +133,20 @@ void task_switch_to(struct task_struct* next) {
     */
     if (_current == next) return;
     spinlock_lock(&lock_context_switch);
+
     struct task_struct* prev = _current;
     _current = next;
     //_dbg_log("Switch to pid [%u]\n", next->pid);
     next->state = TASK_RUNNING;
     prev->state = TASK_READY;
-    cpu_switch_to(prev, next);  // If task was just initialized, we'll jump to func pointer, not here. Need to unlock in func?
+    cpu_switch_to(prev, next);
+
     spinlock_unlock(&lock_context_switch);
 }
 
 private
 void* schedule(void* unused) {
     //_dbg_log("Total tasks:%u\n", _nr_tasks);
-
     int c, next;
     while (1) {
         c = -1;

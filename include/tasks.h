@@ -25,7 +25,7 @@ struct task_struct {
     struct stack_state stack_state;
     void* stack_bottom;  // Keep addr to free on task termination, and stack overflow detection.
     size_t stack_size;
-    int32_t interruptible;  // If non-zero then current task may not be interrupted (e.g. scheduler task)
+    int32_t interruptible;  // If non-zero then current task will not be interrupted by timer ISR.
     enum JOIN_STATE join_state;
 };
 
