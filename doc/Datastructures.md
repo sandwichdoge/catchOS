@@ -2,7 +2,7 @@
 Datastructures used by the kernel.
 
 ### 6.1 Spinlocks
-We can do as below. This code is safe for global use.
+We can do as below. This code is safe for global use. Interrupts are automatically turned off/on inside lock function.
 ```
 spinlock_init(&lock);
 ...

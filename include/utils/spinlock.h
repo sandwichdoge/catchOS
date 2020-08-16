@@ -3,6 +3,7 @@
 
 struct spinlock {
     volatile int locked;
+    int is_irq_enabled_when_locked;
 };
 
 void spinlock_init(struct spinlock* p);

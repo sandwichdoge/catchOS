@@ -10,8 +10,7 @@
 #include "utils/rwlock.h"
 #include "utils/spinlock.h"
 #include "utils/atomic.h"
-
-#define EFLAGS_IF (1 << 9)
+#include "cpu.h"
 
 // Array of all current tasks. Only 64 tasks can run at a time for now.
 static struct task_struct* _tasks[MAX_CONCURRENT_TASKS];
@@ -21,17 +20,6 @@ struct task_struct* _current = &kmaint;                                 // Curre
 
 struct rwlock lock_tasklist;   // R/W lock for _tasks list.
 struct spinlock lock_context_switch;
-
-// Read current EFLAGS register.
-private
-size_t get_flags_reg() {
-    size_t ret;
-    asm("pushf\n"
-        "movl (%%esp), %%eax\n"
-        "popf\n"
-        : "=a"(ret));
-    return ret;
-}
 
 // When a task reaches return, it will call this task for cleanup.
 private
@@ -99,14 +87,16 @@ struct task_struct* task_new(void (*fp)(void*), void* arg, size_t stack_size, in
     newtask->cpu_state.esp -= sizeof(size_t);
     *(size_t*)(newtask->cpu_state.esp) = (size_t)&on_current_task_return_cb;
     newtask->cpu_state.esp -= (sizeof(struct cpu_state) + sizeof(size_t));
-    *(size_t*)(newtask->cpu_state.esp) = get_flags_reg() | EFLAGS_IF;  // Always enable interrupt flag for new tasks.
+    *(size_t*)(newtask->cpu_state.esp) = get_flags_reg() | CPU_EFLAGS_IF;  // Always enable interrupt flag for new tasks.
     newtask->priority = priority;
     newtask->pid = pid;
     newtask->stack_state.eip = (size_t)task_startup;
     newtask->interruptible = 1;
     atomic_fetch_add(&_nr_tasks, 1);
 
+    rwlock_write_acquire(&lock_tasklist);
     _tasks[pid] = newtask;
+    rwlock_write_release(&lock_tasklist);
     return newtask;
 }
 
@@ -162,7 +152,7 @@ void* schedule(void* unused) {
         if (c) {
             break;
         }
-        rwlock_read_acquire(&lock_tasklist);
+        rwlock_write_acquire(&lock_tasklist);
         for (int i = 0; i < MAX_CONCURRENT_TASKS; ++i) {
             struct task_struct* t = _tasks[i];
             if (t && t->state == TASK_READY) {
@@ -171,7 +161,7 @@ void* schedule(void* unused) {
                 t->counter = (t->counter >> 1) + t->priority;
             }
         }
-        rwlock_read_release(&lock_tasklist);
+        rwlock_write_release(&lock_tasklist);
     }
     task_switch_to(_tasks[next]);
     // Old task has already become another task here.
