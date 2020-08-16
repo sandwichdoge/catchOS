@@ -19,8 +19,8 @@ static volatile int32_t _nr_tasks;                                      // Curre
 static struct task_struct kmaint = {.interruptible = 1, .counter = 1};  // Initial _current value, so we won't have to to if _current is NULL later.
 struct task_struct* _current = &kmaint;                                 // Current task that controls local CPU. TASK_STATE should always be TASK_RUNNING here.
 
-struct rwlock lock_tasks;   // R/W lock for _tasks list.
-struct spinlock lock_sched;
+struct rwlock lock_tasklist;   // R/W lock for _tasks list.
+struct spinlock lock_context_switch;
 
 // Read current EFLAGS register.
 private
@@ -37,9 +37,11 @@ size_t get_flags_reg() {
 private
 void on_current_task_return_cb() {
     struct task_struct *t = _current;
+    rwlock_write_acquire(&lock_tasklist);
+    _tasks[t->pid] = NULL;
+    rwlock_write_release(&lock_tasklist);
     _dbg_log("On return pid [%u]\n", t->pid);
     t->interruptible = 0;
-    _tasks[t->pid] = NULL;
     t->state = TASK_TERMINATED;
     if (t->join_state == JOIN_DETACHED) {
         mmu_munmap(t->stack_bottom);
@@ -52,8 +54,7 @@ void on_current_task_return_cb() {
 
 private
 void task_startup(void (*fp)(void*), void* arg) {
-    _dbg_log("task_startup()\n");
-    spinlock_unlock(&lock_sched);
+    spinlock_unlock(&lock_context_switch);
     fp(arg);
 }
 
@@ -131,25 +132,25 @@ void task_switch_to(struct task_struct* next) {
     - Maybe switch page tables as well in the future?
     */
     if (_current == next) return;
+    spinlock_lock(&lock_context_switch);
     struct task_struct* prev = _current;
     _current = next;
     //_dbg_log("Switch to pid [%u]\n", next->pid);
-    spinlock_lock(&lock_sched);
     next->state = TASK_RUNNING;
     prev->state = TASK_READY;
     cpu_switch_to(prev, next);  // If task was just initialized, we'll jump to func pointer, not here. Need to unlock in func?
-    spinlock_unlock(&lock_sched);
+    spinlock_unlock(&lock_context_switch);
 }
 
 private
 void* schedule(void* unused) {
-    asm("cli");
     //_dbg_log("Total tasks:%u\n", _nr_tasks);
 
     int c, next;
     while (1) {
         c = -1;
         next = 0;
+        rwlock_read_acquire(&lock_tasklist);
         for (int i = 0; i < MAX_CONCURRENT_TASKS; ++i) {
             struct task_struct* t = _tasks[i];
             if (t && (t->state == TASK_READY) && t->counter > c) {
@@ -157,9 +158,11 @@ void* schedule(void* unused) {
                 next = i;
             }
         }
+        rwlock_read_release(&lock_tasklist);
         if (c) {
             break;
         }
+        rwlock_read_acquire(&lock_tasklist);
         for (int i = 0; i < MAX_CONCURRENT_TASKS; ++i) {
             struct task_struct* t = _tasks[i];
             if (t && t->state == TASK_READY) {
@@ -168,13 +171,13 @@ void* schedule(void* unused) {
                 t->counter = (t->counter >> 1) + t->priority;
             }
         }
+        rwlock_read_release(&lock_tasklist);
     }
     task_switch_to(_tasks[next]);
     // Old task has already become another task here.
     // Interrupt flag is also re-enabled in task_switch_to(). When switched back, ISR will return.
     // Then asm_int_handler_common() will change eip to the where previous task was interrupted by timer.
 
-    asm("sti");
     return NULL;
 }
 
@@ -188,11 +191,14 @@ void task_yield() {
 public
 void task_isr_priority() {
     struct task_struct *t = _current;
-    t->counter--;
-    if (t->counter > 0 || !t->interruptible) {
+    atomic_fetch_sub(&t->counter, 1);
+    rwlock_read_acquire(&lock_tasklist);
+    int may_interrupt = (t->counter > 0 || !t->interruptible);
+    rwlock_read_release(&lock_tasklist);
+    if (may_interrupt) {
         return;
     }
-    t->counter = 0;
+    atomic_store(&t->counter, 0);
     schedule(NULL);
 }
 
@@ -207,6 +213,6 @@ inline uint32_t task_getpid() { return _current->pid; }
 
 public
 void tasks_init() {
-    rwlock_init(&lock_tasks);
-    spinlock_init(&lock_sched);
+    rwlock_init(&lock_tasklist);
+    spinlock_init(&lock_context_switch);
 }

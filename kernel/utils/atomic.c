@@ -22,3 +22,7 @@ inline int atomic_fetch_add(volatile int* addr, int n) {
 inline int atomic_fetch_sub(volatile int* addr, int n) {
     return __atomic_fetch_sub(addr, n, __ATOMIC_SEQ_CST);
 }
+
+inline void atomic_thread_fence() {
+    __atomic_thread_fence(__ATOMIC_SEQ_CST);
+}

@@ -70,7 +70,7 @@ void kmain(unsigned int magic, unsigned int addr) {
     */
     task_new(shell_main, NULL, 4096 * 16, 10);
     asm("sti");  // Enable interrupts
-    // task_yield();
+    task_yield();
 
     while (1) {
     }

@@ -12,4 +12,6 @@ int atomic_load(volatile int* dst);
 
 int atomic_fetch_add(volatile int* addr, int n);
 int atomic_fetch_sub(volatile int* addr, int n);
+
+void atomic_thread_fence();
 #endif
