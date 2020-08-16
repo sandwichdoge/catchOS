@@ -76,12 +76,14 @@ struct task_struct* task_new(void (*fp)(void*), void* arg, size_t stack_size, in
     */
     if (atomic_compare_exchange(&_nr_tasks, MAX_CONCURRENT_TASKS, MAX_CONCURRENT_TASKS)) return NULL; // Max number of tasks reached.
     int pid = -1;
+    rwlock_read_acquire(&lock_tasklist);
     for (int i = 0; i < MAX_CONCURRENT_TASKS; ++i) {
         if (_tasks[i] == NULL) {
             pid = i;
             break;
         }
     }
+    rwlock_read_release(&lock_tasklist);
     if (pid < 0) return NULL;
 
     struct task_struct* newtask = NULL;
