@@ -22,7 +22,8 @@ OBJECTS=main.o \
 		../kernel/utils/rwlock.o \
 		../kernel/utils/spinlock.o \
 		../kernel/utils/atomic.o \
-		../kernel/utils/debug.o 
+		../kernel/utils/debug.o \
+		../kernel/drivers/cpu.o
 
 GTEST_DIR=./googletest/googletest
 
