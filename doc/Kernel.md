@@ -243,6 +243,9 @@ volatile int *status = SHARED_ADDRESS;
 #### 4.4.4 Cache Coherency
 In theory, if the shared memory is cached in one of the processors' cache, there'll be problem for the memory in question has to be uncached for other processors to see. However this problem is already solved by a hardware-implemented protocol called "Coherency Protocol". This protocol ensures changes made by one processor are seen by all other processors.
 
+#### 4.4.5 Local APIC initialization
+After bootstrapping the kernel. We send SMP to wake up other processors, their EIP will point to schedule() function.
+
 
 ### 4.5 Multitasking
 We use Preemptive Multitasking model with priority based round-robin scheduling algorithm.

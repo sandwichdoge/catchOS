@@ -4,7 +4,6 @@ STRUCT_TASK_ESP equ 0
 STRUCT_TASK_EIP equ 36
 PUSHED_REGS_SZ equ 32   ; How many bytes ESP has move after storing all 8 cpu regs
 
-;https://wiki.osdev.org/Brendan%27s_Multi-tasking_Tutorial
 cpu_switch_to:
     ;[esp + 4] = prev TCB
     ;[esp + 8] = next TCB

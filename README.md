@@ -1,5 +1,5 @@
 ## catchOS
-A unix-like monolithic kernel, plus some userland applications (non POSIX-compliant).
+A monolithic kernel, plus some userland applications for Intel x86 (non POSIX-compliant).
 
 ![Demo](doc/resources/Demo.png)
 
