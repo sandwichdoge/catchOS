@@ -38,7 +38,11 @@ void on_current_task_return_cb() {
     rwlock_write_release(&lock_tasklist);
 
     t->interruptible = 0;
-    t->state = TASK_TERMINATED;
+    if (t->state == TASK_RUNNING) {
+        t->state = TASK_TERMINATED;
+    } else {
+        _dbg_log("Possible error: Invalid task state, expected TASK_RUNNING[%d] but got [%d]", TASK_RUNNING, t->state);
+    }
     if (t->join_state == JOIN_DETACHED) { 
         // Clean up if already detached, otherwise task_join() will clean up later from parent task.
         task_cleanup(t);
@@ -137,17 +141,15 @@ void task_switch_to(struct task_struct* next) {
     struct task_struct* prev = _current;
     _current = next;
     //_dbg_log("Switch to pid [%u]\n", next->pid);
+    //_current state is already TASK_READY here (changed by ISR TIMER).
     next->state = TASK_RUNNING;
-    prev->state = TASK_READY;
     cpu_switch_to(prev, next);
 }
 
 private
 void* schedule(void* unused) {
     //_dbg_log("Total tasks:%u\n", _nr_tasks);
-    rwlock_write_acquire(&lock_tasklist);
     _current->interruptible = 0;
-    rwlock_write_release(&lock_tasklist);
     int c, next;
     while (1) {
         c = -1;
@@ -203,7 +205,9 @@ void task_isr_priority() {
         return;
     }
     rwlock_write_acquire(&lock_tasklist);
-    t->state = TASK_READY;
+    if (t->state == TASK_RUNNING) {
+        t->state = TASK_READY;
+    }
     t->counter = 0;
     rwlock_write_release(&lock_tasklist);
     schedule(NULL);
