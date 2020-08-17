@@ -19,7 +19,6 @@ static struct task_struct kmaint = {.interruptible = 1, .counter = 1};  // Initi
 struct task_struct* _current = &kmaint;                                 // Current task that controls local CPU. TASK_STATE should always be TASK_RUNNING here.
 
 struct rwlock lock_tasklist;   // R/W lock for _tasks list.
-struct spinlock lock_context_switch;
 
 private
 void task_cleanup(struct task_struct *task) {
@@ -53,10 +52,7 @@ void on_current_task_return_cb() {
 
 private
 void task_startup(void (*fp)(void*), void* arg) {
-    // Context switch locks sl before switching, first time a task is switched to, it must unlock sl.
-    // Because the first time CPU will jump to fp, not task_switch_to(), thus
-    // => sl is not unlocked => deadlock on next context switch.
-    spinlock_unlock(&lock_context_switch);
+    // Perform initialization before executing a task for the first time.
     fp(arg);
 }
 
@@ -226,5 +222,4 @@ inline uint32_t task_getpid() { return _current->pid; }
 public
 void tasks_init() {
     rwlock_init(&lock_tasklist);
-    spinlock_init(&lock_context_switch);
 }
