@@ -44,11 +44,11 @@ void rwlock_read_release(struct rwlock* lock) {
 }
 
 public
-void rwlock_write_acquire(struct rwlock* lock) {
+inline void rwlock_write_acquire(struct rwlock* lock) {
     _psem_wait(lock);
 }
 
 public
-void rwlock_write_release(struct rwlock* lock) {
+inline void rwlock_write_release(struct rwlock* lock) {
     _psem_signal(lock);
 }

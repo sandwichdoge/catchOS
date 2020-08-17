@@ -132,13 +132,12 @@ void task_switch_to(struct task_struct* next) {
     - Exit function as thread B.
     - Maybe switch page tables as well in the future?
     */
+    //_current state is already TASK_READY here (changed by ISR TIMER).
     if (_current == next) return;
 
     struct task_struct* prev = _current;
     _current = next;
-    //_dbg_log("Switch to pid [%u]\n", next->pid);
-    //_current state is already TASK_READY here (changed by ISR TIMER).
-    next->state = TASK_RUNNING;
+    _dbg_log("Switch to pid [%u]\n", next->pid);
     cpu_switch_to(prev, next);
 }
 
@@ -153,18 +152,22 @@ void* schedule(void* unused) {
         rwlock_read_acquire(&lock_tasklist);
         for (int i = 0; i < MAX_CONCURRENT_TASKS; ++i) {
             struct task_struct* t = _tasks[i];
-            //if (t) _dbg_log("present task %d, cnt:%d, state:%d\n", t->pid, t->counter, t->state);
-            if (t && (t->state == TASK_READY) && t->counter > c) {
+            if (t) _dbg_log("present task %d, cnt:%d, state:%d\n", t->pid, t->counter, t->state);
+            if (t && t->state == TASK_READY && t->counter > c) {
                 c = t->counter;
                 next = i;
             }
         }
         rwlock_read_release(&lock_tasklist);
-        if (c > 0) {
-            //_dbg_log("cur=[%d], next=[%d], c=%d, IF=%d\n", _current->pid, next, c, get_flags_reg());
+
+        // Must lock to prevent 2 CPUs from picking the same next task.
+        rwlock_write_acquire(&lock_tasklist);
+        if (c > 0) {    // Found a suitable next task.
+            _tasks[next]->state = TASK_RUNNING;
+            rwlock_write_release(&lock_tasklist);
             break;
         }
-        rwlock_write_acquire(&lock_tasklist);
+
         for (int i = 0; i < MAX_CONCURRENT_TASKS; ++i) {
             struct task_struct* t = _tasks[i];
             if (t && t->state == TASK_READY) {
@@ -186,6 +189,10 @@ void* schedule(void* unused) {
 public
 void task_yield() {
     // Switch control to scheduler, sched decides what process to continue.
+    rwlock_write_acquire(&lock_tasklist);
+    _current->state = TASK_READY;
+    _current->counter = 1;
+    rwlock_write_release(&lock_tasklist);
     schedule(NULL);
 }
 
