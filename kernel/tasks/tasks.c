@@ -44,7 +44,6 @@ void on_current_task_return_cb() {
         task_cleanup(t);
     }
     atomic_fetch_sub(&_nr_tasks, 1);
-    t->interruptible = 1;
     task_yield();
 }
 
@@ -134,7 +133,6 @@ void task_switch_to(struct task_struct* next) {
     - Maybe switch page tables as well in the future?
     */
     if (_current == next) return;
-    spinlock_lock(&lock_context_switch);
 
     struct task_struct* prev = _current;
     _current = next;
@@ -142,13 +140,14 @@ void task_switch_to(struct task_struct* next) {
     next->state = TASK_RUNNING;
     prev->state = TASK_READY;
     cpu_switch_to(prev, next);
-
-    spinlock_unlock(&lock_context_switch);
 }
 
 private
 void* schedule(void* unused) {
     //_dbg_log("Total tasks:%u\n", _nr_tasks);
+    rwlock_write_acquire(&lock_tasklist);
+    _current->interruptible = 0;
+    rwlock_write_release(&lock_tasklist);
     int c, next;
     while (1) {
         c = -1;
@@ -156,13 +155,15 @@ void* schedule(void* unused) {
         rwlock_read_acquire(&lock_tasklist);
         for (int i = 0; i < MAX_CONCURRENT_TASKS; ++i) {
             struct task_struct* t = _tasks[i];
+            //if (t) _dbg_log("present task %d, cnt:%d, state:%d\n", t->pid, t->counter, t->state);
             if (t && (t->state == TASK_READY) && t->counter > c) {
                 c = t->counter;
                 next = i;
             }
         }
         rwlock_read_release(&lock_tasklist);
-        if (c) {
+        if (c > 0) {
+            //_dbg_log("cur=[%d], next=[%d], c=%d, IF=%d\n", _current->pid, next, c, get_flags_reg());
             break;
         }
         rwlock_write_acquire(&lock_tasklist);
@@ -177,10 +178,10 @@ void* schedule(void* unused) {
         rwlock_write_release(&lock_tasklist);
     }
     task_switch_to(_tasks[next]);
+    _current->interruptible = 1;
     // Old task has already become another task here.
     // Interrupt flag is also re-enabled in task_switch_to(). When switched back, ISR will return.
     // Then asm_int_handler_common() will change eip to the where previous task was interrupted by timer.
-
     return NULL;
 }
 
@@ -196,12 +197,15 @@ void task_isr_priority() {
     struct task_struct *t = _current;
     atomic_fetch_sub(&t->counter, 1);
     rwlock_read_acquire(&lock_tasklist);
-    int may_interrupt = (t->counter > 0 || !t->interruptible);
+    int may_not_interrupt = (t->counter > 0 || !t->interruptible);
     rwlock_read_release(&lock_tasklist);
-    if (may_interrupt) {
+    if (may_not_interrupt) {
         return;
     }
-    atomic_store(&t->counter, 0);
+    rwlock_write_acquire(&lock_tasklist);
+    t->state = TASK_READY;
+    t->counter = 0;
+    rwlock_write_release(&lock_tasklist);
     schedule(NULL);
 }
 

@@ -42,8 +42,8 @@ void sem_signal(struct semaphore* sem) {
     sem->count++;
     spinlock_unlock(&sem->lock);
 
-    // Change popped task state to TASK_RUNNING.
+    // Change popped task state to TASK_READY again, so scheduler can choose it.
     if (!is_queue_empty) {
-        popped_task->state = TASK_RUNNING;
+        popped_task->state = TASK_READY;
     }
 }

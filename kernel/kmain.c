@@ -59,15 +59,15 @@ void kmain(unsigned int magic, unsigned int addr) {
     tasks_init();
     // Perform tests
     // test_memory_32bit_mode();
-    /*
-        sem_init(&s, 1);
-        struct task_struct *t1 = task_new(test_multitask, (void *)test_done_cb, 1024 * 2, 10);
-        struct task_struct *t2 = task_new(test_multitask, (void *)test_done_cb, 1024 * 2, 10);
-        struct task_struct *t3 = task_new(test_multitask, (void *)test_done_cb, 1024 * 2, 10);
-        task_detach(t1);
-        task_detach(t2);
-        task_detach(t3);
-    */
+
+    sem_init(&s, 1);
+    struct task_struct *t1 = task_new(test_multitask, (void *)test_done_cb, 1024 * 2, 10);
+    struct task_struct *t2 = task_new(test_multitask, (void *)test_done_cb, 1024 * 2, 10);
+    struct task_struct *t3 = task_new(test_multitask, (void *)test_done_cb, 1024 * 2, 10);
+    task_detach(t1);
+    task_detach(t2);
+    task_detach(t3);
+
     task_new(shell_main, NULL, 4096 * 16, 10);
     asm("sti");  // Enable interrupts
     task_yield();

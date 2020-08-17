@@ -25,7 +25,7 @@ struct task_struct {
     int32_t counter;  // How long current task has been running. Add to priority for real priority.
     void* stack_bottom;  // Keep addr to free on task termination, and stack overflow detection.
     size_t stack_size;
-    int32_t interruptible;  // If non-zero then current task will not be interrupted by timer ISR.
+    int32_t interruptible;  // If non-zero then current task on local CPU will not be interrupted by timer ISR.
     enum JOIN_STATE join_state;
 };
 
