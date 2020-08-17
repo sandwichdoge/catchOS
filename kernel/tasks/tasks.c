@@ -34,6 +34,7 @@ void on_current_task_return_cb() {
 
     rwlock_write_acquire(&lock_tasklist);
     _tasks[t->pid] = NULL;
+    _nr_tasks--;
     rwlock_write_release(&lock_tasklist);
 
     t->interruptible = 0;
@@ -46,7 +47,6 @@ void on_current_task_return_cb() {
         // Clean up if already detached, otherwise task_join() will clean up later from parent task.
         task_cleanup(t);
     }
-    atomic_fetch_sub(&_nr_tasks, 1);
     task_yield();
 }
 
@@ -104,10 +104,10 @@ struct task_struct* task_new(void (*fp)(void*), void* arg, size_t stack_size, in
     newtask->pid = pid;
     newtask->stack_state.eip = (size_t)task_startup;
     newtask->interruptible = 1;
-    atomic_fetch_add(&_nr_tasks, 1);
 
     rwlock_write_acquire(&lock_tasklist);
     _tasks[pid] = newtask;
+    _nr_tasks++;
     rwlock_write_release(&lock_tasklist);
     return newtask;
 }
@@ -193,20 +193,22 @@ void task_yield() {
 public
 void task_isr_priority() {
     struct task_struct *t = _current;
-    atomic_fetch_sub(&t->counter, 1);
-    rwlock_read_acquire(&lock_tasklist);
+    // Other processors may modify counter in schedule(). Need to lock.
+    rwlock_write_acquire(&lock_tasklist);
+    
+    t->counter--;
     int may_not_interrupt = (t->counter > 0 || !t->interruptible);
-    rwlock_read_release(&lock_tasklist);
     if (may_not_interrupt) {
+        rwlock_write_release(&lock_tasklist);
         return;
     }
+    t->counter = 0; // Guaranteed atomic
+    
+    rwlock_write_release(&lock_tasklist);
+    
     if (t->state == TASK_RUNNING) {
         t->state = TASK_READY;
     }
-    // Other processors may modify counter in schedule(). Need to lock.
-    rwlock_write_acquire(&lock_tasklist);
-    t->counter = 0;
-    rwlock_write_release(&lock_tasklist);
     schedule(NULL);
 }
 
