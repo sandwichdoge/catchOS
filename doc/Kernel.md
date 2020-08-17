@@ -245,7 +245,7 @@ In theory, if the shared memory is cached in one of the processors' cache, there
 
 #### 4.4.5 Local APIC initialization
 After bootstrapping the kernel. We send SMP to wake up other processors, their EIP will point to schedule() function.
-
+First struct_task is always kmaint on all processors. kmaint is a placeholder task that's not in the tasklist, we may freely write garbage in it.
 
 ### 4.5 Multitasking
 We use Preemptive Multitasking model with priority based round-robin scheduling algorithm.

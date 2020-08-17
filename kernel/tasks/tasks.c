@@ -198,7 +198,9 @@ public
 void task_isr_priority() {
     struct task_struct *t = _current;
     atomic_fetch_sub(&t->counter, 1);
+    rwlock_read_acquire(&lock_tasklist);
     int may_not_interrupt = (t->counter > 0 || !t->interruptible);
+    rwlock_read_release(&lock_tasklist);
     if (may_not_interrupt) {
         return;
     }
