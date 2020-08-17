@@ -198,16 +198,15 @@ public
 void task_isr_priority() {
     struct task_struct *t = _current;
     atomic_fetch_sub(&t->counter, 1);
-    rwlock_read_acquire(&lock_tasklist);
     int may_not_interrupt = (t->counter > 0 || !t->interruptible);
-    rwlock_read_release(&lock_tasklist);
     if (may_not_interrupt) {
         return;
     }
-    rwlock_write_acquire(&lock_tasklist);
     if (t->state == TASK_RUNNING) {
         t->state = TASK_READY;
     }
+    // Other processors may modify counter in schedule(). Need to lock.
+    rwlock_write_acquire(&lock_tasklist);
     t->counter = 0;
     rwlock_write_release(&lock_tasklist);
     schedule(NULL);
