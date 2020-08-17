@@ -115,7 +115,7 @@ struct task_struct* task_new(void (*fp)(void*), void* arg, size_t stack_size, in
 public
 void task_join(struct task_struct* task) {
     while (task->join_state != JOIN_JOINABLE) {
-        task->counter = 1;  // So scheduler will switch to a different task next time it's called.
+        task->counter = 0;  // So scheduler will switch to a different task next time it's called.
         task_yield();
     }
     task_cleanup(task);
@@ -152,7 +152,7 @@ void* schedule(void* unused) {
         rwlock_read_acquire(&lock_tasklist);
         for (int i = 0; i < MAX_CONCURRENT_TASKS; ++i) {
             struct task_struct* t = _tasks[i];
-            if (t) _dbg_log("present task %d, cnt:%d, state:%d\n", t->pid, t->counter, t->state);
+            //if (t) _dbg_log("present task %d, cnt:%d, state:%d\n", t->pid, t->counter, t->state);
             if (t && t->state == TASK_READY && t->counter > c) {
                 c = t->counter;
                 next = i;
@@ -191,7 +191,7 @@ void task_yield() {
     // Switch control to scheduler, sched decides what process to continue.
     rwlock_write_acquire(&lock_tasklist);
     _current->state = TASK_READY;
-    _current->counter = 1;
+    _current->counter = 0;
     rwlock_write_release(&lock_tasklist);
     schedule(NULL);
 }

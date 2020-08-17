@@ -23,6 +23,7 @@ public
 void delay(size_t ms) {
     size_t stop = _ticks * 10 + ms;
     while (_ticks * 10 < stop) {
+        task_yield();
     }
 }
 
