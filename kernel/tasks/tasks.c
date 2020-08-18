@@ -138,7 +138,7 @@ void task_switch_to(struct task_struct* next) {
 
     struct task_struct* prev = _current;
     _current = next;
-    _dbg_log("Switch to pid [%u]\n", next->pid);
+    //_dbg_log("Switch to pid [%u]\n", next->pid);
     cpu_switch_to(prev, next);
 }
 
@@ -228,9 +228,16 @@ inline struct task_struct* task_get_current() { return _current; }
 public
 inline uint32_t task_getpid() { return _current->pid; }
 
+private
+void _cpu_idle_process(void* unused) {
+    while (1)
+        asm("hlt");
+}
+
 public
 void tasks_init() {
     rwlock_init(&lock_tasklist);
+    task_new(_cpu_idle_process, NULL, 1024, 1);
     struct MADT* madt = acpi_get_madt();
     madt_parse(madt);
 }
