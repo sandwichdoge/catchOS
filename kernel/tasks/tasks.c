@@ -32,13 +32,13 @@ private
 void on_current_task_return_cb() {
     struct task_struct *t = _current;
     _dbg_log("On return pid [%u]\n", t->pid);
+    t->interruptible = 0;
 
     rwlock_write_acquire(&lock_tasklist);
     _tasks[t->pid] = NULL;
     _nr_tasks--;
     rwlock_write_release(&lock_tasklist);
 
-    t->interruptible = 0;
     if (t->state == TASK_RUNNING) {
         t->state = TASK_TERMINATED;
     } else {
@@ -138,7 +138,7 @@ void task_switch_to(struct task_struct* next) {
 
     struct task_struct* prev = _current;
     _current = next;
-    //_dbg_log("Switch to pid [%u]\n", next->pid);
+    _dbg_log("Switch to pid [%u]\n", next->pid);
     cpu_switch_to(prev, next);
 }
 
@@ -202,11 +202,13 @@ public
 void task_isr_priority() {
     struct task_struct *t = _current;
     // Other processors may modify counter in schedule(). Need to lock.
+    if (!t->interruptible) {
+        return;
+    }
     rwlock_write_acquire(&lock_tasklist);
     
     t->counter--;
-    int may_not_interrupt = (t->counter > 0 || !t->interruptible);
-    if (may_not_interrupt) {
+    if (t->counter > 0) {
         rwlock_write_release(&lock_tasklist);
         return;
     }

@@ -1,5 +1,6 @@
 #include "utils/rwlock.h"
 #include "utils/string.h"
+#include "utils/debug.h"
 #include "builddef.h"
 
 public
@@ -25,6 +26,7 @@ void _psem_signal(struct rwlock* lock) {
 
 public
 void rwlock_read_acquire(struct rwlock* lock) {
+    _dbg_log("READLOCK\n");
     spinlock_lock(&lock->mtx);
     lock->reader_count++;
     if (lock->reader_count == 1) {
@@ -35,6 +37,7 @@ void rwlock_read_acquire(struct rwlock* lock) {
 
 public
 void rwlock_read_release(struct rwlock* lock) {
+    _dbg_log("READRELEASE\n");
     spinlock_lock(&lock->mtx);
     lock->reader_count--;
     if (lock->reader_count == 0) {
@@ -45,10 +48,12 @@ void rwlock_read_release(struct rwlock* lock) {
 
 public
 inline void rwlock_write_acquire(struct rwlock* lock) {
+    _dbg_log("WRITELOCK\n");
     _psem_wait(lock);
 }
 
 public
 inline void rwlock_write_release(struct rwlock* lock) {
+    _dbg_log("WRITERELEASE\n");
     _psem_signal(lock);
 }

@@ -39,16 +39,20 @@ void madt_parse(struct MADT* madt) {
             case MADT_ENTRY_TYPE_LOCAL_APIC: {
                 struct MADT_entry_processor_local_APIC *local_apic = (struct MADT_entry_processor_local_APIC *)entry;
                 _dbg_log("[Local APIC] ProcessorID [%u], ID[%u]\n", local_apic->ACPI_processor_id, local_apic->APIC_id);
+                _dbg_screen("[Local APIC] ProcessorID [%u], ID[%u]\n", local_apic->ACPI_processor_id, local_apic->APIC_id);
                 break;
             }
             case MADT_ENTRY_TYPE_IO_APIC: {
                 struct MADT_entry_io_APIC *io_apic = (struct MADT_entry_io_APIC *)entry;
                 _dbg_log("[IO APIC] ID[%u], addr[0x%x], Global Interrupt Base[0x%x]\n", io_apic->io_APIC_id, io_apic->io_APIC_addr, io_apic->global_system_interrupt_base);
+                _dbg_screen("[IO APIC] ID[%u], addr[0x%x], Global Interrupt Base[0x%x]\n", io_apic->io_APIC_id, io_apic->io_APIC_addr, io_apic->global_system_interrupt_base);
                 break;
             }
             case MADT_ENTRY_TYPE_SOURCE_OVERRIDE: {
                 struct MADT_interrupt_source_override *source_override = (struct MADT_interrupt_source_override*)entry;
                 _dbg_log("[Source Override]Bus Source[%u], IRQ Source[%u], Global System Interrupt[%u], Flags[%u]\n", 
+                    source_override->bus_source, source_override->irq_source, source_override->global_system_interrupt, source_override->flags);
+                _dbg_screen("[Source Override]Bus Source[%u], IRQ Source[%u], Global System Interrupt[%u], Flags[%u]\n", 
                     source_override->bus_source, source_override->irq_source, source_override->global_system_interrupt, source_override->flags);
                 break;
             }

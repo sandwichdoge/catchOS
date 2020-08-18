@@ -145,7 +145,7 @@ private
 void test_multitasking(void* screenpos) {
     _dbg_log("Test multitasking..\n");
     char msg[16];
-    for (int i = 0; i < 10; ++i) {
+    for (int i = 0; i < 3; ++i) {
         _memset(msg, 0, sizeof(msg));
         _int_to_str(msg, sizeof(msg), shell_gettime());
         syscall_fb_write_str(msg, (size_t*)screenpos, _strlen(msg) + 1);
