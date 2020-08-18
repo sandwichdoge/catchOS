@@ -1,6 +1,7 @@
 #include "utils/rwlock.h"
 #include "utils/string.h"
 #include "utils/debug.h"
+#include "cpu.h"
 #include "builddef.h"
 
 public
@@ -26,7 +27,11 @@ void _psem_signal(struct rwlock* lock) {
 
 public
 void rwlock_read_acquire(struct rwlock* lock) {
-    _dbg_log("READLOCK\n");
+    size_t eflags = get_flags_reg();
+    lock->is_irq_enabled_when_locked = eflags & CPU_EFLAGS_IF;
+    if (lock->is_irq_enabled_when_locked) {
+        asm("cli");
+    }
     spinlock_lock(&lock->mtx);
     lock->reader_count++;
     if (lock->reader_count == 1) {
@@ -37,23 +42,31 @@ void rwlock_read_acquire(struct rwlock* lock) {
 
 public
 void rwlock_read_release(struct rwlock* lock) {
-    _dbg_log("READRELEASE\n");
     spinlock_lock(&lock->mtx);
     lock->reader_count--;
     if (lock->reader_count == 0) {
         _psem_signal(lock);
     }
     spinlock_unlock(&lock->mtx);
+    if (lock->is_irq_enabled_when_locked) {
+        asm("sti");
+    }
 }
 
 public
 inline void rwlock_write_acquire(struct rwlock* lock) {
-    _dbg_log("WRITELOCK\n");
+    size_t eflags = get_flags_reg();
+    lock->is_irq_enabled_when_locked = eflags & CPU_EFLAGS_IF;
+    if (lock->is_irq_enabled_when_locked) {
+        asm("cli");
+    }
     _psem_wait(lock);
 }
 
 public
 inline void rwlock_write_release(struct rwlock* lock) {
-    _dbg_log("WRITERELEASE\n");
     _psem_signal(lock);
+    if (lock->is_irq_enabled_when_locked) {
+        asm("sti");
+    }
 }

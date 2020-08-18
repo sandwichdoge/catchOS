@@ -202,13 +202,10 @@ public
 void task_isr_priority() {
     struct task_struct *t = _current;
     // Other processors may modify counter in schedule(). Need to lock.
-    if (!t->interruptible) {
-        return;
-    }
     rwlock_write_acquire(&lock_tasklist);
     
     t->counter--;
-    if (t->counter > 0) {
+    if (!t->interruptible || t->counter > 0) {  // May not interrupt
         rwlock_write_release(&lock_tasklist);
         return;
     }

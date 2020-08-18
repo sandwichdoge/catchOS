@@ -1,5 +1,6 @@
 #ifndef INCLUDE_RWLOCK_H
 #define INCLUDE_RWLOCK_H
+#include "stdint.h"
 #include "utils/atomic.h"
 #include "utils/spinlock.h"
 
@@ -7,10 +8,11 @@
 
 // Local IRQs should be disabled before using rwlock.
 struct rwlock {
-    int sem_count;
-    int reader_count;
+    int32_t sem_count;
+    int32_t reader_count;
     struct spinlock mtx;
     struct spinlock sem_mtx;
+    int32_t is_irq_enabled_when_locked;
 };
 
 void rwlock_init(struct rwlock* lock);
