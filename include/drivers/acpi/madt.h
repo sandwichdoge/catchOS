@@ -4,9 +4,11 @@
 #include "stdint.h"
 #include "stddef.h"
 
+enum MADT_ENTRY_TYPE {MADT_ENTRY_TYPE_LOCAL_APIC, MADT_ENTRY_TYPE_IO_APIC, MADT_ENTRY_TYPE_SOURCE_OVERRIDE, MADT_ENTRY_UNUSED, MADT_ENTRY_NMI, MADT_ENTRY_TYPE_LOCAL_APIC_ADDR_OVERRIDE};
+
 struct MADT_entry_header {
     uint8_t entry_type;
-    uint8_t entry_len;
+    uint8_t entry_len;  // Include this header + body.
 };
 
 // Type 0. This type represents a single physical processor and its local interrupt controller.
@@ -32,14 +34,14 @@ struct MADT_interrupt_source_override {
     struct MADT_entry_header h;
     uint8_t bus_source;
     uint8_t irq_source;
-    uint32_t global_system_interrupt;
+    uint32_t global_system_interrupt;   // Look for I/O APIC with base below this number, then make redirection entry (interrupt - base) to be the interrupt.
     uint16_t flags;
 };
 
 // Type 4. Configure these with the LINT0 and LINT1 entries in the Local vector table of the relevant processor(')s(') local APIC. 
 struct MADT_nonmaskable_interrupts {
     struct MADT_entry_header h;
-    uint8_t ACPI_processor_id;
+    uint8_t ACPI_processor_id;  // 0xFF means all processors
     uint16_t flags;
     uint8_t LINT_no;    // 0 or 1
 };
@@ -58,5 +60,8 @@ struct MADT {
     uint32_t flags; // (1 = Dual 8259 Legacy PICs Installed)
     uint32_t entries[];
 };
+
+struct MADT* acpi_get_madt();
+void madt_parse(struct MADT* madt);
 
 #endif

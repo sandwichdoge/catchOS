@@ -3,6 +3,7 @@
 #include "builddef.h"
 #include "cpu_switch_to.h"
 #include "drivers/pit.h"
+#include "drivers/acpi/madt.h"
 #include "mmu.h"
 #include "timer.h"
 #include "utils/debug.h"
@@ -137,7 +138,7 @@ void task_switch_to(struct task_struct* next) {
 
     struct task_struct* prev = _current;
     _current = next;
-    _dbg_log("Switch to pid [%u]\n", next->pid);
+    //_dbg_log("Switch to pid [%u]\n", next->pid);
     cpu_switch_to(prev, next);
 }
 
@@ -231,4 +232,6 @@ inline uint32_t task_getpid() { return _current->pid; }
 public
 void tasks_init() {
     rwlock_init(&lock_tasklist);
+    struct MADT* madt = acpi_get_madt();
+    madt_parse(madt);
 }

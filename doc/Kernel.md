@@ -187,6 +187,8 @@ All processors see the same physical memory space and access them with the same 
 
 Law of diminishing returns: each processor added has to compete with others for memory access, so the speed increase from adding more processors becomes much less.
 
+On Intel x86, all processors have equal access to the same memory.
+
 #### 4.4.1 SMP models
 - Master/Slave
   + Master CPU monitors status and assigns work to other processors
@@ -219,11 +221,11 @@ https://wiki.osdev.org/APIC
 
 Each CPU is made of a "core" and "local APIC". Local APIC handles cpu-specific interrupt config. Local APICs can also send Inter-processor interrupts (IPIs) to another local APIC on another processor.
 
-Every local APIC has a unique ID. When sending IPIs, this ID is the destination field.
+Every local APIC has a unique ID. When sending IPIs, this ID is the destination field. We need to set up local APIC on all processors before sending IPIs to wake them up.
 
 Local APIC contains a Local Vector Table that translates "internal clock" and other local interrupt sources into an interrupt vector.
 
-In addition there's an external I/O APIC chip that provides multi-processor interrupt management, incorporating symmetric interrupt distribution across all processors.
+In addition there's an external I/O APIC chip that provides multi-processor interrupt management, incorporating symmetric interrupt distribution across all processors. We need to disable legacy PIC and set up this new I/O APIC.
 
 Local APIC:
 - The local APIC is enabled at boot-time and can be disabled by clearing bit 11 of the IA32_APIC_BASE Model Specific Register (MSR). Can't be re-enabled until a complete reset.
