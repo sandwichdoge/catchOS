@@ -19,7 +19,8 @@ static volatile int32_t _nr_tasks;                                      // Curre
 static struct task_struct kmaint = {.interruptible = 1, .counter = 1, .state = TASK_RUNNING};  // Initial _current value, so we won't have to to if _current is NULL later.
 struct task_struct* _current = &kmaint;                                 // Current task that controls local CPU. TASK_STATE should always be TASK_RUNNING here.
 
-struct rwlock lock_tasklist;   // R/W lock for _tasks list.
+struct rwlock lock_tasklist = {.sem_count = 1, .reader_count = 0, {0}, {0}};   // R/W lock for _tasks list.
+static int32_t bsp_tasks_initialized = 0;
 
 private
 void task_cleanup(struct task_struct *task) {
@@ -143,8 +144,9 @@ void task_switch_to(struct task_struct* next) {
 }
 
 private
-void* schedule(void* unused) {
+void schedule(void* unused) {
     //_dbg_log("Total tasks:%u\n", _nr_tasks);
+    if (!bsp_tasks_initialized) return;
     _current->interruptible = 0;
     int c, next;
     while (1) {
@@ -184,7 +186,7 @@ void* schedule(void* unused) {
     // Old task has already become another task here.
     // Interrupt flag is also re-enabled in task_switch_to(). When switched back, ISR will return.
     // Then asm_int_handler_common() will change eip to the where previous task was interrupted by timer.
-    return NULL;
+    return;
 }
 
 public
@@ -202,10 +204,11 @@ void task_yield() {
 // Called by PIT ISR_TIMER.
 public
 void task_isr_priority() {
+    //if (!bsp_tasks_initialized) return;
     struct task_struct *t = _current;
     // Other processors may modify counter in schedule(). Need to lock.
     rwlock_write_acquire(&lock_tasklist);
-    
+
     t->counter--;
     if (!t->interruptible || t->counter > 0) {  // May not interrupt
         rwlock_write_release(&lock_tasklist);
@@ -218,7 +221,6 @@ void task_isr_priority() {
     }
 
     rwlock_write_release(&lock_tasklist);
-    
     schedule(NULL);
 }
 
@@ -232,6 +234,7 @@ public
 void tasks_init() {
     rwlock_init(&lock_tasklist);
     task_new(_cpu_idle_process, NULL, 1024, 1);
+    bsp_tasks_initialized = 1;
 }
 
 public

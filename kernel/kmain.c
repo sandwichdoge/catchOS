@@ -56,7 +56,9 @@ void kmain(unsigned int magic, unsigned int addr) {
     interrupt_init();
     timer_init();
     
-    //smp_init();
+    asm("sti");  // Need PIT to boot smp
+    smp_init();
+    asm("cli");
     tasks_init();
 
     // Perform tests
