@@ -77,6 +77,11 @@ void pic_init() {
     outb(PIC2_DATA, pic2);
 }
 
+public
+void pic_uninit() {
+    pic_init();
+}
+
 #define PIC_OFFSET 0x20
 public
 void pic_enable_irq(unsigned int irq_no) {

@@ -15,18 +15,21 @@
 #define ACPI_MADT_TRIGGER_LEVEL           (3<<2)
 
 static struct MADT* _madt = NULL;
+static struct MADT_info _madt_info = {0};
 
+public
 struct MADT* acpi_get_madt() {
     if (!_madt) {
         _madt = acpi_get_sdt_from_sig("APIC");
         _dbg_log("Found madt at 0x%x\n", _madt);
+        madt_parse(_madt);
     }
     return _madt;
 }
 
 void madt_parse(struct MADT* madt) {
     if (!madt) {
-        _dbg_log("Invalid madt\n");
+        _dbg_log("MADT NULL\n");
         return;
     }
     _dbg_log("Local APIC addr [0x%x]\n", madt->local_apic_addr);
@@ -40,12 +43,19 @@ void madt_parse(struct MADT* madt) {
                 struct MADT_entry_processor_local_APIC *local_apic = (struct MADT_entry_processor_local_APIC *)entry;
                 _dbg_log("[Local APIC] ProcessorID [%u], ID[%u]\n", local_apic->ACPI_processor_id, local_apic->APIC_id);
                 _dbg_screen("[Local APIC] ProcessorID [%u], ID[%u]\n", local_apic->ACPI_processor_id, local_apic->APIC_id);
+                _madt_info.processor_ids[_madt_info.processor_count] = local_apic->ACPI_processor_id;
+                _madt_info.local_APIC_ids[_madt_info.processor_count] = local_apic->APIC_id;
+                _madt_info.processor_count++;
                 break;
             }
             case MADT_ENTRY_TYPE_IO_APIC: {
                 struct MADT_entry_io_APIC *io_apic = (struct MADT_entry_io_APIC *)entry;
                 _dbg_log("[IO APIC] ID[%u], addr[0x%x], Global Interrupt Base[0x%x]\n", io_apic->io_APIC_id, io_apic->io_APIC_addr, io_apic->global_system_interrupt_base);
                 _dbg_screen("[IO APIC] ID[%u], addr[0x%x], Global Interrupt Base[0x%x]\n", io_apic->io_APIC_id, io_apic->io_APIC_addr, io_apic->global_system_interrupt_base);
+                _madt_info.io_apic_addrs[_madt_info.io_apic_count] = io_apic->io_APIC_addr;
+                _madt_info.io_apic_ids[_madt_info.io_apic_count] = io_apic->io_APIC_id;
+                _madt_info.io_apic_gsi_base[_madt_info.io_apic_count] = io_apic->global_system_interrupt_base;
+                _madt_info.io_apic_count++;
                 break;
             }
             case MADT_ENTRY_TYPE_SOURCE_OVERRIDE: {
@@ -65,4 +75,3 @@ void madt_parse(struct MADT* madt) {
         entry = (char*)entry + entry->entry_len;
     }
 }
-

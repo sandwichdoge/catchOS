@@ -219,15 +219,6 @@ void task_isr_priority() {
     schedule(NULL);
 }
 
-public
-inline int32_t task_get_nr() { return atomic_load(&_nr_tasks); }
-
-public
-inline struct task_struct* task_get_current() { return _current; }
-
-public
-inline uint32_t task_getpid() { return _current->pid; }
-
 private
 void _cpu_idle_process(void* unused) {
     while (1)
@@ -239,5 +230,13 @@ void tasks_init() {
     rwlock_init(&lock_tasklist);
     task_new(_cpu_idle_process, NULL, 1024, 1);
     struct MADT* madt = acpi_get_madt();
-    madt_parse(madt);
 }
+
+public
+inline int32_t task_get_nr() { return atomic_load(&_nr_tasks); }
+
+public
+inline struct task_struct* task_get_current() { return _current; }
+
+public
+inline uint32_t task_getpid() { return _current->pid; }

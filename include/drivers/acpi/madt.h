@@ -4,6 +4,8 @@
 #include "stdint.h"
 #include "stddef.h"
 
+#define MAX_CPUS_SUPPORTED 128
+
 enum MADT_ENTRY_TYPE {MADT_ENTRY_TYPE_LOCAL_APIC, MADT_ENTRY_TYPE_IO_APIC, MADT_ENTRY_TYPE_SOURCE_OVERRIDE, MADT_ENTRY_UNUSED, MADT_ENTRY_NMI, MADT_ENTRY_TYPE_LOCAL_APIC_ADDR_OVERRIDE};
 
 struct MADT_entry_header {
@@ -61,7 +63,18 @@ struct MADT {
     uint32_t entries[];
 };
 
+// Our own struct that contains usable data parsed from MADT.
+struct MADT_info {
+    uint16_t processor_count;
+    uint8_t processor_ids[MAX_CPUS_SUPPORTED];
+    uint8_t local_APIC_ids[MAX_CPUS_SUPPORTED];
+    uint16_t io_apic_count;
+    uint8_t io_apic_ids[32];
+    uint32_t io_apic_addrs[32];
+    uint32_t io_apic_gsi_base[32];
+};
+
 struct MADT* acpi_get_madt();
-void madt_parse(struct MADT* madt);
+struct MADT_info* madt_get_info();
 
 #endif
