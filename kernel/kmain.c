@@ -10,6 +10,8 @@
 #include "syscall.h"
 #include "tasks.h"
 #include "timer.h"
+#include "panic.h"
+#include "multiboot_info.h"
 #include "utils/debug.h"
 
 struct semaphore s;
@@ -32,18 +34,15 @@ void kmain(unsigned int magic, unsigned int addr) {
     serial_defconfig(SERIAL_COM1_BASE);
     if (magic != MULTIBOOT2_BOOTLOADER_MAGIC) {
         _dbg_log("Invalid mb magic:[0x%x]\n", magic);
-        _dbg_break();
+        panic();
     }
     if (addr & 7) {
         _dbg_log("Unaligned mbi: 0x%x\n", addr);
-        _dbg_break();
+        panic();
     }
 
-#ifdef WITH_GRUB_MB
-    kinfo_init((struct multiboot_tag *)addr);
-#else
-    kinfo_init(NULL);
-#endif
+    multiboot_info_init((struct multiboot_tag *)addr);
+    kinfo_init();
     _dbg_log("kmain\n");
 
     kheap_init();

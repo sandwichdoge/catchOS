@@ -2,7 +2,7 @@
 
 #include "builddef.h"
 #include "font.h"
-#include "kinfo.h"
+#include "multiboot_info.h"
 #include "mmu.h"
 #include "paging.h"
 #include "utils/bitmap.h"
@@ -209,16 +209,16 @@ void svga_clr_scr() {
 public
 void svga_init() {
     _dbg_log("Init svga\n");
-    struct kinfo *kinfo = get_kernel_info();
+    struct multiboot_info *mbinfo = get_multiboot_info();
 
-    uint8_t *fb = (uint8_t *)kinfo->tagfb.common.framebuffer_addr;
+    uint8_t *fb = (uint8_t *)mbinfo->tagfb.common.framebuffer_addr;
     set_lfb_addr(fb);
     // Map address space for fb.
     uint32_t *kpd = get_kernel_pd();
     paging_map_table((uint32_t)fb, (uint32_t)fb, kpd);
 
     // Set global fb info so we won't have to get it again later.
-    _tagfb = &kinfo->tagfb;
+    _tagfb = &mbinfo->tagfb;
 
     SCR_W = _tagfb->common.framebuffer_width;
     SCR_H = _tagfb->common.framebuffer_height;

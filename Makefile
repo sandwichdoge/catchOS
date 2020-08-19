@@ -39,7 +39,7 @@ OBJECTS=$(KBOOT_DIR)/multiboot_header.o $(KBOOT_DIR)/kboot.o \
 		$(TASKS_DIR)/tasks.o $(TASKS_DIR)/cpu_switch_to.o $(TASKS_DIR)/sem.o \
 		$(SYS_DIR)/syscall.o \
 		$(POWER_DIR)/shutdown.o $(POWER_DIR)/reboot.o \
-		$(COMMON_DIR)/kinfo.o $(COMMON_DIR)/panic.o \
+		$(COMMON_DIR)/kinfo.o $(COMMON_DIR)/panic.o $(COMMON_DIR)/multiboot_info.o \
 		$(UTILS_DIR)/hashtable.o \
 		$(UTILS_DIR)/string.o $(UTILS_DIR)/debug.o $(UTILS_DIR)/printf.o $(UTILS_DIR)/bitmap.o \
 		$(UTILS_DIR)/queue.o $(UTILS_DIR)/list.o $(UTILS_DIR)/rwlock.o $(UTILS_DIR)/spinlock.o $(UTILS_DIR)/maths.o \

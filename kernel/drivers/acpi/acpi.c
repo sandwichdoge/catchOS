@@ -2,6 +2,7 @@
 
 #include "builddef.h"
 #include "kinfo.h"
+#include "multiboot_info.h"
 #include "pageframe_alloc.h"
 #include "paging.h"
 #include "utils/debug.h"
@@ -120,17 +121,18 @@ struct XSDT *acpi_get_xsdt() {
 
 public
 int acpi_get_ver() {
-    struct kinfo *kinfo = get_kernel_info();
-    return kinfo->acpi_ver;
+    struct multiboot_info *mbinfo = get_multiboot_info();
+    return mbinfo->acpi_ver;
 }
 
 public
 void acpi_init() {
+    struct multiboot_info *mbinfo = get_multiboot_info();
     struct kinfo *kinfo = get_kernel_info();
-    int32_t acpi_ver = kinfo->acpi_ver;
+    int32_t acpi_ver = mbinfo->acpi_ver;
     uint32_t to_map = 0;
     if (acpi_ver == 1) {
-        struct RSDPDescriptor *rsdp = (struct RSDPDescriptor *)kinfo->rsdp;
+        struct RSDPDescriptor *rsdp = (struct RSDPDescriptor *)mbinfo->rsdp;
         if (kinfo->is_paging_enabled) {
             pageframe_set_page_from_addr((void *)rsdp, 1);
             paging_map_page((uint32_t)rsdp, (uint32_t)rsdp, get_kernel_pd());
@@ -138,7 +140,7 @@ void acpi_init() {
         _rsdt = (struct RSDT *)rsdp->RsdtAddress;
         to_map = (uint32_t)_rsdt;
     } else if (acpi_ver == 2) {
-        struct RSDPDescriptor20 *rsdp2 = (struct RSDPDescriptor20 *)kinfo->rsdp;
+        struct RSDPDescriptor20 *rsdp2 = (struct RSDPDescriptor20 *)mbinfo->rsdp;
         if (kinfo->is_paging_enabled) {
             pageframe_set_page_from_addr((void *)rsdp2, 1);
             paging_map_page((uint32_t)rsdp2, (uint32_t)rsdp2, get_kernel_pd());

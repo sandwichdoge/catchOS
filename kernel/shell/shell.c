@@ -3,7 +3,7 @@
 #include "builddef.h"
 #include "drivers/keyboard.h"  // For key defs
 #include "drivers/svga.h"
-#include "kinfo.h"
+#include "multiboot_info.h"
 #include "mmu.h"
 #include "panic.h"
 #include "power/shutdown_reboot.h"
@@ -125,7 +125,7 @@ size_t shell_gettime() { return getticks(); }
 
 private
 int call_user_module() {
-    struct multiboot_tag_module* mod = &(get_kernel_info()->mods[0]);
+    struct multiboot_tag_module* mod = &(get_multiboot_info()->mods[0]);
     _dbg_log("Call user module at 0x%x\n", mod->mod_start);
 
     if (mod->size > 0) {
@@ -194,8 +194,8 @@ void shell_handle_cmd(char* cmd) {
         shell_cout(ret_s);
         shell_cout("\n");
     } else if (_strncmp(cmd, "rei.bmp", _strlen("rei.bmp")) == 0) {
-        struct kinfo* kinfo = get_kernel_info();
-        void* img_rei = (void*)kinfo->mods[1].mod_start;
+        struct multiboot_info *mbinfo = get_multiboot_info();
+        void* img_rei = (void*)mbinfo->mods[1].mod_start;
         struct bmp bmp_rei;
         libbmp_decode_bmp(img_rei, &bmp_rei);
 
