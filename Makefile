@@ -60,7 +60,7 @@ test:
 %.o: %.c
 	$(CC) -c $(CFLAGS) $< -o $@
 
-%.o: %.s
+%.o: %.S
 	$(AS) $(ASFLAGS) $< -o $@
 
 kernel.elf: $(OBJECTS)

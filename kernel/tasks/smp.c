@@ -9,6 +9,10 @@
 
 //http://www.osdever.net/tutorials/view/multiprocessing-support-for-hobby-oses-explained
 
+void trampoline() {
+    // Setup kernel stack, GDT, IDT, Paging
+} __attribute__((aligned(4096)))
+
 public
 void smp_init() {
     struct MADT_info *madt_info = madt_get_info();

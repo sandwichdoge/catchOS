@@ -73,6 +73,5 @@ void kmain(unsigned int magic, unsigned int addr) {
     asm("sti");  // Enable interrupts
     task_yield();
 
-    while (1) {
-    }
+    asm("hlt");
 }
