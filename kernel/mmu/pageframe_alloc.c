@@ -29,7 +29,7 @@ void pageframe_alloc_clear_page(uint32_t page_no) { bitmap_clear_bit(_pageframe_
 private
 uint32_t pageframe_addr_from_page(uint32_t page_no) { return (page_no * 4096); }
 
-private
+public
 uint32_t page_from_addr(size_t addr) { return (addr / 4096); }
 
 private
