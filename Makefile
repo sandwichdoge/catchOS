@@ -28,7 +28,7 @@ OBJECTS=$(KBOOT_DIR)/multiboot_header.o $(KBOOT_DIR)/kboot.o \
 		$(KERNEL_DIR)/kmain.o \
 		$(SHELL_DIR)/shell.o $(SHELL_DIR)/font.o $(SHELL_DIR)/bmp.o \
 		$(DRIVERS_DIR)/serial.o $(DRIVERS_DIR)/io.o \
-		$(DRIVERS_DIR)/keyboard.o \
+		$(DRIVERS_DIR)/keyboard.o $(DRIVERS_DIR)/apic.o \
 		$(DRIVERS_DIR)/pic.o $(DRIVERS_DIR)/pit.o \
 		$(DRIVERS_DIR)/acpi/fadt.o $(DRIVERS_DIR)/acpi/madt.o $(DRIVERS_DIR)/acpi/acpi.o \
 		$(DRIVERS_DIR)/cpuid.o $(DRIVERS_DIR)/svga.o $(DRIVERS_DIR)/cpu.o \
@@ -36,7 +36,7 @@ OBJECTS=$(KBOOT_DIR)/multiboot_header.o $(KBOOT_DIR)/kboot.o \
 		$(MMU_DIR)/paging.o $(MMU_DIR)/paging_en.o $(MMU_DIR)/kheap.o \
 		$(MMU_DIR)/pageframe_alloc.o $(MMU_DIR)/mmu.o $(MMU_DIR)/liballoc.o $(MMU_DIR)/liballoc_hooks.o \
 		$(TIMER_DIR)/timer.o \
-		$(TASKS_DIR)/tasks.o $(TASKS_DIR)/cpu_switch_to.o $(TASKS_DIR)/sem.o \
+		$(TASKS_DIR)/tasks.o $(TASKS_DIR)/cpu_switch_to.o $(TASKS_DIR)/sem.o $(TASKS_DIR)/smp.o \
 		$(SYS_DIR)/syscall.o \
 		$(POWER_DIR)/shutdown.o $(POWER_DIR)/reboot.o \
 		$(COMMON_DIR)/kinfo.o $(COMMON_DIR)/panic.o $(COMMON_DIR)/multiboot_info.o \

@@ -229,7 +229,7 @@ public
 void tasks_init() {
     rwlock_init(&lock_tasklist);
     task_new(_cpu_idle_process, NULL, 1024, 1);
-    struct MADT* madt = acpi_get_madt();
+    struct MADT_info* madt_info = madt_get_info();
 }
 
 public

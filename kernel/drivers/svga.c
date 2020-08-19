@@ -208,6 +208,11 @@ void svga_clr_scr() {
 
 public
 void svga_init() {
+    static int32_t initialized = 0;
+    if (initialized) {
+        return;
+    }
+
     _dbg_log("Init svga\n");
     struct multiboot_info *mbinfo = get_multiboot_info();
 
@@ -231,4 +236,6 @@ void svga_init() {
     _dbg_log("[SVGA]fb type: [%u], bpp:[%u]\n", _tagfb->common.framebuffer_type, _tagfb->common.framebuffer_bpp);
     _dbg_log("[SVGA]width: [%u], height:[%u]\n", _tagfb->common.framebuffer_width, _tagfb->common.framebuffer_height);
     _dbg_screen("[SVGA]fb type: [%u], bpp:[%u]\n", _tagfb->common.framebuffer_type, _tagfb->common.framebuffer_bpp);
+
+    initialized = 1;
 }

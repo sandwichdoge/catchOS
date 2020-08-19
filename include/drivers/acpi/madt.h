@@ -65,6 +65,7 @@ struct MADT {
 
 // Our own struct that contains usable data parsed from MADT.
 struct MADT_info {
+    void* local_apic_addr;
     uint16_t processor_count;
     uint8_t processor_ids[MAX_CPUS_SUPPORTED];
     uint8_t local_APIC_ids[MAX_CPUS_SUPPORTED];

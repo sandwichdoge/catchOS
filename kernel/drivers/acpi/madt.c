@@ -17,22 +17,13 @@
 static struct MADT* _madt = NULL;
 static struct MADT_info _madt_info = {0};
 
-public
-struct MADT* acpi_get_madt() {
-    if (!_madt) {
-        _madt = acpi_get_sdt_from_sig("APIC");
-        _dbg_log("Found madt at 0x%x\n", _madt);
-        madt_parse(_madt);
-    }
-    return _madt;
-}
-
 void madt_parse(struct MADT* madt) {
     if (!madt) {
         _dbg_log("MADT NULL\n");
         return;
     }
     _dbg_log("Local APIC addr [0x%x]\n", madt->local_apic_addr);
+    _madt_info.local_apic_addr = (void*)madt->local_apic_addr;
     uint32_t madt_len = madt->h.Length;
     struct MADT_entry_header *entry = (struct MADT_entry_header *)madt->entries;
     while ((char*)entry + entry->entry_len <= (char*)madt + madt_len) {
@@ -41,7 +32,7 @@ void madt_parse(struct MADT* madt) {
         switch (entry->entry_type) {
             case MADT_ENTRY_TYPE_LOCAL_APIC: {
                 struct MADT_entry_processor_local_APIC *local_apic = (struct MADT_entry_processor_local_APIC *)entry;
-                _dbg_log("[Local APIC] ProcessorID [%u], ID[%u]\n", local_apic->ACPI_processor_id, local_apic->APIC_id);
+                _dbg_log("[Local APIC] ProcessorID [%u], ID[%u], flags[%u]\n", local_apic->ACPI_processor_id, local_apic->APIC_id, local_apic->flags);
                 _dbg_screen("[Local APIC] ProcessorID [%u], ID[%u]\n", local_apic->ACPI_processor_id, local_apic->APIC_id);
                 _madt_info.processor_ids[_madt_info.processor_count] = local_apic->ACPI_processor_id;
                 _madt_info.local_APIC_ids[_madt_info.processor_count] = local_apic->APIC_id;
@@ -72,6 +63,26 @@ void madt_parse(struct MADT* madt) {
                 break;
             }
         }
-        entry = (char*)entry + entry->entry_len;
+        entry = (struct MADT_entry_header *)((char*)entry + entry->entry_len);
     }
+}
+
+public
+struct MADT* acpi_get_madt() {
+    if (!_madt) {
+        _madt = acpi_get_sdt_from_sig("APIC");
+        _dbg_log("Found madt at 0x%x\n", _madt);
+    }
+    return _madt;
+}
+
+public
+struct MADT_info* madt_get_info() {
+    static int32_t initialized = 0;
+    if (!initialized) {
+        if (!_madt) _madt = acpi_get_sdt_from_sig("APIC");
+        madt_parse(_madt);
+        initialized = 1;
+    }
+    return &_madt_info;
 }
