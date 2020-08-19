@@ -17,10 +17,10 @@ enum TASK_STATE { TASK_READY = 0, TASK_WAITING, TASK_RUNNING, TASK_TERMINATED };
 enum JOIN_STATE { JOIN_JOINABLE, JOIN_DETACHED };
 
 struct task_struct {
-    struct cpu_state cpu_state;
-    struct stack_state stack_state;
+    struct cpu_state cpu_state; // 32 bytes
+    struct stack_state stack_state; // 16 bytes
+    uint32_t pid;   // This got changed
     enum TASK_STATE state;
-    uint32_t pid;
     int32_t priority;
     int32_t counter;  // How long current task has been running. Add to priority for real priority.
     void* stack_bottom;  // Keep addr to free on task termination, and stack overflow detection.
@@ -56,4 +56,7 @@ struct task_struct* task_get_current();
 uint32_t task_getpid();
 
 void tasks_init();
+
+void task_write_acquire_tasklist();
+void task_write_release_tasklist();
 #endif

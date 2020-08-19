@@ -16,7 +16,7 @@
 // Array of all current tasks. Only 64 tasks can run at a time for now.
 static struct task_struct* _tasks[MAX_CONCURRENT_TASKS];
 static volatile int32_t _nr_tasks;                                      // Current running tasks in the system.
-static struct task_struct kmaint = {.interruptible = 1, .counter = 1};  // Initial _current value, so we won't have to to if _current is NULL later.
+static struct task_struct kmaint = {.interruptible = 1, .counter = 1, .state = TASK_RUNNING};  // Initial _current value, so we won't have to to if _current is NULL later.
 struct task_struct* _current = &kmaint;                                 // Current task that controls local CPU. TASK_STATE should always be TASK_RUNNING here.
 
 struct rwlock lock_tasklist;   // R/W lock for _tasks list.
@@ -47,7 +47,7 @@ void on_current_task_return_cb() {
     if (t->join_state == JOIN_DETACHED) { 
         // Clean up if already detached, otherwise task_join() will clean up later from parent task.
         task_cleanup(t);
-    }
+    } 
     task_yield();
 }
 
@@ -115,7 +115,7 @@ struct task_struct* task_new(void (*fp)(void*), void* arg, size_t stack_size, in
 
 public
 void task_join(struct task_struct* task) {
-    while (task->join_state != JOIN_JOINABLE) {
+    while (task->state != TASK_TERMINATED) {
         task->counter = 0;  // So scheduler will switch to a different task next time it's called.
         task_yield();
     }
@@ -138,7 +138,7 @@ void task_switch_to(struct task_struct* next) {
 
     struct task_struct* prev = _current;
     _current = next;
-    //_dbg_log("Switch to pid [%u]\n", next->pid);
+    //_dbg_log("[%u]Switch to pid [%u]\n", getticks(), next->pid);
     cpu_switch_to(prev, next);
 }
 
@@ -153,7 +153,7 @@ void* schedule(void* unused) {
         rwlock_read_acquire(&lock_tasklist);
         for (int i = 0; i < MAX_CONCURRENT_TASKS; ++i) {
             struct task_struct* t = _tasks[i];
-            //if (t) _dbg_log("present task %d, cnt:%d, state:%d\n", t->pid, t->counter, t->state);
+            //if (t) _dbg_log("present task at [0x%x] %d, cnt:%d, state:%d\n", t, t->pid, t->counter, t->state);
             if (t && t->state == TASK_READY && t->counter > c) {
                 c = t->counter;
                 next = i;
@@ -191,7 +191,9 @@ public
 void task_yield() {
     // Switch control to scheduler, sched decides what process to continue.
     rwlock_write_acquire(&lock_tasklist);
-    _current->state = TASK_READY;
+    if (_current->state == TASK_RUNNING) {
+        _current->state = TASK_READY;
+    }
     _current->counter = 0;
     rwlock_write_release(&lock_tasklist);
     schedule(NULL);
@@ -211,11 +213,12 @@ void task_isr_priority() {
     }
     t->counter = 0; // Guaranteed atomic
     
-    rwlock_write_release(&lock_tasklist);
-    
     if (t->state == TASK_RUNNING) {
         t->state = TASK_READY;
     }
+
+    rwlock_write_release(&lock_tasklist);
+    
     schedule(NULL);
 }
 
@@ -239,3 +242,13 @@ inline struct task_struct* task_get_current() { return _current; }
 
 public
 inline uint32_t task_getpid() { return _current->pid; }
+
+public
+inline void task_write_acquire_tasklist() {
+    rwlock_write_acquire(&lock_tasklist);
+}
+
+public
+inline void task_write_release_tasklist() {
+    rwlock_write_release(&lock_tasklist);
+}

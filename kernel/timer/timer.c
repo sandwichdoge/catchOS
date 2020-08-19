@@ -4,7 +4,7 @@
 #include "interrupt.h"
 #include "tasks.h"
 
-#define TICK_FREQ_HZ 100
+#define TICK_FREQ_HZ 1000
 
 private
 size_t _ticks;
@@ -21,9 +21,9 @@ size_t getticks() { return _ticks; }
 
 public
 void delay(size_t ms) {
-    size_t stop = _ticks * 10 + ms;
-    while (_ticks * 10 < stop) {
-        task_yield();
+    size_t stop = _ticks + ms;
+    while (_ticks < stop) {
+        asm("hlt");
     }
 }
 

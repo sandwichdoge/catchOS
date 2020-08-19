@@ -56,7 +56,7 @@ void kmain(unsigned int magic, unsigned int addr) {
     interrupt_init();
     timer_init();
     
-    smp_init();
+    //smp_init();
     tasks_init();
 
     // Perform tests
@@ -67,10 +67,11 @@ void kmain(unsigned int magic, unsigned int addr) {
     struct task_struct *t3 = task_new(test_multitask, (void *)test_done_cb, 1024 * 2, 10);
     task_detach(t1);
     task_detach(t2);
-    task_join(t3);
 
-    task_new(shell_main, NULL, 4096 * 16, 10);
+    task_new(shell_main, NULL, 4096 * 16, 100);
+
     asm("sti");  // Enable interrupts
+    task_join(t3);
     task_yield();
 
     asm("hlt");

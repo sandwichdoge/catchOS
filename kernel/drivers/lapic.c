@@ -100,6 +100,9 @@ void lapic_send_startup(size_t lapic_base, uint8_t lapic_id, size_t vector) {
 
     *lapic_icr_hi = lapic_id << ICR_DESTINATION_SHIFT;  // DESTINATION
     *lapic_icr_lo = vector | ICR_STARTUP | ICR_PHYSICAL | ICR_ASSERT | ICR_EDGE | ICR_NO_SHORTHAND;
+
+    while (*lapic_icr_lo & ICR_SEND_PENDING)
+        ;
 }
 
 public

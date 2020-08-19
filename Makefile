@@ -66,7 +66,7 @@ test:
 kernel.elf: $(OBJECTS)
 	ld $^ -o $@ $(LDFLAGS)
 
-program: iso/modules/program.s
+program: iso/modules/program.S
 	$(AS) -f bin $< -o iso/modules/program
 
 iso: kernel.elf

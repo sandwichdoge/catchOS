@@ -32,7 +32,7 @@ uint32_t *get_page_table(size_t phys_addr) {
 public
 void paging_map_page(size_t virtual_addr, size_t phys_addr, uint32_t *page_dir) {
     uint32_t *page_table = get_page_table(phys_addr);
-    _dbg_log("Map page 0x%x to 0x%x,kernel_page_dir[0x%x],page_table[0x%x]\n", phys_addr, virtual_addr, page_dir, page_table);
+    //_dbg_log("Map page 0x%x to 0x%x,kernel_page_dir[0x%x],page_table[0x%x]\n", phys_addr, virtual_addr, page_dir, page_table);
 
     uint32_t pte = ((virtual_addr % 0x400000) / 0x1000);
     if (page_table[pte] == (phys_addr | 3)) {  // Already allocated
