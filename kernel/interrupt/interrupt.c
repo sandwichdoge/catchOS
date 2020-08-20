@@ -20,6 +20,11 @@ struct idt_entry idt_entries[IDT_SIZE] = {{0}};  // Main content of IDT
 // Array of void func(uint*, cpu_state*) pointers
 void (*int_handler_table[IDT_SIZE])(size_t* return_reg, struct cpu_state*) = {0};
 
+public
+struct idt * interrupt_get_idt() {
+    return &IDT;
+}
+
 // https://wiki.osdev.org/Interrupt_Descriptor_Table
 private
 void interrupt_encode_idt_entry(uint32_t interrupt_num, size_t f_ptr_handler) {

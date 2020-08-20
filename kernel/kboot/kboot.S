@@ -15,9 +15,9 @@ switch_to_pm:              ; switch from 16-bit real mode to 32-bit protected mo
     mov eax, cr0
     or eax, 0x1
     mov cr0, eax
-    jmp 0x08:init_pm       ; put 0x08 in cs (which is an offset in the GDT for kernel code segment)
 
-[bits 32]                  ; tell assembler to encode in 32-bit mode instructions
+[BITS 32]                  ; tell assembler to encode in 32-bit mode instructions
+    jmp 0x08:init_pm       ; put 0x08 in cs (which is an offset in the GDT for kernel code segment)
 init_pm:
     mov ax, 0x10           ; 0x10 is the offset of data segment in GDT
     mov ds, ax

@@ -30,4 +30,5 @@ struct idt {
 
 void interrupt_init(void);
 void interrupt_register(uint32_t irq, void (*isr)(size_t* return_reg, struct cpu_state*));
+struct idt * interrupt_get_idt();
 #endif
