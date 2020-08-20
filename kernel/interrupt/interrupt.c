@@ -120,6 +120,8 @@ void interrupt_handler(size_t* return_reg, struct cpu_state cpu_state, uint32_t 
         _dbg_log("Error code [0x%x]\n", stack_state.error_code);
         _dbg_log("Table [%d]\n", (stack_state.error_code >> 1) & 3);
         _dbg_log("Index [%x]\n", (stack_state.error_code >> 3) & 4095);
+        _dbg_log("Fauling CS [0x%x]\n", stack_state.cs);
+        _dbg_log("Faulting EIP: [0x%x]\n", stack_state.eip);
     }
 
     if (int_handler_table[interrupt_num]) {

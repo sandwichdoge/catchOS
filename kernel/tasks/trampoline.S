@@ -1,6 +1,8 @@
 global SMPBOOT_TRAMPOLINE_FUNC
 global SMPBOOT_TRAMPOLINE_PARAMS
 ;extern load_gdt
+
+align 4096
 gdt_start:
 ; with this setup we're telling the cpu that kernel code & data segments can be anywhere in 4GB memory
 gdt_null:        ; null gdt entry, mandatory
@@ -61,7 +63,6 @@ prot_mode:
     mov fs, ax
     mov gs, ax
 
-    xchg bx, bx
     mov eax, [TRAMPOLINE_STACK]
     mov esp, eax
     mov eax, [TRAMPOLINE_KERNEL_PD]
@@ -69,4 +70,5 @@ prot_mode:
     mov eax, [TRAMPOLINE_IDT]
     lidt [eax]
     sti
+    call smp_test
     hlt

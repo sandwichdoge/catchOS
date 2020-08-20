@@ -1,5 +1,6 @@
 global load_gdt
 
+align 4096
 gdt_start:
 ; with this setup we're telling the cpu that kernel code & data segments can be anywhere in 4GB memory
 gdt_null:        ; null gdt entry, mandatory

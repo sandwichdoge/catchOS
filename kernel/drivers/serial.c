@@ -1,6 +1,5 @@
 #include "builddef.h"
 #include "drivers/io.h"
-#include "utils/spinlock.h"
 // I/O ports
 
 #define SERIAL_DATA_PORT(base) (base)
@@ -57,17 +56,14 @@ int serial_is_transmit_fifo_empty(unsigned int com) {
     return inb(SERIAL_LINE_STATUS_PORT(com)) & 0x20;
 }
 
-static struct spinlock lock = {0};
 // Spinning as long as the internal fifo isn't empty, then writing data to data I/O port
 public
 void serial_write(unsigned short com, char *data, unsigned int len) {
-    spinlock_lock(&lock);
     for (unsigned int i = 0; i < len; i++) {  // Hang here if interrupt enabled.
         while (serial_is_transmit_fifo_empty(com) == 0)
             ;
         outb(SERIAL_DATA_PORT(com), data[i]);
     }
-    spinlock_unlock(&lock);
 }
 
 public

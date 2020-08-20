@@ -205,7 +205,7 @@ void task_yield() {
 // Called by PIT ISR_TIMER.
 public
 void task_isr_priority() {
-    //if (!bsp_tasks_initialized) return;
+    //if (bsp_tasks_initialized) _dbg_log("[cpu%dint\n", lapic_get_cpu_id());
     struct task_struct *t = _current;
     // Other processors may modify counter in schedule(). Need to lock.
     rwlock_write_acquire(&lock_tasklist);
