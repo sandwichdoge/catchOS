@@ -10,6 +10,8 @@
 
 //http://www.osdever.net/tutorials/view/multiprocessing-support-for-hobby-oses-explained
 
+extern size_t SMPBOOT_TRAMPOLINE_FUNC;
+
 void trampoline() {
     // Setup kernel stack, GDT, IDT, Paging
     asm("cli;\n");
@@ -28,7 +30,7 @@ void smp_init() {
     lapic_enable(local_apic_base);
     lapic_send_init(local_apic_base, 1);
     delay(10);
-    lapic_send_startup(local_apic_base, 1, (size_t)&trampoline);
+    lapic_send_startup(local_apic_base, 1, &SMPBOOT_TRAMPOLINE_FUNC);
     delay(10);
-    lapic_send_startup(local_apic_base, 1, (size_t)&trampoline);
+    lapic_send_startup(local_apic_base, 1, &SMPBOOT_TRAMPOLINE_FUNC);
 }

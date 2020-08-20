@@ -1,0 +1,14 @@
+global SMPBOOT_TRAMPOLINE_FUNC
+global SMPBOOT_TRAMPOLINE_PARAMS
+
+;[0x400000] <- PARAMS
+;[0x3fffff] <- ESP
+
+section .SMPBOOT_TRAMPOLINE_PARAMS
+
+
+section .SMPBOOT_TRAMPOLINE_FUNC
+SMPBOOT_TRAMPOLINE_FUNC:
+    cli
+    ;xchg bx, bx
+    hlt

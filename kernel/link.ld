@@ -15,6 +15,12 @@ SECTIONS {
         *(.rodata*)
     }
 
+    .SMPBOOT_TRAMPOLINE_FUNC ALIGN (0x1000): AT(ADDR(.SMPBOOT_TRAMPOLINE_FUNC)-0x0)
+    {
+        *(.SMPBOOT_TRAMPOLINE_FUNC)
+        *(.SMPBOOT_TRAMPOLINE_*)
+    }
+
     .text ALIGN (0x1000): AT(ADDR(.text)-0x0)
     {
         *(.text)

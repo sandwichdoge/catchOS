@@ -103,7 +103,7 @@ void lapic_send_startup(size_t lapic_base, uint8_t lapic_id, size_t vector) {
 
     while (*lapic_icr_lo & ICR_SEND_PENDING)
         ;
-    _dbg_log("[LAPIC]Sent SIPI.\n");
+    _dbg_log("[LAPIC]Sent SIPI, starting EIP [0x%x].\n", vector);
 }
 
 void lapic_send_init(size_t lapic_base, uint8_t lapic_id) {
