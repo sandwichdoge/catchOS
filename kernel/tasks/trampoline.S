@@ -25,7 +25,6 @@ gdt_data:         ; kernel data section
 
 gdt_end:
 
-
 gdt_descriptor:
     dw gdt_end - gdt_start - 1 ; size of GDT, must be true size - 1
     dd gdt_start               ; address of the GDT
@@ -62,11 +61,12 @@ prot_mode:
     mov fs, ax
     mov gs, ax
 
-    lea eax, [TRAMPOLINE_STACK]
-    mov esp, [eax]
     xchg bx, bx
-    lea eax, [TRAMPOLINE_KERNEL_PD]
+    mov eax, [TRAMPOLINE_STACK]
+    mov esp, eax
+    mov eax, [TRAMPOLINE_KERNEL_PD]
     mov cr3, eax
-    lea eax, [TRAMPOLINE_IDT]
+    mov eax, [TRAMPOLINE_IDT]
     lidt [eax]
+    sti
     hlt

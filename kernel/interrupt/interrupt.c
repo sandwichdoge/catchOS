@@ -108,13 +108,19 @@ void interrupt_init(void) {
 
 public
 void interrupt_handler(size_t* return_reg, struct cpu_state cpu_state, uint32_t interrupt_num, struct stack_state stack_state) {
-    //_dbg_log("[Interrupt]num:[%u]\n", interrupt_num);
+    //_dbg_log("[CPU%d][Interrupt]num:[%u]\n", lapic_get_cpu_id(), interrupt_num);
 
     if (interrupt_num >= sizeof(int_handler_table) / sizeof(*int_handler_table)) {
         _dbg_log("Error. Unknown interrupt number.\n");
         return;  // Stop if array out of range
     }
     pic_ack(interrupt_num);
+
+    if (stack_state.error_code) {
+        _dbg_log("Error code [0x%x]\n", stack_state.error_code);
+        _dbg_log("Table [%d]\n", (stack_state.error_code >> 1) & 3);
+        _dbg_log("Index [%x]\n", (stack_state.error_code >> 3) & 4095);
+    }
 
     if (int_handler_table[interrupt_num]) {
         (*int_handler_table[interrupt_num])(return_reg, &cpu_state);

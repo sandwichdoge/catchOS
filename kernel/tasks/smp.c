@@ -32,6 +32,7 @@ void smp_init() {
     size_t stackbase = (size_t)kmalloc(4096) + 4096;
     size_t idt = (size_t)interrupt_get_idt();   // 1 idt singleton
     size_t kernel_pd = (size_t)get_kernel_pd(); // 1 pd singleton
+    _dbg_log("Allocated kstack for CPU %d at [0x%x]\n", 1, stackbase);
 
     struct _smpboot_trampoline_params smp_params;
     smp_params.stackbase = stackbase;
@@ -39,6 +40,7 @@ void smp_init() {
     smp_params.kernel_pd = kernel_pd;
     _memcpy(&SMPBOOT_TRAMPOLINE_PARAMS, &smp_params, sizeof(smp_params));
 
+    lapic_init(local_apic_base);
     _dbg_log("Enabling APIC - base [0x%x]\n", local_apic_base);
     lapic_enable(local_apic_base);
     lapic_send_init(local_apic_base, 1);

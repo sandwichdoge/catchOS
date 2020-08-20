@@ -11,6 +11,7 @@
 #include "utils/rwlock.h"
 #include "utils/spinlock.h"
 #include "utils/atomic.h"
+#include "drivers/lapic.h"
 #include "cpu.h"
 
 // Array of all current tasks. Only 64 tasks can run at a time for now.
