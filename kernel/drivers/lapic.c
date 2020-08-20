@@ -99,11 +99,25 @@ void lapic_send_startup(size_t lapic_base, uint8_t lapic_id, size_t vector) {
     uint32_t *lapic_icr_lo = (uint32_t*)(lapic_base + 0x0300);
 
     *lapic_icr_hi = lapic_id << ICR_DESTINATION_SHIFT;  // DESTINATION
-    *lapic_icr_lo = vector | ICR_STARTUP | ICR_PHYSICAL | ICR_ASSERT | ICR_EDGE | ICR_NO_SHORTHAND;
+    *lapic_icr_lo = (vector / 4096) | ICR_STARTUP | ICR_PHYSICAL | ICR_ASSERT | ICR_EDGE | ICR_NO_SHORTHAND;
 
     while (*lapic_icr_lo & ICR_SEND_PENDING)
         ;
+    _dbg_log("[LAPIC]Sent SIPI.\n");
 }
+
+void lapic_send_init(size_t lapic_base, uint8_t lapic_id) {
+    uint32_t *lapic_icr_hi = (uint32_t*)(lapic_base + 0x0310);
+    uint32_t *lapic_icr_lo = (uint32_t*)(lapic_base + 0x0300);
+
+    *lapic_icr_hi = lapic_id << ICR_DESTINATION_SHIFT;  // DESTINATION
+    *lapic_icr_lo = ICR_INIT | ICR_PHYSICAL | ICR_ASSERT | ICR_EDGE | ICR_NO_SHORTHAND;
+
+    while (*lapic_icr_lo & ICR_SEND_PENDING)
+        ;
+    _dbg_log("[LAPIC]Sent INIT IPI.\n");
+}
+
 
 public
 int32_t lapic_enable(size_t lapic_base) {

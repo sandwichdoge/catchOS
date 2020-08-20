@@ -1,7 +1,7 @@
 ENTRY(loader)
 
 SECTIONS {
-    . = 0x00000000;
+    . = 0x10000;
     KERNEL_START_PHYS = . - 0x0;
     KERNEL_START_VIRTUAL = .;
 

@@ -6,14 +6,15 @@
 #include "paging.h"
 #include "utils/debug.h"
 #include "builddef.h"
+#include "timer.h"
 
 //http://www.osdever.net/tutorials/view/multiprocessing-support-for-hobby-oses-explained
 
 void trampoline() {
     // Setup kernel stack, GDT, IDT, Paging
-    asm("cli;\n"
-    "xchg %bx, %bx;\n");
-    asm("movl %esp, 0x2fffff");
+    asm("cli;\n");
+    asm("movl %esp, 0x2fffff;hlt;");
+    _dbg_log("CPU1\n");
 } __attribute__((aligned(4096)))
 
 public
@@ -25,5 +26,9 @@ void smp_init() {
 
     _dbg_log("Enabling APIC - base [0x%x]\n", local_apic_base);
     lapic_enable(local_apic_base);
+    lapic_send_init(local_apic_base, 1);
+    delay(10);
+    lapic_send_startup(local_apic_base, 1, (size_t)&trampoline);
+    delay(10);
+    lapic_send_startup(local_apic_base, 1, (size_t)&trampoline);
 }
-
