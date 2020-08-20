@@ -54,11 +54,12 @@ void kmain(unsigned int magic, unsigned int addr) {
 
     // Setup interrupts
     interrupt_init();
-    timer_init();
+    timer_init(1000);
     
     asm("sti");  // Need PIT to boot smp
     smp_init();
     asm("cli");
+    timer_init(100);
     tasks_init();
 
     // Perform tests

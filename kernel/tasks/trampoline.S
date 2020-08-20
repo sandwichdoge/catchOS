@@ -70,5 +70,4 @@ prot_mode:
     mov eax, [TRAMPOLINE_IDT]
     lidt [eax]
     sti
-    call smp_test
     hlt
