@@ -6,3 +6,4 @@
 .vscode
 
 output/serial_debug.txt
+output/qemulogs.txt
