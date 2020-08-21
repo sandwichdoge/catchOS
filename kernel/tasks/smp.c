@@ -50,15 +50,15 @@ void smp_init() {
     lapic_enable(local_apic_base);  // Enable BSP's LAPIC just in case.
 
     // https://wiki.osdev.org/Symmetric_Multiprocessing#Startup_Sequence
-    lapic_send_init(local_apic_base, 1);
+    lapic_send_init(1);
     delay_bootstrap(10);
 
-    lapic_send_startup(local_apic_base, 1, (size_t)&SMPBOOT_TRAMPOLINE_FUNC);
+    lapic_send_startup(1, (size_t)&SMPBOOT_TRAMPOLINE_FUNC);
     delay_bootstrap(1);
     if (AP_STARTUP_SUCCESSFUL)
         goto success;
 
-    lapic_send_startup(local_apic_base, 1, (size_t)&SMPBOOT_TRAMPOLINE_FUNC);
+    lapic_send_startup(1, (size_t)&SMPBOOT_TRAMPOLINE_FUNC);
     delay_bootstrap(1000);
     if (!AP_STARTUP_SUCCESSFUL)
         goto fail;
