@@ -1,4 +1,4 @@
-global load_gdt
+global gdt_descriptor
 
 align 4096
 gdt_start:
@@ -33,8 +33,3 @@ gdt_descriptor:
 ; Offsets of GDT entries in GDT, unused for now
 CODE_SEG equ gdt_code - gdt_start
 DATA_SEG equ gdt_data - gdt_start
-
-
-load_gdt:                    ; load global descriptor table into processor
-    lgdt [gdt_descriptor]
-    ret

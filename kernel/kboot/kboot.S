@@ -4,7 +4,7 @@
 
 global switch_to_pm
 global kboot
-extern load_gdt
+extern gdt_descriptor      ; global GDT
 extern kmain
 extern mbinfo_struct
 extern mbinfo_magic
@@ -38,6 +38,5 @@ init_pm:
     jmp $
 
 kboot:
-    ; TODO paging here
-    call load_gdt
+    lgdt [gdt_descriptor]
     call switch_to_pm
