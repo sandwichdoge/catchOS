@@ -7,3 +7,5 @@
 
 output/serial_debug.txt
 output/qemulogs.txt
+dis_kernel.s
+
