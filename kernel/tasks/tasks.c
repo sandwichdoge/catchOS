@@ -147,7 +147,6 @@ void task_switch_to(struct task_struct* next) {
 private
 void schedule(void* unused) {
     //_dbg_log("Total tasks:%u\n", _nr_tasks);
-    if (!bsp_tasks_initialized) return;
     _current->interruptible = 0;
     int c, next;
     while (1) {

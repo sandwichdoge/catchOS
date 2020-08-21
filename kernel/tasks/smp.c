@@ -44,8 +44,8 @@ void smp_init() {
     _dbg_log("Enabling APIC - base [0x%x]\n", local_apic_base);
     lapic_enable(local_apic_base);
     lapic_send_init(local_apic_base, 1);
-    delay(10);
+    delay_bootstrap(10);
     lapic_send_startup(local_apic_base, 1, (size_t)&SMPBOOT_TRAMPOLINE_FUNC);
-    delay(10);
+    delay_bootstrap(10);
     lapic_send_startup(local_apic_base, 1, (size_t)&SMPBOOT_TRAMPOLINE_FUNC);
 }

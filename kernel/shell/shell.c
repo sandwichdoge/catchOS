@@ -145,7 +145,7 @@ private
 void test_multitasking(void* screenpos) {
     _dbg_log("Test multitasking..\n");
     char msg[16];
-    for (int i = 0; i < 3; ++i) {
+    for (int i = 0; i < 8; ++i) {
         _memset(msg, 0, sizeof(msg));
         _int_to_str(msg, sizeof(msg), shell_gettime());
         syscall_fb_write_str(msg, (size_t*)screenpos, _strlen(msg) + 1);
@@ -179,7 +179,7 @@ void shell_handle_cmd(char* cmd) {
     if (_strncmp(cmd, "uptime", _strlen("uptime")) == 0) {
         static char ticksbuf[12];
         _memset(ticksbuf, 0, sizeof(ticksbuf));
-        size_t ticks = shell_gettime() * 10;
+        size_t ticks = shell_gettime();
         _int_to_str(ticksbuf, sizeof(ticksbuf), ticks);
         shell_cout(ticksbuf);
         shell_cout("\n");
