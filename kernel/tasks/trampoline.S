@@ -41,3 +41,6 @@ prot_mode:
     lidt [eax]
     sti
     hlt
+    hlt
+    hlt
+    hlt

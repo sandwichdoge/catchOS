@@ -14,6 +14,7 @@
 #include "multiboot_info.h"
 #include "utils/debug.h"
 #include "smp.h"
+#include "drivers/lapic.h"
 
 struct semaphore s;
 void test_multitask(void *done_cb) {
@@ -42,9 +43,10 @@ void kmain(unsigned int magic, unsigned int addr) {
         panic();
     }
 
+    _dbg_log("[CPU%d]kmain\n", lapic_get_cpu_id());
+
     multiboot_info_init((struct multiboot_tag *)addr);
     kinfo_init();
-    _dbg_log("kmain\n");
 
     kheap_init();
     mmu_init();
