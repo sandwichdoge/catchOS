@@ -107,9 +107,10 @@ uint8_t lapic_get_ver(size_t lapic_base) {
 }
 
 public
-void lapic_send_startup(size_t lapic_base, uint8_t lapic_id, size_t vector) {
-    uint32_t *lapic_icr_hi = (uint32_t*)(lapic_base + 0x0310);
-    uint32_t *lapic_icr_lo = (uint32_t*)(lapic_base + 0x0300);
+void lapic_send_startup(uint8_t lapic_id, size_t vector) {
+    if (!is_initialized) return;
+    uint32_t *lapic_icr_hi = (uint32_t*)(_lapic_base + 0x0310);
+    uint32_t *lapic_icr_lo = (uint32_t*)(_lapic_base + 0x0300);
 
     *lapic_icr_hi = lapic_id << ICR_DESTINATION_SHIFT;  // DESTINATION
     *lapic_icr_lo = (vector / 4096) | ICR_STARTUP | ICR_PHYSICAL | ICR_ASSERT | ICR_EDGE | ICR_NO_SHORTHAND;
@@ -119,9 +120,10 @@ void lapic_send_startup(size_t lapic_base, uint8_t lapic_id, size_t vector) {
     _dbg_log("[LAPIC]Sent SIPI, starting EIP [0x%x].\n", vector);
 }
 
-void lapic_send_init(size_t lapic_base, uint8_t lapic_id) {
-    uint32_t *lapic_icr_hi = (uint32_t*)(lapic_base + 0x0310);
-    uint32_t *lapic_icr_lo = (uint32_t*)(lapic_base + 0x0300);
+void lapic_send_init(uint8_t lapic_id) {
+    if (!is_initialized) return;
+    uint32_t *lapic_icr_hi = (uint32_t*)(_lapic_base + 0x0310);
+    uint32_t *lapic_icr_lo = (uint32_t*)(_lapic_base + 0x0300);
 
     *lapic_icr_hi = lapic_id << ICR_DESTINATION_SHIFT;  // DESTINATION
     *lapic_icr_lo = ICR_INIT | ICR_PHYSICAL | ICR_ASSERT | ICR_EDGE | ICR_NO_SHORTHAND;

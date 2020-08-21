@@ -232,6 +232,7 @@ void _cpu_idle_process(void* unused) {
 
 public
 void tasks_init() {
+    timer_init_sched(100);
     rwlock_init(&lock_tasklist);
     task_new(_cpu_idle_process, NULL, 1024, 1);
     bsp_tasks_initialized = 1;

@@ -1,6 +1,9 @@
 global SMPBOOT_TRAMPOLINE_FUNC
 global SMPBOOT_TRAMPOLINE_PARAMS
 extern gdt_descriptor
+extern AP_STARTUP_SUCCESSFUL    ; Modify this flag on successful startup to let BSP know we're good
+
+; All APs go through the same trampoline code one at a time. We do not start all APs at the same time in parallel here.
 
 section .SMPBOOT_TRAMPOLINE_PARAMS
 SMPBOOT_TRAMPOLINE_PARAMS:
@@ -35,10 +38,12 @@ prot_mode:
 
     mov eax, [TRAMPOLINE_STACK]
     mov esp, eax
-    mov eax, [TRAMPOLINE_KERNEL_PD]
-    mov cr3, eax
-    mov eax, [TRAMPOLINE_IDT]
-    lidt [eax]
+    mov ebx, [TRAMPOLINE_KERNEL_PD]
+    mov cr3, ebx
+    mov ecx, [TRAMPOLINE_IDT]
+    lidt [ecx]
+    mov eax, 1
+    mov [AP_STARTUP_SUCCESSFUL], eax
     sti
     hlt
     hlt

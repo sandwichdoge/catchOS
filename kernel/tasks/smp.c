@@ -15,6 +15,8 @@
 extern size_t SMPBOOT_TRAMPOLINE_FUNC;
 extern size_t SMPBOOT_TRAMPOLINE_PARAMS;
 
+uint8_t AP_STARTUP_SUCCESSFUL = 0;   // Trampoline code will set this.
+
 struct _smpboot_trampoline_params {
     size_t stackbase;
     size_t idt;
@@ -40,12 +42,34 @@ void smp_init() {
     smp_params.kernel_pd = kernel_pd;
     _memcpy(&SMPBOOT_TRAMPOLINE_PARAMS, &smp_params, sizeof(smp_params));
 
+    // Begin SMP startup sequence
+    asm("sti");  // Need PIT to boot smp
+    timer_init_bootstrap(1000);
+
     lapic_init(local_apic_base);
-    _dbg_log("Enabling APIC - base [0x%x]\n", local_apic_base);
-    lapic_enable(local_apic_base);
+    lapic_enable(local_apic_base);  // Enable BSP's LAPIC just in case.
+
+    // https://wiki.osdev.org/Symmetric_Multiprocessing#Startup_Sequence
     lapic_send_init(local_apic_base, 1);
     delay_bootstrap(10);
+
     lapic_send_startup(local_apic_base, 1, (size_t)&SMPBOOT_TRAMPOLINE_FUNC);
-    delay_bootstrap(10);
+    delay_bootstrap(1);
+    if (AP_STARTUP_SUCCESSFUL)
+        goto success;
+
     lapic_send_startup(local_apic_base, 1, (size_t)&SMPBOOT_TRAMPOLINE_FUNC);
+    delay_bootstrap(1000);
+    if (!AP_STARTUP_SUCCESSFUL)
+        goto fail;
+
+fail:
+    _dbg_log("Failed to start up AP.\n");
+    asm("cli");
+    return;
+success:
+    AP_STARTUP_SUCCESSFUL = 0;  // Reset this flag for reuse on next CPU startup
+    _dbg_log("AP startup successful.\n");
+    asm("cli");
+    return;
 }

@@ -58,13 +58,9 @@ void kmain(unsigned int magic, unsigned int addr) {
     interrupt_init();
 
     // Init SMP
-    timer_init_bootstrap(1000);
-    asm("sti");  // Need PIT to boot smp
     smp_init();
-    asm("cli");
     
     // SMP initialized, start the scheduler
-    timer_init_sched(100);
     tasks_init();
 
     // Perform tests
