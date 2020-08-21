@@ -43,7 +43,7 @@ prot_mode:
     mov ecx, [TRAMPOLINE_IDT]
     lidt [ecx]
     mov eax, 1
-    mov [AP_STARTUP_SUCCESSFUL], eax
+    mov [AP_STARTUP_SUCCESSFUL], eax    ; Let BSP know we have successfully started.
     sti
     hlt
     hlt

@@ -246,8 +246,21 @@ volatile int *status = SHARED_ADDRESS;
 In theory, if the shared memory is cached in one of the processors' cache, there'll be problem for the memory in question has to be uncached for other processors to see. However this problem is already solved by a hardware-implemented protocol called "Coherency Protocol". This protocol ensures changes made by one processor are seen by all other processors.
 
 #### 4.4.5 Local APIC initialization
-After bootstrapping the kernel. We send SMP to wake up other processors, their EIP will point to schedule() function.
-First struct_task is always kmaint on all processors. kmaint is a placeholder task that's not in the tasklist, we may freely write garbage in it.
+After bootstrapping the kernel. We send SMP to wake up other processors, telling it to start executing at a trampoline function's address.
+This function is ```SMPBOOT_TRAMPOLINE_FUNC``` in our kernel, its address must be page-aligned and its VMA must be located at lower than 0xff000. The vector in this SIPI is only 8 bits, it contains the first 8 bits of the address of our trampoline function.
+
+#### 4.4.6 Trampoline Function
+The address of our trampoline function must be page-aligned and its VMA must be located at lower than 0xff000 in order to fit in the SIPI vector.
+This is the first piece of code that our secondary processors will execute when they're started. This means they're still in 16-bit real mode.
+We have to encode the initial instructions as 16-bit (```[BITS 16]```) until we reach the code that switches us to protected 32-bit mode, at this point onwards, use [BITS 32].
+
+The trampoline function is responsible for bootstrapping the new CPU into the same state as the BSP:
+- Switch to 32-bit protected mode.
+- Setting a stack for our local copy of the kernel. Ideally the BSP will allocate a page and pass it to trampoline function to be used as the stack. The params are located at ```SMPBOOT_TRAMPOLINE_PARAMS``` in our implementation.
+- Initialize CS, SS, DS, ES, FS, GS registers.
+- Set up and load GDT.
+- Set up and load IDT.
+
 
 ### 4.5 Multitasking
 We use Preemptive Multitasking model with priority based round-robin scheduling algorithm.
