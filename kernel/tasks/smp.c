@@ -23,8 +23,8 @@ struct _smpboot_trampoline_params {
     size_t kernel_pd;
 };
 
-public
-void smp_init() {
+private
+int32_t start_APs() {
     struct MADT_info *madt_info = madt_get_info();
     size_t local_apic_base = (size_t)madt_info->local_apic_addr;
     paging_map_page(local_apic_base, local_apic_base, get_kernel_pd());
@@ -50,15 +50,15 @@ void smp_init() {
     lapic_enable(local_apic_base);  // Enable BSP's LAPIC just in case.
 
     // https://wiki.osdev.org/Symmetric_Multiprocessing#Startup_Sequence
-    lapic_send_init(1);
+    lapic_send_init(local_apic_base, 1);
     delay_bootstrap(10);
 
-    lapic_send_startup(1, (size_t)&SMPBOOT_TRAMPOLINE_FUNC);
+    lapic_send_startup(local_apic_base, 1, (size_t)&SMPBOOT_TRAMPOLINE_FUNC);
     delay_bootstrap(1);
     if (AP_STARTUP_SUCCESSFUL)
         goto success;
 
-    lapic_send_startup(1, (size_t)&SMPBOOT_TRAMPOLINE_FUNC);
+    lapic_send_startup(local_apic_base, 1, (size_t)&SMPBOOT_TRAMPOLINE_FUNC);
     delay_bootstrap(1000);
     if (!AP_STARTUP_SUCCESSFUL)
         goto fail;
@@ -66,10 +66,21 @@ void smp_init() {
 fail:
     _dbg_log("Failed to start up AP.\n");
     asm("cli");
-    return;
+    return -1;
 success:
     AP_STARTUP_SUCCESSFUL = 0;  // Reset this flag for reuse on next CPU startup
     _dbg_log("AP startup successful.\n");
     asm("cli");
-    return;
+    return 0;
+}
+
+private
+int32_t init_io_apic() {
+    return 0;
+}
+
+public
+void smp_init() {
+    start_APs();
+    init_io_apic();
 }
