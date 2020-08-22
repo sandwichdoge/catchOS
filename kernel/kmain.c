@@ -43,8 +43,6 @@ void kmain(unsigned int magic, unsigned int addr) {
         panic();
     }
 
-    _dbg_log("[CPU%d]kmain\n", lapic_get_cpu_id());
-
     multiboot_info_init((struct multiboot_tag *)addr);
     kinfo_init();
 

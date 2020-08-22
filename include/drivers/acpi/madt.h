@@ -28,7 +28,7 @@ struct MADT_entry_io_APIC {
     uint8_t io_APIC_id;
     uint8_t reserved;
     uint32_t io_APIC_addr;
-    uint32_t global_system_interrupt_base;
+    uint32_t global_system_interrupt_base;  // First first IRQ that this IOAPIC handles
 };
 
 // Type 2. This type explains how IRQ sources are mapped to global system interrupts.

@@ -76,24 +76,16 @@ int32_t has_apic() {
 }
 
 static size_t _lapic_base = 0;
-static int32_t is_initialized = 0;
 public
 void lapic_init(size_t lapic_base) {
     _lapic_base = lapic_base;
-    is_initialized = 1;
 }
 
-private
+public
 uint8_t lapic_get_id(size_t lapic_base) {
     uint32_t lapic_id_reg = *(uint32_t*)(lapic_base + LAPIC_ID);
     uint8_t lapic_id = (lapic_id_reg >> 24) & 0xf;
     return lapic_id;
-}
-
-// Get local CPU's APIC ID
-public
-inline uint8_t lapic_get_cpu_id() {
-    return (is_initialized ? lapic_get_id(_lapic_base) : -1);
 }
 
 public
@@ -130,7 +122,6 @@ void lapic_send_init(size_t lapic_base, uint8_t lapic_id) {
         ;
     _dbg_log("[LAPIC]Sent INIT IPI.\n");
 }
-
 
 public
 int32_t lapic_enable(size_t lapic_base) {

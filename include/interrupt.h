@@ -6,6 +6,9 @@
 
 #define INT_GPF 13
 #define INT_PAGEFAULT 14
+
+#define IRQ_REDIR_BASE 32
+
 #define INT_SYSTIME 32
 #define INT_KEYBOARD 33              // 0x20 + 1
 #define INT_COM1 36                  // 0x20 + 4

@@ -3,6 +3,7 @@
 #include "builddef.h"
 #include "drivers/pic.h"
 #include "panic.h"
+#include "smp.h"
 #include "utils/debug.h"
 
 #define IDT_SIZE 256
@@ -89,11 +90,11 @@ void interrupt_init(void) {
     // Must initialize all asm irq handlers that we'll use here.
     // Keyboard press interrupt, 0x20 + 1 (which is PIC1_START_INTERRUPT + IRQ_1)
     interrupt_encode_idt_entry(INT_GPF, (size_t)asm_int_handler_13);
+    interrupt_encode_idt_entry(INT_PAGEFAULT, (size_t)asm_int_handler_14);
     interrupt_encode_idt_entry(INT_SYSTIME, (size_t)asm_int_handler_32);
     interrupt_encode_idt_entry(INT_KEYBOARD, (size_t)asm_int_handler_33);
     interrupt_encode_idt_entry(INT_COM1, (size_t)asm_int_handler_36);
     interrupt_encode_idt_entry(INT_DEVICE_NOT_AVAiLABLE, (size_t)asm_int_handler_39);
-    interrupt_encode_idt_entry(INT_PAGEFAULT, (size_t)asm_int_handler_14);
     interrupt_encode_idt_entry(INT_SYSCALL, (size_t)asm_int_handler_128);
 
     IDT.size = sizeof(struct idt_entry) * IDT_SIZE - 1;
@@ -115,7 +116,7 @@ void interrupt_handler(size_t* return_reg, struct cpu_state cpu_state, uint32_t 
     pic_ack(interrupt_num);
 
     if (stack_state.error_code) {
-        _dbg_log("[CPU%d][Interrupt]num:[%u]\n", lapic_get_cpu_id(), interrupt_num);
+        _dbg_log("[CPU%d][Interrupt]num:[%u]\n", smp_get_cpu_id(), interrupt_num);
         _dbg_log("Error code [0x%x]\n", stack_state.error_code);
         _dbg_log("Table [%d]\n", (stack_state.error_code >> 1) & 3);
         _dbg_log("Index [%x]\n", (stack_state.error_code >> 3) & 4095);

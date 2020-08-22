@@ -2,15 +2,18 @@
 #include "stdint.h"
 #include "drivers/acpi/madt.h"
 #include "drivers/lapic.h"
+#include "drivers/ioapic.h"
+#include "drivers/pic.h"
 #include "pageframe_alloc.h"
 #include "paging.h"
 #include "utils/debug.h"
 #include "builddef.h"
 #include "timer.h"
-#include "interrupt.h"  // interrupt_get_idt()
+#include "interrupt.h"  // interrupt_get_idt(), IRQ_REDIR_BASE
 #include "kheap.h"
 
 //http://www.osdever.net/tutorials/view/multiprocessing-support-for-hobby-oses-explained
+// We assume all local APICs and their CPUs have the same ID.
 
 extern size_t SMPBOOT_TRAMPOLINE_FUNC;
 extern size_t SMPBOOT_TRAMPOLINE_PARAMS;
@@ -76,7 +79,30 @@ success:
 
 private
 int32_t init_io_apic() {
+    struct MADT_info *madt_info = madt_get_info();
+    if (madt_info->io_apic_count == 0) {    // No APICs available (Intel 8086).
+        return -1;
+    }
+    for (uint16_t i = 0; i < madt_info->io_apic_count; ++i) {
+        ioapic_init(madt_info->io_apic_addrs[i]);
+    }
+    pic_uninit();
     return 0;
+}
+
+public
+uint8_t smp_get_cpu_id() {
+    struct MADT_info *madt_info = madt_get_info();
+    return lapic_get_id((size_t)madt_info->local_apic_addr);
+}
+
+/* For now we only use physical destination mode, that means one irq may only be sent to 1 local APIC.
+ * If we want to send an irq to a bunch of local APICs then we'll have to use logical destination mode.
+ */
+public
+void smp_redirect_external_irq(uint8_t irq, uint8_t dest_cpu) {
+    uint8_t phys_irq = irq - IRQ_REDIR_BASE;
+    ioapic_redirect_external_int(phys_irq, dest_cpu);
 }
 
 public
