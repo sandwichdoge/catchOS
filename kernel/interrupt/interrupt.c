@@ -11,7 +11,8 @@
 extern void asm_int_handler_32();   // Handler for PIT channel0 system timer
 extern void asm_int_handler_33();   // Handler for keyboard press
 extern void asm_int_handler_36();   // Handler for com1
-extern void asm_int_handler_39();   // Handler for device not available
+extern void asm_int_handler_39();   // Handler for device not available4
+extern void asm_int_handler_15();   // Handler for APIC spurious irqs
 extern void asm_int_handler_14();   // Handler for page fault
 extern void asm_int_handler_13();   // Handler for general protection fault
 extern void asm_int_handler_128();  // Handler for syscall
@@ -91,6 +92,7 @@ void interrupt_init(void) {
     // Keyboard press interrupt, 0x20 + 1 (which is PIC1_START_INTERRUPT + IRQ_1)
     interrupt_encode_idt_entry(INT_GPF, (size_t)asm_int_handler_13);
     interrupt_encode_idt_entry(INT_PAGEFAULT, (size_t)asm_int_handler_14);
+    interrupt_encode_idt_entry(INT_APIC_SPURIOUS, (size_t)asm_int_handler_15);
     interrupt_encode_idt_entry(INT_SYSTIME, (size_t)asm_int_handler_32);
     interrupt_encode_idt_entry(INT_KEYBOARD, (size_t)asm_int_handler_33);
     interrupt_encode_idt_entry(INT_COM1, (size_t)asm_int_handler_36);

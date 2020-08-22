@@ -2,6 +2,7 @@
 #include "drivers/acpi/madt.h"
 #include "cpu.h"
 #include "utils/debug.h"
+#include "interrupt.h"  // interrupt_register() for APIC spurious irqs
 #include "builddef.h"
 
 #define LAPIC_ID                        0x0020  // Local APIC ID
@@ -66,6 +67,8 @@
 // Destination Field
 #define ICR_DESTINATION_SHIFT           24
 
+#define SPURIOUS_IVT 0xf
+
 private
 int32_t has_apic() {
     int32_t ret = cpuid_hasapic();
@@ -73,12 +76,6 @@ int32_t has_apic() {
         _dbg_log("No APIC.\n");
     }
     return ret;
-}
-
-static size_t _lapic_base = 0;
-public
-void lapic_init(size_t lapic_base) {
-    _lapic_base = lapic_base;
 }
 
 public
@@ -111,6 +108,7 @@ void lapic_send_startup(size_t lapic_base, uint8_t lapic_id, size_t vector) {
     _dbg_log("[LAPIC]Sent SIPI, starting EIP [0x%x].\n", vector);
 }
 
+public
 void lapic_send_init(size_t lapic_base, uint8_t lapic_id) {
     uint32_t *lapic_icr_hi = (uint32_t*)(lapic_base + 0x0310);
     uint32_t *lapic_icr_lo = (uint32_t*)(lapic_base + 0x0300);
@@ -123,13 +121,19 @@ void lapic_send_init(size_t lapic_base, uint8_t lapic_id) {
     _dbg_log("[LAPIC]Sent INIT IPI.\n");
 }
 
+private
+void ISR_APIC_SPURIOUS(size_t* return_reg, struct cpu_state* unused) { 
+    _dbg_log("Spurious APIC irq.\n");
+}
+
 public
-int32_t lapic_enable(size_t lapic_base) {
+int32_t lapic_init(size_t lapic_base) {
     if (!has_apic()) {
         return -1;
     }
     lapic_get_ver(lapic_base);
     _dbg_log("[APIC]Current ID[%u]\n", lapic_get_id(lapic_base));
-    *(uint32_t*)(lapic_base + LAPIC_SVR) |= 0x100;   // Enable spurious ints
+    interrupt_register(INT_APIC_SPURIOUS, ISR_APIC_SPURIOUS);
+    *(uint32_t*)(lapic_base + LAPIC_SVR) |= (0x100 | SPURIOUS_IVT);   // Enable spurious int 0xf
     return 0;
 }

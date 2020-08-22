@@ -20,6 +20,7 @@ no_error_code_interrupt_handler 32      ; hw interrupt 0 (system timer)
 no_error_code_interrupt_handler	33	    ; hw interrupt 1 (keyboard)
 no_error_code_interrupt_handler 36      ; hw interrupt 4 (com1)
 no_error_code_interrupt_handler 39      ; hw device_not_available
+no_error_code_interrupt_handler 15	        ; exception interrupt 14 (paging)
 error_code_interrupt_handler 14	        ; exception interrupt 14 (paging)
 error_code_interrupt_handler 13	        ; exception interrupt 13 (general protection fault)
 no_error_code_interrupt_handler 128     ; sw interrupt 128 (syscall)

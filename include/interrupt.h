@@ -6,6 +6,7 @@
 
 #define INT_GPF 13
 #define INT_PAGEFAULT 14
+#define INT_APIC_SPURIOUS 15
 
 #define IRQ_REDIR_BASE 32
 

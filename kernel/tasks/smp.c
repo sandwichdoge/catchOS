@@ -45,8 +45,7 @@ int32_t start_APs() {
     smp_params.kernel_pd = kernel_pd;
     _memcpy(&SMPBOOT_TRAMPOLINE_PARAMS, &smp_params, sizeof(smp_params));
 
-    lapic_init(local_apic_base);
-    lapic_enable(local_apic_base);  // Enable BSP's LAPIC just in case.
+    lapic_init(local_apic_base);    // Enable LAPIC and handle APIC spurious irqs.
 
     // Begin SMP startup sequence
     asm("sti");  // Need PIT to boot smp
