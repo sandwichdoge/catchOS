@@ -279,7 +279,18 @@ This means a timer will trigger an interrupt to run a scheduler, who picks the m
 - Priority based round-robin algorithm.
 - All tasks are shared a time slice based on their priority. For example, a task with priority 8 and a task with priority 2 are running at the same time. The task with priority 8 with get 80% of cpu time.
 
-#### 4.5.3 Multitasking API
+#### 4.5.3 SMP Preemptive Scheduler
+- All CPUs should not access the scheduler at the same time in parallel to minimize lock contention on the tasklist.
+- So we deliver the timer-induced preemptive scheduling ISR to each CPU at a time, sequentially.
+- This is done by redirecting the Timer IRQ to another CPU everytime it's interrupt handler is called. We configure this in the I/O APIC.
+- ```task_yield()``` still works with this setup, because the schedule() function may be run by many CPUs in parallel.
+```
+1. Timer IRQ -> CPU 0 -> ISR_TIMER() -> smp_redir_irq(INT_TIMER, next_cpu) -> sched()
+2. Timer IRQ -> CPU 1 -> ISR_TIMER() -> smp_redir_irq(INT_TIMER, next_cpu) -> sched()
+3. Timer IRQ -> CPU 0 -> ISR_TIMER() -> smp_redir_irq(INT_TIMER, next_cpu) -> sched()
+```
+
+#### 4.5.4 Multitasking API
 See "tasks.h" file for details on ```struct task_struct```.
 ```
 struct task_struct* task_new(void (*fp)(void*), void* arg, unsigned int stack_size, int priority)
