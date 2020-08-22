@@ -26,24 +26,58 @@ struct _smpboot_trampoline_params {
     size_t kernel_pd;
 };
 
+// Init,prepare kernel stack for new AP.
+private
+void prepare_trampoline_params() {
+    // Setup params
+    struct _smpboot_trampoline_params smp_params;
+    smp_params.stackbase = (size_t)kmalloc(4096) + 4096;
+    smp_params.idt = (size_t)interrupt_get_idt();   // 1 idt singleton
+    smp_params.kernel_pd = (size_t)get_kernel_pd(); // 1 pd singleton
+
+    // SMPBOOT_TRAMPOLINE_PARAMS is located in trampoline.S, it's used to pass arguments when booting a new AP.
+    _memcpy(&SMPBOOT_TRAMPOLINE_PARAMS, &smp_params, sizeof(smp_params));
+}
+
+private
+int32_t start_AP(size_t local_apic_base, uint8_t cpu_id) {
+    // https://wiki.osdev.org/Symmetric_Multiprocessing#Startup_Sequence
+
+    prepare_trampoline_params();
+
+    lapic_send_init(local_apic_base, cpu_id);
+    delay_bootstrap(10);
+
+    lapic_send_startup(local_apic_base, cpu_id, (size_t)&SMPBOOT_TRAMPOLINE_FUNC);
+    delay_bootstrap(1);
+    if (AP_STARTUP_SUCCESSFUL) {
+        goto success;
+    }
+
+    lapic_send_startup(local_apic_base, cpu_id, (size_t)&SMPBOOT_TRAMPOLINE_FUNC);
+    delay_bootstrap(1000);
+    if (AP_STARTUP_SUCCESSFUL) {
+        goto success;
+    } else {    // Second try failed, stop trying.
+        goto fail;
+    }
+
+success:
+    AP_STARTUP_SUCCESSFUL = 0; // Reset this flag for reuse on next CPU startup
+    _dbg_log("AP[%u] startup successful.\n", cpu_id);
+    return 0;
+
+fail:
+    _dbg_log("Failed to start up AP [%u].\n", cpu_id);
+    return -1;
+}
+
 private
 int32_t start_APs() {
     struct MADT_info *madt_info = madt_get_info();
     size_t local_apic_base = (size_t)madt_info->local_apic_addr;
     paging_map_page(local_apic_base, local_apic_base, get_kernel_pd());
     pageframe_set_page_from_addr((void*)local_apic_base, 1);
-
-    // Setup params
-    size_t stackbase = (size_t)kmalloc(4096) + 4096;
-    size_t idt = (size_t)interrupt_get_idt();   // 1 idt singleton
-    size_t kernel_pd = (size_t)get_kernel_pd(); // 1 pd singleton
-    _dbg_log("Allocated kstack for CPU %d at [0x%x]\n", 1, stackbase);
-
-    struct _smpboot_trampoline_params smp_params;
-    smp_params.stackbase = stackbase;
-    smp_params.idt = idt;
-    smp_params.kernel_pd = kernel_pd;
-    _memcpy(&SMPBOOT_TRAMPOLINE_PARAMS, &smp_params, sizeof(smp_params));
 
     lapic_init(local_apic_base);    // Enable LAPIC and handle APIC spurious irqs.
 
@@ -52,29 +86,7 @@ int32_t start_APs() {
     timer_init_bootstrap(1000);
     
     for (uint8_t i = 1; i < madt_info->processor_count; ++i) {
-        // https://wiki.osdev.org/Symmetric_Multiprocessing#Startup_Sequence
-
-        lapic_send_init(local_apic_base, i);
-        delay_bootstrap(10);
-
-        lapic_send_startup(local_apic_base, i, (size_t)&SMPBOOT_TRAMPOLINE_FUNC);
-        delay_bootstrap(1);
-        if (AP_STARTUP_SUCCESSFUL) {
-            AP_STARTUP_SUCCESSFUL = 0;  // Reset this flag for reuse on next CPU startup
-            _dbg_log("AP[%u] startup successful.\n", i);
-            continue;
-        }
-
-        lapic_send_startup(local_apic_base, i, (size_t)&SMPBOOT_TRAMPOLINE_FUNC);
-        delay_bootstrap(1000);
-        if (AP_STARTUP_SUCCESSFUL) {
-            AP_STARTUP_SUCCESSFUL = 0;  // Reset this flag for reuse on next CPU startup
-            _dbg_log("AP[%u] startup successful.\n", i);
-            continue;
-        }
-
-        _dbg_log("Failed to start up AP [%u].\n", i);
-        break;
+        start_AP(local_apic_base, i);
     }
     asm("cli");
 
@@ -88,6 +100,8 @@ int32_t init_io_apic() {
         return -1;
     }
     for (uint16_t i = 0; i < madt_info->io_apic_count; ++i) {
+        paging_map_page(madt_info->io_apic_addrs[i], madt_info->io_apic_addrs[i], get_kernel_pd());
+        pageframe_set_page_from_addr((void*)(madt_info->io_apic_addrs[i]), 1);
         ioapic_init(madt_info->io_apic_addrs[i]);
     }
     pic_uninit();
