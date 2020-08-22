@@ -27,16 +27,16 @@ union ioapic_redir_entry {
 
 private
 void ioapic_write_reg(size_t apic_base, uint32_t reg_index, uint32_t data) {
-    volatile uint32_t* io_reg_sel = (volatile uint32_t*)apic_base;
-    volatile uint32_t* io_reg_win = (volatile uint32_t*)(apic_base + IOAPIC_REGWIN);
+    uint32_t volatile* io_reg_sel = (uint32_t volatile*)apic_base;
+    uint32_t volatile* io_reg_win = (uint32_t volatile*)(apic_base + IOAPIC_REGWIN);
     *io_reg_sel = reg_index;
     *io_reg_win = data;
 }
 
 private
 uint32_t ioapic_read_reg(size_t apic_base, uint32_t reg_index) {
-    volatile uint32_t* io_reg_sel = (volatile uint32_t*)apic_base;
-    volatile uint32_t* io_reg_win = (volatile uint32_t*)(apic_base + IOAPIC_REGWIN);
+    uint32_t volatile* io_reg_sel = (uint32_t volatile*)apic_base;
+    uint32_t volatile* io_reg_win = (uint32_t volatile*)(apic_base + IOAPIC_REGWIN);
     *io_reg_sel = reg_index;
     return *io_reg_win;
 }
