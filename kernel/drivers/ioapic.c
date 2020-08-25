@@ -10,7 +10,6 @@
 // Range from 0x10 to 0x3F offset from IOAPIC base.
 #define IOAPIC_REGWIN 0x10
 
-#define IOAPIC_EXTERNAL_IRQ_MAX 24
 #define IOAPIC_EXTERNAL_IRQ_BASE 0x10
 
 union ioapic_redir_entry {
@@ -73,7 +72,7 @@ void ioapic_init(size_t apic_base) {
     uint32_t pins = ((ver >> 16) & 0xff) + 1;
     _dbg_log("IOAPIC pins: %d\n", pins);
 
-    for (uint8_t i = 0; i < IOAPIC_EXTERNAL_IRQ_MAX; ++i) {
-        //ioapic_redirect_external_int(apic_base, i, 0);
+    for (uint8_t i = 0; i < pins; ++i) {
+        ioapic_redirect_external_int(apic_base, i, 0);
     }
 }

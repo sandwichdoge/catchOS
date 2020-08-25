@@ -135,5 +135,6 @@ int32_t lapic_init(size_t lapic_base) {
     _dbg_log("[APIC]Current ID[%u]\n", lapic_get_id(lapic_base));
     interrupt_register(INT_APIC_SPURIOUS, ISR_APIC_SPURIOUS);
     *(uint32_t*)(lapic_base + LAPIC_SVR) |= (0x100 | SPURIOUS_IVT);   // Enable spurious int 0xf
+    *(uint32_t*)(lapic_base + LAPIC_EOI) = 0;   // Clean up jic.
     return 0;
 }

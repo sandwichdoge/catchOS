@@ -57,7 +57,11 @@ void kmain(unsigned int magic, unsigned int addr) {
 
     // Init SMP
     smp_init();
-    
+
+    // TODO exception 13 here
+    asm("sti");
+    while (1);
+
     // SMP initialized, start the scheduler
     tasks_init();
 
