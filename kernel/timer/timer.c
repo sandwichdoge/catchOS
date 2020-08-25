@@ -58,6 +58,6 @@ public
 int32_t timer_init_sched(size_t freq) {
     _freq = freq;
     pit_setfreq(freq);
-    //interrupt_register(INT_SYSTIME, ISR_SYSTIME_SCHED);
+    interrupt_register(INT_SYSTIME, ISR_SYSTIME_SCHED);
     return 0;
 }

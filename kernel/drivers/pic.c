@@ -82,10 +82,8 @@ void pic_uninit() {
     pic_init();
 }
 
-#define PIC_OFFSET 0x20
 public
 void pic_enable_irq(unsigned int irq_no) {
-    irq_no -= PIC_OFFSET;
     if (irq_no < 8) {
         pic1 &= ~(1 << irq_no);
         outb(PIC1_DATA, pic1);

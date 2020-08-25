@@ -73,6 +73,7 @@ struct MADT_info {
     uint8_t io_apic_ids[32];
     uint32_t io_apic_addrs[32];
     uint32_t io_apic_gsi_base[32];
+    uint8_t irq_override[24];
 };
 
 struct MADT* acpi_get_madt();

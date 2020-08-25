@@ -1,6 +1,8 @@
 #include "interrupt.h"
 
 #include "builddef.h"
+#include "drivers/ioapic.h"
+#include "drivers/lapic.h"
 #include "drivers/pic.h"
 #include "panic.h"
 #include "smp.h"
@@ -60,7 +62,11 @@ void interrupt_register(uint32_t irq, void (*isr)(size_t* return_reg, struct cpu
     int_handler_table[irq] = isr;
     if (is_hw_irq(irq)) {
         _dbg_log("Enabling HW interrupt %u.\n", irq);
-        pic_enable_irq(irq);
+        if (is_ioapic_initialized()) {
+            ioapic_redirect_external_int(irq - IRQ_REDIR_BASE, 0);
+        } else {
+            pic_enable_irq(irq - IRQ_REDIR_BASE);
+        }
     }
 }
 
@@ -115,7 +121,12 @@ void interrupt_handler(size_t* return_reg, struct cpu_state cpu_state, uint32_t 
         _dbg_log("Error. Unknown interrupt number.\n");
         return;  // Stop if array out of range
     }
-    pic_ack(interrupt_num);
+    
+    if (is_ioapic_initialized()) {
+        lapic_ack(lapic_get_base());
+    } else {
+        pic_ack(interrupt_num);
+    }
 
     if (stack_state.error_code) {
         _dbg_log("[CPU%d][Interrupt]num:[%u]\n", smp_get_cpu_id(), interrupt_num);

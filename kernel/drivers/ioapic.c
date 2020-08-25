@@ -3,6 +3,7 @@
 #include "utils/debug.h"
 #include "drivers/acpi/madt.h"
 #include "drivers/io.h"
+#include "interrupt.h"  // IRQ_REDIR_BASE
 
 // REDTBL allows us to choose which external interrupts are sent to which processors.
 // Index of REDTBL starts from index 0x10, 64 bits per redirection entry (corresponds to 1 irq).
@@ -48,11 +49,18 @@ uint32_t ioapic_read_reg(size_t apic_base, uint32_t reg_index) {
     return *io_reg_win;
 }
 
+static size_t _lapic_base = 0;
 
 public
-void ioapic_redirect_external_int(size_t apic_base, uint8_t irq, uint8_t dest_cpu) {
+void ioapic_redirect_external_int(uint8_t irq, uint8_t dest_cpu) {
     union ioapic_redir_entry entry = {0};
-    entry.vector = irq + 32;
+    struct MADT_info *madt_info = madt_get_info();
+
+    entry.vector = irq + IRQ_REDIR_BASE;
+    if (madt_info->irq_override[irq] > 0) { // Mapped IRQ, from interrupt override table in MADT.
+        irq += madt_info->irq_override[irq];
+    }
+
     entry.delivery_mode = 0;
     entry.dest_mode = 0;    // Phys dest mode
     entry.delivery_stat = 0;
@@ -61,18 +69,23 @@ void ioapic_redirect_external_int(size_t apic_base, uint8_t irq, uint8_t dest_cp
     entry.disabled = 0;     // Enabled
     entry.dest = dest_cpu;
 
-    ioapic_write_reg(apic_base, IOAPIC_EXTERNAL_IRQ_BASE + (irq * 2), entry.low);
-    ioapic_write_reg(apic_base, IOAPIC_EXTERNAL_IRQ_BASE + (irq * 2) + 1, entry.high);
+    ioapic_write_reg(_lapic_base, IOAPIC_EXTERNAL_IRQ_BASE + (irq * 2), entry.low);
+    ioapic_write_reg(_lapic_base, IOAPIC_EXTERNAL_IRQ_BASE + (irq * 2) + 1, entry.high);
 }
+
+static int32_t is_initialized = 0;
 
 public
 void ioapic_init(size_t apic_base) {
-    // Map irq#n to irq#n + 32 (for all 24 irqs)
     uint32_t ver = ioapic_read_reg(apic_base, 1); // VER
     uint32_t pins = ((ver >> 16) & 0xff) + 1;
     _dbg_log("IOAPIC pins: %d\n", pins);
 
-    for (uint8_t i = 0; i < pins; ++i) {
-        ioapic_redirect_external_int(apic_base, i, 0);
-    }
+    _lapic_base = apic_base;
+    is_initialized = 1;
+}
+
+public
+int32_t is_ioapic_initialized() {
+    return is_initialized;
 }

@@ -55,6 +55,11 @@ void madt_parse(struct MADT* madt) {
                     source_override->bus_source, source_override->irq_source, source_override->global_system_interrupt, source_override->flags);
                 _dbg_screen("[Source Override]Bus Source[%u], IRQ Source[%u], Global System Interrupt[%u], Flags[%u]\n", 
                     source_override->bus_source, source_override->irq_source, source_override->global_system_interrupt, source_override->flags);
+                uint8_t src = source_override->irq_source;
+                uint32_t mapped = source_override->global_system_interrupt;
+                if (src != mapped) {
+                    _madt_info.irq_override[src] = mapped;
+                }
                 break;
             }
             case MADT_ENTRY_NMI: {

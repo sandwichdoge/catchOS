@@ -126,6 +126,7 @@ void ISR_APIC_SPURIOUS(size_t* return_reg, struct cpu_state* unused) {
     _dbg_log("Spurious APIC irq.\n");
 }
 
+static size_t _lapic_base = 0;
 public
 int32_t lapic_init(size_t lapic_base) {
     if (!has_apic()) {
@@ -136,5 +137,17 @@ int32_t lapic_init(size_t lapic_base) {
     interrupt_register(INT_APIC_SPURIOUS, ISR_APIC_SPURIOUS);
     *(uint32_t*)(lapic_base + LAPIC_SVR) |= (0x100 | SPURIOUS_IVT);   // Enable spurious int 0xf
     *(uint32_t*)(lapic_base + LAPIC_EOI) = 0;   // Clean up jic.
+    *(uint32_t*)(lapic_base + LAPIC_TPR) = 0;
+    _lapic_base = lapic_base;
     return 0;
+}
+
+public
+void lapic_ack(size_t lapic_base) {
+    *(uint32_t*)(lapic_base + LAPIC_EOI) = 0;
+}
+
+public
+inline size_t lapic_get_base() {
+    return _lapic_base;
 }
