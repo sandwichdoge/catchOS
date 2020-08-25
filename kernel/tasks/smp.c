@@ -99,12 +99,12 @@ int32_t init_io_apic() {
     if (madt_info->io_apic_count == 0) {    // No APICs available (Intel 8086).
         return -1;
     }
+    pic_uninit();
     for (uint16_t i = 0; i < madt_info->io_apic_count; ++i) {
         paging_map_page(madt_info->io_apic_addrs[i], madt_info->io_apic_addrs[i], get_kernel_pd());
         pageframe_set_page_from_addr((void*)(madt_info->io_apic_addrs[i]), 1);
         ioapic_init(madt_info->io_apic_addrs[i]);
     }
-    pic_uninit();
     return 0;
 }
 
@@ -120,7 +120,7 @@ uint8_t smp_get_cpu_id() {
 public
 void smp_redirect_external_irq(uint8_t irq, uint8_t dest_cpu) {
     uint8_t phys_irq = irq - IRQ_REDIR_BASE;
-    ioapic_redirect_external_int(phys_irq, dest_cpu);
+    //ioapic_redirect_external_int(phys_irq, dest_cpu);
 }
 
 public
