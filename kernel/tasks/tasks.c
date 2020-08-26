@@ -151,7 +151,7 @@ void schedule(void* unused) {
 
     task_get_current()->interruptible = 0;
     int c, next;
-    while (1) {
+    for (;;) {
         c = -1;
         next = 0;
         rwlock_read_acquire(&lock_tasklist);
@@ -229,7 +229,7 @@ void task_isr_priority() {
 
 private
 void _cpu_idle_process(void* unused) {
-    while (1) {
+    for (;;) {
         //_dbg_log("[cpu%d]idle\n", smp_get_cpu_id());
         asm("hlt");
     }

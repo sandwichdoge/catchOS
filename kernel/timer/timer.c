@@ -20,8 +20,10 @@ void ISR_SYSTIME_BOOTSTRAP(size_t* return_reg, struct cpu_state* unused) {
 private
 void ISR_SYSTIME_SCHED(size_t* return_reg, struct cpu_state* unused) {
     _ticks++;
+
     static uint8_t cpuno = 0;
-    cpuno ^= 1;
+    ++cpuno;
+    cpuno = cpuno % smp_get_cpu_count();
     smp_redirect_external_irq(INT_SYSTIME, cpuno);
     task_isr_priority();
 }
