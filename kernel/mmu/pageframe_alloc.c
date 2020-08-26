@@ -119,8 +119,12 @@ void *pageframe_alloc_firstfit(uint32_t pages) {
 // Allocate and init _pageframe_bitmap
 private
 void pageframe_alloc_init() {
+#ifdef TARGET_HOST
+    _pages_total_phys = 40960;  // Value for testing
+#else
     struct multiboot_info *mbinfo = get_multiboot_info();
     _pages_total_phys = (mbinfo->phys_mem_upper * 1024) / 4096;
+#endif
     _dbg_log("Total phys pages [%u]\n", _pages_total_phys);
     // 1 bit represents 1 page in phys mem (4 KiB). We assign just enough memory to contain the bitmap of physical
     // memory.

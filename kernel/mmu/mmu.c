@@ -45,7 +45,11 @@ void* mmu_mmap(size_t size) {
 
 public
 void* mmu_mremap(void* old, size_t newsize) {
+#ifdef TARGET_HOST
+    void* ret = realloc(old, newsize);
+#else
     void* ret = _realloc(old, newsize);
+#endif
     _dbg_log("[MMU]Realloc [0x%x] to [0x%x]\n", old, ret);
     return ret;
 }
