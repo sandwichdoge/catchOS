@@ -27,6 +27,12 @@ SMPBOOT_TRAMPOLINE_FUNC:
     or eax, 0x1
     mov cr0, eax
 
+    ; Setup FPU
+    fninit
+    mov eax, cr0 
+    or eax, 16
+    mov cr0, eax
+
     jmp 0x08:prot_mode
 
 [BITS 32]
@@ -55,6 +61,7 @@ prot_mode:
     mov eax, 0
     mov [ebx + 0xb0], eax   ; Clean up EOI.
     mov [ebx + 0x80], eax   ; Enable all irqs in TPR.
+
     sti
     hlt
     jmp $-1
