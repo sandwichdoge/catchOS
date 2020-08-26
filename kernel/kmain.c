@@ -21,7 +21,7 @@ void test_multitask(void *done_cb) {
     _dbg_log("test start\n");
     sem_wait(&s);
     for (int i = 0; i < 4; ++i) {
-        _dbg_log("[pid %u]test\n", task_getpid());
+        _dbg_log("[cpu %u][pid %u]test\n", smp_get_cpu_id(), task_getpid());
         delay(100);
     }
     void (*fp)() = done_cb;
