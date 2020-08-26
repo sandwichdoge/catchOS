@@ -34,7 +34,6 @@ union ioapic_redir_entry {
 
 private
 void ioapic_write_reg(size_t apic_base, uint32_t reg_index, uint32_t data) {
-    _dbg_log("Write to ioapic base [0x%x], reg [0x%x], data[0x%x]\n", apic_base, reg_index, data);
     uint32_t volatile* io_reg_sel = (uint32_t volatile*)apic_base;
     uint32_t volatile* io_reg_win = (uint32_t volatile*)(apic_base + IOAPIC_REGWIN);
     *io_reg_sel = reg_index;
@@ -53,6 +52,7 @@ static size_t _lapic_base = 0;
 
 public
 void ioapic_redirect_external_int(uint8_t irq, uint8_t dest_cpu) {
+    //_dbg_log("redir %d to cpu%d\n", irq, dest_cpu);
     union ioapic_redir_entry entry = {0};
     struct MADT_info *madt_info = madt_get_info();
 

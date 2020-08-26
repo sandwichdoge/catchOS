@@ -132,13 +132,15 @@ int32_t lapic_init(size_t lapic_base) {
     if (!has_apic()) {
         return -1;
     }
-    lapic_get_ver(lapic_base);
-    _dbg_log("[APIC]Current ID[%u]\n", lapic_get_id(lapic_base));
+    uint8_t cpuno = lapic_get_id(lapic_base);
+    _dbg_log("[APIC]Current ID[%u]\n", cpuno);
+
     interrupt_register(INT_APIC_SPURIOUS, ISR_APIC_SPURIOUS);
+    _lapic_base = lapic_base;
     *(uint32_t*)(lapic_base + LAPIC_SVR) |= (0x100 | SPURIOUS_IVT);   // Enable spurious int 0xf
     *(uint32_t*)(lapic_base + LAPIC_EOI) = 0;   // Clean up jic.
     *(uint32_t*)(lapic_base + LAPIC_TPR) = 0;
-    _lapic_base = lapic_base;
+
     return 0;
 }
 

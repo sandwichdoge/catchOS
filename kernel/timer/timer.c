@@ -4,6 +4,8 @@
 #include "interrupt.h"
 #include "tasks.h"
 #include "utils/debug.h"
+#include "interrupt.h"
+#include "smp.h"
 
 static size_t _ticks;
 static size_t _freq;
@@ -18,6 +20,9 @@ void ISR_SYSTIME_BOOTSTRAP(size_t* return_reg, struct cpu_state* unused) {
 private
 void ISR_SYSTIME_SCHED(size_t* return_reg, struct cpu_state* unused) {
     _ticks++;
+    static uint8_t cpuno = 0;
+    cpuno ^= 1;
+    smp_redirect_external_irq(INT_SYSTIME, cpuno);
     task_isr_priority();
 }
 

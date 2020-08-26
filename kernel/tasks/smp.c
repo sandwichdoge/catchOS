@@ -24,6 +24,7 @@ struct _smpboot_trampoline_params {
     size_t stackbase;
     size_t idt;
     size_t kernel_pd;
+    size_t lapic_base;
 };
 
 // Init,prepare kernel stack for new AP.
@@ -34,6 +35,9 @@ void prepare_trampoline_params() {
     smp_params.stackbase = (size_t)kmalloc(4096) + 4096;
     smp_params.idt = (size_t)interrupt_get_idt();   // 1 idt singleton
     smp_params.kernel_pd = (size_t)get_kernel_pd(); // 1 pd singleton
+    struct MADT_info *madt_info = madt_get_info();
+    size_t local_apic_base = (size_t)madt_info->local_apic_addr;
+    smp_params.lapic_base = local_apic_base;
 
     // SMPBOOT_TRAMPOLINE_PARAMS is located in trampoline.S, it's used to pass arguments when booting a new AP.
     _memcpy(&SMPBOOT_TRAMPOLINE_PARAMS, &smp_params, sizeof(smp_params));

@@ -12,16 +12,17 @@
 #include "utils/spinlock.h"
 #include "utils/atomic.h"
 #include "drivers/lapic.h"
+#include "smp.h"
 #include "cpu.h"
 
 // Array of all current tasks. Only 64 tasks can run at a time for now.
 static struct task_struct* _tasks[MAX_CONCURRENT_TASKS];
 static volatile int32_t _nr_tasks;                                      // Current running tasks in the system.
-static struct task_struct kmaint = {.interruptible = 1, .counter = 1, .state = TASK_RUNNING};  // Initial _current value, so we won't have to to if _current is NULL later.
-struct task_struct* _current = &kmaint;                                 // Current task that controls local CPU. TASK_STATE should always be TASK_RUNNING here.
+static struct task_struct kmaint1 = {.pid = 99999, .interruptible = 1, .counter = 1, .state = TASK_RUNNING};  // Initial _current value, so we won't have to to if _current is NULL later.
+static struct task_struct kmaint2 = {.pid = 99999, .interruptible = 1, .counter = 1, .state = TASK_RUNNING};  // Initial _current value, so we won't have to to if _current is NULL later.
+struct task_struct* _current[2] = {&kmaint1, &kmaint2};                                 // Current task that controls local CPU. TASK_STATE should always be TASK_RUNNING here.
 
 struct rwlock lock_tasklist = {.sem_count = 1, .reader_count = 0, {0}, {0}};   // R/W lock for _tasks list.
-static int32_t bsp_tasks_initialized = 0;
 
 private
 void task_cleanup(struct task_struct *task) {
@@ -32,7 +33,7 @@ void task_cleanup(struct task_struct *task) {
 // When a task reaches return, it will call this task for cleanup.
 private
 void on_current_task_return_cb() {
-    struct task_struct *t = _current;
+    struct task_struct *t = task_get_current();
     _dbg_log("On return pid [%u]\n", t->pid);
     t->interruptible = 0;
 
@@ -136,18 +137,21 @@ void task_switch_to(struct task_struct* next) {
     - Maybe switch page tables as well in the future?
     */
     //_current state is already TASK_READY here (changed by ISR TIMER).
-    if (_current == next) return;
+    struct task_struct *current = task_get_current();
+    if (current == next) return;
 
-    struct task_struct* prev = _current;
-    _current = next;
-    //_dbg_log("[%u]Switch to pid [%u]\n", getticks(), next->pid);
+    struct task_struct* prev = current;
+    task_set_current(next);
+    _dbg_log("[CPU%u]Switch to pid [%u]\n", smp_get_cpu_id(), next->pid);
     cpu_switch_to(prev, next);
 }
 
 private
 void schedule(void* unused) {
     //_dbg_log("Total tasks:%u\n", _nr_tasks);
-    _current->interruptible = 0;
+    _dbg_log("[cpu%d]schedule()\n", smp_get_cpu_id());
+
+    task_get_current()->interruptible = 0;
     int c, next;
     while (1) {
         c = -1;
@@ -182,7 +186,7 @@ void schedule(void* unused) {
         rwlock_write_release(&lock_tasklist);
     }
     task_switch_to(_tasks[next]);
-    _current->interruptible = 1;
+    task_get_current()->interruptible = 1;
     // Old task has already become another task here.
     // Interrupt flag is also re-enabled in task_switch_to(). When switched back, ISR will return.
     // Then asm_int_handler_common() will change eip to the where previous task was interrupted by timer.
@@ -193,10 +197,11 @@ public
 void task_yield() {
     // Switch control to scheduler, sched decides what process to continue.
     rwlock_write_acquire(&lock_tasklist);
-    if (_current->state == TASK_RUNNING) {
-        _current->state = TASK_READY;
+    struct task_struct *current = task_get_current();
+    if (current->state == TASK_RUNNING) {
+        current->state = TASK_READY;
     }
-    _current->counter = 0;
+    current->counter = 0;
     rwlock_write_release(&lock_tasklist);
     schedule(NULL);
 }
@@ -204,13 +209,14 @@ void task_yield() {
 // Called by PIT ISR_TIMER.
 public
 void task_isr_priority() {
-    //if (bsp_tasks_initialized) _dbg_log("[cpu%dint\n", lapic_get_cpu_id());
-    struct task_struct *t = _current;
+    _dbg_log("[cpu%d] timer ISR\n", smp_get_cpu_id());
+    struct task_struct *t = task_get_current();
     // Other processors may modify counter in schedule(). Need to lock.
     rwlock_write_acquire(&lock_tasklist);
 
     t->counter--;
     if (!t->interruptible || t->counter > 0) {  // May not interrupt
+        _dbg_log("[pid%u]interruptible %d, counter %d\n", t->pid, t->interruptible, t->counter);
         rwlock_write_release(&lock_tasklist);
         return;
     }
@@ -226,26 +232,35 @@ void task_isr_priority() {
 
 private
 void _cpu_idle_process(void* unused) {
-    while (1)
+    while (1) {
         asm("hlt");
+    }
 }
 
 public
 void tasks_init() {
     timer_init_sched(100);
     rwlock_init(&lock_tasklist);
-    task_new(_cpu_idle_process, NULL, 1024, 1);
-    bsp_tasks_initialized = 1;
+    task_new(_cpu_idle_process, NULL, 0x600, 1);
 }
 
 public
 inline int32_t task_get_nr() { return atomic_load(&_nr_tasks); }
 
 public
-inline struct task_struct* task_get_current() { return _current; }
+inline struct task_struct* task_get_current() { 
+    return _current[smp_get_cpu_id()];
+}
 
 public
-inline uint32_t task_getpid() { return _current->pid; }
+inline void task_set_current(struct task_struct* t) {
+    _current[smp_get_cpu_id()] = t;
+}
+
+public
+inline uint32_t task_getpid() { 
+    return task_get_current()->pid;
+}
 
 public
 inline void task_write_acquire_tasklist() {

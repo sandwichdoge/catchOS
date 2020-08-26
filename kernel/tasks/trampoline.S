@@ -2,6 +2,7 @@ global SMPBOOT_TRAMPOLINE_FUNC
 global SMPBOOT_TRAMPOLINE_PARAMS
 extern gdt_descriptor
 extern AP_STARTUP_SUCCESSFUL    ; Modify this flag on successful startup to let BSP know we're good
+extern lapic_init
 
 ; All APs go through the same trampoline code one at a time. We do not start all APs at the same time in parallel here.
 
@@ -12,6 +13,8 @@ TRAMPOLINE_STACK:
 TRAMPOLINE_IDT:
     dd 1
 TRAMPOLINE_KERNEL_PD:
+    dd 1
+TRAMPOLINE_LAPIC_BASE:
     dd 1
 
 [BITS 16]
@@ -44,8 +47,14 @@ prot_mode:
     lidt [ecx]
     mov eax, 1
     mov [AP_STARTUP_SUCCESSFUL], eax    ; Let BSP know we have successfully started.
+    
+    ; Set up LAPIC
+    mov ebx, [TRAMPOLINE_LAPIC_BASE]
+    mov eax, 0x10f          
+    mov [ebx + 0xf0], eax   ; Enable spurious irq .
+    mov eax, 0
+    mov [ebx + 0xb0], eax   ; Clean up EOI.
+    mov [ebx + 0x80], eax   ; Enable all irqs in TPR.
     sti
     hlt
-    hlt
-    hlt
-    hlt
+    jmp $-1
