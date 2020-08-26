@@ -16,11 +16,10 @@
 #include "cpu.h"
 
 // Array of all current tasks. Only 64 tasks can run at a time for now.
-static struct task_struct* _tasks[MAX_CONCURRENT_TASKS];
-static volatile int32_t _nr_tasks;                                      // Current running tasks in the system.
-static struct task_struct kmaint1 = {.pid = 99999, .interruptible = 1, .counter = 1, .state = TASK_RUNNING};  // Initial _current value, so we won't have to to if _current is NULL later.
-static struct task_struct kmaint2 = {.pid = 99999, .interruptible = 1, .counter = 1, .state = TASK_RUNNING};  // Initial _current value, so we won't have to to if _current is NULL later.
-struct task_struct* _current[2] = {&kmaint1, &kmaint2};                                 // Current task that controls local CPU. TASK_STATE should always be TASK_RUNNING here.
+static struct task_struct* _tasks[MAX_CONCURRENT_TASKS];    // Task list.
+static volatile int32_t _nr_tasks;          // Current running tasks in the system.
+struct task_struct** _current;              // Current task that controls local CPU. TASK_STATE should always be TASK_RUNNING here.
+struct task_struct** _bootstrap_tasks;      // First task when a CPU starts up. CPU will never return to this task again.
 
 struct rwlock lock_tasklist = {.sem_count = 1, .reader_count = 0, {0}, {0}};   // R/W lock for _tasks list.
 
@@ -240,8 +239,17 @@ public
 void tasks_init() {
     timer_init_sched(100);
     rwlock_init(&lock_tasklist);
-    task_new(_cpu_idle_process, NULL, 0x600, 1);
-    task_new(_cpu_idle_process, NULL, 0x600, 1);
+
+    uint8_t cpu_count = smp_get_cpu_count();
+    for (uint8_t i = 0; i < cpu_count; ++i) {
+        _bootstrap_tasks[i] = mmu_mmap(sizeof(struct task_struct));
+        _bootstrap_tasks[i]->pid = 99999;
+        _bootstrap_tasks[i]->counter = 1;
+        _bootstrap_tasks[i]->state = TASK_RUNNING;
+        _bootstrap_tasks[i]->interruptible = 1;
+        _current[i] = _bootstrap_tasks[i];
+        task_new(_cpu_idle_process, NULL, 0x600, 1);
+    }
 }
 
 public

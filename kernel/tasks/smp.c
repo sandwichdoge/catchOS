@@ -113,6 +113,12 @@ int32_t init_io_apic() {
 }
 
 public
+uint8_t smp_get_cpu_count() {
+    struct MADT_info *madt_info = madt_get_info();
+    return madt_info->processor_count;
+}
+
+public
 uint8_t smp_get_cpu_id() {
     struct MADT_info *madt_info = madt_get_info();
     return lapic_get_id((size_t)madt_info->local_apic_addr);
