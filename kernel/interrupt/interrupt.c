@@ -123,7 +123,6 @@ void interrupt_handler(size_t* return_reg, struct cpu_state cpu_state, uint32_t 
     }
     
     if (is_ioapic_initialized()) {
-        //_dbg_log("[cpu%u]INT%d\n", smp_get_cpu_id(), interrupt_num);
         lapic_ack(lapic_get_base());
     } else {
         pic_ack(interrupt_num);

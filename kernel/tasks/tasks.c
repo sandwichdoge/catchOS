@@ -142,14 +142,13 @@ void task_switch_to(struct task_struct* next) {
 
     struct task_struct* prev = current;
     task_set_current(next);
-    _dbg_log("[CPU%u]Switch to pid [%u]\n", smp_get_cpu_id(), next->pid);
+    //_dbg_log("[CPU%u]Switch to pid [%u]\n", smp_get_cpu_id(), next->pid);
     cpu_switch_to(prev, next);
 }
 
 private
 void schedule(void* unused) {
     //_dbg_log("Total tasks:%u\n", _nr_tasks);
-    _dbg_log("[cpu%d]schedule()\n", smp_get_cpu_id());
 
     task_get_current()->interruptible = 0;
     int c, next;
@@ -209,14 +208,12 @@ void task_yield() {
 // Called by PIT ISR_TIMER.
 public
 void task_isr_priority() {
-    _dbg_log("[cpu%d] timer ISR\n", smp_get_cpu_id());
     struct task_struct *t = task_get_current();
     // Other processors may modify counter in schedule(). Need to lock.
     rwlock_write_acquire(&lock_tasklist);
 
     t->counter--;
     if (!t->interruptible || t->counter > 0) {  // May not interrupt
-        _dbg_log("[pid%u]interruptible %d, counter %d\n", t->pid, t->interruptible, t->counter);
         rwlock_write_release(&lock_tasklist);
         return;
     }
@@ -227,12 +224,14 @@ void task_isr_priority() {
     }
 
     rwlock_write_release(&lock_tasklist);
+
     schedule(NULL);
 }
 
 private
 void _cpu_idle_process(void* unused) {
     while (1) {
+        //_dbg_log("[cpu%d]idle\n", smp_get_cpu_id());
         asm("hlt");
     }
 }
@@ -241,6 +240,7 @@ public
 void tasks_init() {
     timer_init_sched(100);
     rwlock_init(&lock_tasklist);
+    task_new(_cpu_idle_process, NULL, 0x600, 1);
     task_new(_cpu_idle_process, NULL, 0x600, 1);
 }
 
