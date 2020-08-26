@@ -17,9 +17,10 @@ git submodule update --init
 ```
 
 Kernel's features:
+- Symmetric Multiprocessing (SMP)
 - 32-bit protected memory
-- Virtual memory
 - Heap allocation
 - Preemptive multi-tasking
+- A shell
 - Userland programs that will probably run in ring 0
 
