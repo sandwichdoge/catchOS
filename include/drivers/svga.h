@@ -20,7 +20,7 @@ void svga_draw_char_cell(uint32_t *scrpos, uint8_t c, uint32_t color);
 void svga_write_str(const char *str, uint32_t *scrpos, uint32_t len, uint32_t color);
 void svga_draw_rect(const uint32_t x1, const uint32_t y1, const uint32_t x2, const uint32_t y2, uint32_t color);
 void svga_draw_pixel(const uint32_t x, const uint32_t y, uint32_t color);
-void swap_backbuffer_to_front();
+void svga_flush_lfb();
 void svga_init();
 
 #endif

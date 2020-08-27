@@ -28,7 +28,7 @@ void set_lfb_addr(uint8_t *fb) { _svga_lfb = fb; }
 static struct rgb_color black = {0x0, 0x0, 0x0};
 
 public
-void swap_backbuffer_to_front() {
+void svga_flush_lfb() {
     // Copy all data in backbuffer to front buffer to show on screen.
     uint8_t *fb = get_lfb_addr();
     uint32_t fb_size = SCR_H * _tagfb->common.framebuffer_pitch;
