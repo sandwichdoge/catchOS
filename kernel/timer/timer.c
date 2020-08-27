@@ -27,7 +27,6 @@ void ISR_SYSTIME_SCHED(size_t* return_reg, struct cpu_state* unused) {
     static uint8_t cpuno = 0;
     ++cpuno;
     cpuno = cpuno % smp_get_cpu_count();
-    _dbg_log("[cpu%d]", smp_get_cpu_id());
     smp_redirect_external_irq(INT_SYSTIME, _madt_info->local_APIC_ids[cpuno]);
     task_isr_priority();
 }

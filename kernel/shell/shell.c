@@ -10,6 +10,7 @@
 #include "syscall.h"
 #include "tasks.h"
 #include "timer.h"
+#include "smp.h"
 #include "utils/debug.h"
 
 #define CIN_BUFSZ 256
@@ -130,11 +131,10 @@ int call_user_module() {
 
     if (mod->size > 0) {
         size_t prog_addr = (mod->mod_start + 0x0);
-        typedef void (*call_module_t)(void);
+        typedef int (*call_module_t)(void);
         call_module_t start_program = (call_module_t)prog_addr;
 
-        start_program();
-        register int ret asm("eax");
+        int ret = start_program();
         return ret;
     } else {
         return 0;
@@ -145,9 +145,13 @@ private
 void test_multitasking(void* screenpos) {
     _dbg_log("Test multitasking..\n");
     char msg[16];
+    char cpuno[16];
     for (int i = 0; i < 8; ++i) {
         _memset(msg, 0, sizeof(msg));
+        _memset(cpuno, 0, sizeof(cpuno));
         _int_to_str(msg, sizeof(msg), shell_gettime());
+        _int_to_str(cpuno, sizeof(msg), smp_get_cpu_id());
+        syscall_fb_write_str(cpuno, (size_t*)screenpos, _strlen(cpuno) + 1);
         syscall_fb_write_str(msg, (size_t*)screenpos, _strlen(msg) + 1);
         delay(500);
     }

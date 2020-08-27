@@ -44,21 +44,22 @@ void prepare_trampoline_params() {
 }
 
 private
-int32_t start_AP(size_t local_apic_base, uint8_t cpu_id) {
+int32_t start_AP(size_t local_apic_base, uint8_t lapic_id) {
     // https://wiki.osdev.org/Symmetric_Multiprocessing#Startup_Sequence
+    _dbg_screen("Starting LAPIC %d\n", lapic_id);
 
     prepare_trampoline_params();
 
-    lapic_send_init(local_apic_base, cpu_id);
+    lapic_send_init(local_apic_base, lapic_id);
     delay_bootstrap(10);
 
-    lapic_send_startup(local_apic_base, cpu_id, (size_t)&SMPBOOT_TRAMPOLINE_FUNC);
+    lapic_send_startup(local_apic_base, lapic_id, (size_t)&SMPBOOT_TRAMPOLINE_FUNC);
     delay_bootstrap(1);
     if (AP_STARTUP_SUCCESSFUL) {
         goto success;
     }
 
-    lapic_send_startup(local_apic_base, cpu_id, (size_t)&SMPBOOT_TRAMPOLINE_FUNC);
+    lapic_send_startup(local_apic_base, lapic_id, (size_t)&SMPBOOT_TRAMPOLINE_FUNC);
     delay_bootstrap(1000);
     if (AP_STARTUP_SUCCESSFUL) {
         goto success;
@@ -68,13 +69,13 @@ int32_t start_AP(size_t local_apic_base, uint8_t cpu_id) {
 
 success:
     AP_STARTUP_SUCCESSFUL = 0; // Reset this flag for reuse on next CPU startup
-    _dbg_log("AP[%u] startup successful.\n", cpu_id);
-    _dbg_screen("AP[%u] startup successful.\n", cpu_id);
+    _dbg_log("AP[%u] startup successful.\n", lapic_id);
+    _dbg_screen("AP[%u] startup successful.\n", lapic_id);
     return 0;
 
 fail:
-    _dbg_log("Failed to start up AP [%u].\n", cpu_id);
-    _dbg_screen("Failed to start up AP [%u].\n", cpu_id);
+    _dbg_log("Failed to start up AP [%u].\n", lapic_id);
+    _dbg_screen("Failed to start up AP [%u].\n", lapic_id);
     return -1;
 }
 
