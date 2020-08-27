@@ -4,6 +4,7 @@
 #include "drivers/acpi/madt.h"
 #include "drivers/io.h"
 #include "interrupt.h"  // IRQ_REDIR_BASE
+#include "utils/atomic.h"
 
 // REDTBL allows us to choose which external interrupts are sent to which processors.
 // Index of REDTBL starts from index 0x10, 64 bits per redirection entry (corresponds to 1 irq).
@@ -34,8 +35,10 @@ union ioapic_redir_entry {
 
 private
 void ioapic_write_reg(size_t apic_base, uint32_t reg_index, uint32_t data) {
+    // Get regs
     uint32_t volatile* io_reg_sel = (uint32_t volatile*)apic_base;
     uint32_t volatile* io_reg_win = (uint32_t volatile*)(apic_base + IOAPIC_REGWIN);
+    // Write to regs
     *io_reg_sel = reg_index;
     *io_reg_win = data;
 }
@@ -52,7 +55,7 @@ static size_t _lapic_base = 0;
 
 public
 void ioapic_redirect_external_int(uint8_t irq, uint8_t dest_lapic) {
-    _dbg_log("redir %d to cpu%d\n", irq, dest_lapic);
+    //_dbg_log("redir %d to cpu%d\n", irq, dest_lapic);
     union ioapic_redir_entry entry;
     _memset(&entry, 0, sizeof(entry));
     struct MADT_info *madt_info = madt_get_info();

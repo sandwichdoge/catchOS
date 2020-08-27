@@ -80,14 +80,14 @@ int32_t has_apic() {
 
 public
 uint8_t lapic_get_id(size_t lapic_base) {
-    uint32_t lapic_id_reg = *(uint32_t*)(lapic_base + LAPIC_ID);
+    uint32_t lapic_id_reg = *(uint32_t volatile*)(lapic_base + LAPIC_ID);
     uint8_t lapic_id = (lapic_id_reg >> 24) & 0xf;
     return lapic_id;
 }
 
 public
 uint8_t lapic_get_ver(size_t lapic_base) {
-    uint32_t lapic_ver_reg = *(uint32_t*)(lapic_base + LAPIC_VER);
+    uint32_t lapic_ver_reg = *(uint32_t volatile*)(lapic_base + LAPIC_VER);
     uint8_t lapic_ver = ((lapic_ver_reg & 0xff) >= 0x14);
     uint8_t lapic_max_lvt = (lapic_ver_reg >> 16) & 0xff;
 
@@ -97,26 +97,26 @@ uint8_t lapic_get_ver(size_t lapic_base) {
 
 public
 void lapic_send_startup(size_t lapic_base, uint8_t lapic_id, size_t vector) {
-    uint32_t *lapic_icr_hi = (uint32_t*)(lapic_base + 0x0310);
-    uint32_t *lapic_icr_lo = (uint32_t*)(lapic_base + 0x0300);
+    uint32_t volatile* lapic_icr_hi = (uint32_t volatile*)(lapic_base + 0x0310);
+    uint32_t volatile* lapic_icr_lo = (uint32_t volatile*)(lapic_base + 0x0300);
 
-    *(uint32_t volatile*)lapic_icr_hi = lapic_id << ICR_DESTINATION_SHIFT;  // DESTINATION
-    *(uint32_t volatile*)lapic_icr_lo = (vector / 4096) | ICR_STARTUP | ICR_PHYSICAL | ICR_ASSERT | ICR_EDGE | ICR_NO_SHORTHAND;
+    *lapic_icr_hi = lapic_id << ICR_DESTINATION_SHIFT;  // DESTINATION
+    *lapic_icr_lo = (vector / 4096) | ICR_STARTUP | ICR_PHYSICAL | ICR_ASSERT | ICR_EDGE | ICR_NO_SHORTHAND;
 
-    while (*(uint32_t volatile*)lapic_icr_lo & ICR_SEND_PENDING)
+    while (*lapic_icr_lo & ICR_SEND_PENDING)
         ;
     _dbg_log("[LAPIC]Sent SIPI, starting EIP [0x%x].\n", vector);
 }
 
 public
 void lapic_send_init(size_t lapic_base, uint8_t lapic_id) {
-    uint32_t *lapic_icr_hi = (uint32_t*)(lapic_base + 0x0310);
-    uint32_t *lapic_icr_lo = (uint32_t*)(lapic_base + 0x0300);
+    uint32_t volatile* lapic_icr_hi = (uint32_t volatile*)(lapic_base + 0x0310);
+    uint32_t volatile* lapic_icr_lo = (uint32_t volatile*)(lapic_base + 0x0300);
 
-    *(uint32_t volatile*)lapic_icr_hi = lapic_id << ICR_DESTINATION_SHIFT;  // DESTINATION
-    *(uint32_t volatile*)lapic_icr_lo = ICR_INIT | ICR_PHYSICAL | ICR_ASSERT | ICR_EDGE | ICR_NO_SHORTHAND;
+    *lapic_icr_hi = lapic_id << ICR_DESTINATION_SHIFT;  // DESTINATION
+    *lapic_icr_lo = ICR_INIT | ICR_PHYSICAL | ICR_ASSERT | ICR_EDGE | ICR_NO_SHORTHAND;
 
-    while (*(uint32_t volatile*)lapic_icr_lo & ICR_SEND_PENDING)
+    while (*lapic_icr_lo & ICR_SEND_PENDING)
         ;
     _dbg_log("[LAPIC]Sent INIT IPI.\n");
 }
@@ -137,16 +137,16 @@ int32_t lapic_init(size_t lapic_base) {
 
     interrupt_register(INT_APIC_SPURIOUS, ISR_APIC_SPURIOUS);
     _lapic_base = lapic_base;
-    *(uint32_t*)(lapic_base + LAPIC_SVR) |= (0x100 | SPURIOUS_IVT);   // Enable spurious int 0xf
-    *(uint32_t*)(lapic_base + LAPIC_EOI) = 0;   // Clean up jic.
-    *(uint32_t*)(lapic_base + LAPIC_TPR) = 0;
+    *(uint32_t volatile*)(lapic_base + LAPIC_SVR) |= (0x100 | SPURIOUS_IVT);   // Enable spurious int 0xf
+    *(uint32_t volatile*)(lapic_base + LAPIC_EOI) = 0;   // Clean up jic.
+    *(uint32_t volatile*)(lapic_base + LAPIC_TPR) = 0;
 
     return 0;
 }
 
 public
 void lapic_ack(size_t lapic_base) {
-    *(uint32_t*)(lapic_base + LAPIC_EOI) = 0;
+    *(uint32_t volatile*)(lapic_base + LAPIC_EOI) = 0;
 }
 
 public
