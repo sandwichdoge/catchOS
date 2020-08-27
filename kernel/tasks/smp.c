@@ -69,10 +69,12 @@ int32_t start_AP(size_t local_apic_base, uint8_t cpu_id) {
 success:
     AP_STARTUP_SUCCESSFUL = 0; // Reset this flag for reuse on next CPU startup
     _dbg_log("AP[%u] startup successful.\n", cpu_id);
+    _dbg_screen("AP[%u] startup successful.\n", cpu_id);
     return 0;
 
 fail:
     _dbg_log("Failed to start up AP [%u].\n", cpu_id);
+    _dbg_screen("Failed to start up AP [%u].\n", cpu_id);
     return -1;
 }
 
@@ -89,8 +91,9 @@ int32_t start_APs() {
     asm("sti");  // Need PIT to boot smp
     timer_init_bootstrap(1000);
     
+    // Do not start BSP (first CPU), otherwise triple fault.
     for (uint8_t i = 1; i < madt_info->processor_count; ++i) {
-        start_AP(local_apic_base, i);
+        start_AP(local_apic_base, madt_info->local_APIC_ids[i]);
     }
     asm("cli");
 

@@ -96,7 +96,7 @@ void _dbg_screen(char *format, ...) {
     for (traverse = format; *traverse != '\0'; traverse++) {
         while (*traverse != '%') {
             if (*traverse == '\n') {
-                scrpos += 80 - ((scrpos + 80) % 80);
+                scrpos += 100 - ((scrpos + 100) % 100);
             }
             svga_draw_char_cell(&scrpos, *traverse, svga_translate_rgb(0xff, 0xff, 0xff));
             traverse++;

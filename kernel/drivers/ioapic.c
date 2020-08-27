@@ -51,8 +51,8 @@ uint32_t ioapic_read_reg(size_t apic_base, uint32_t reg_index) {
 static size_t _lapic_base = 0;
 
 public
-void ioapic_redirect_external_int(uint8_t irq, uint8_t dest_cpu) {
-    //_dbg_log("redir %d to cpu%d\n", irq, dest_cpu);
+void ioapic_redirect_external_int(uint8_t irq, uint8_t dest_lapic) {
+    //_dbg_log("redir %d to cpu%d\n", irq, dest_lapic);
     union ioapic_redir_entry entry = {0};
     struct MADT_info *madt_info = madt_get_info();
 
@@ -67,7 +67,7 @@ void ioapic_redirect_external_int(uint8_t irq, uint8_t dest_cpu) {
     entry.pin_polarity = 0; // Active-high
     entry.trigger_mode = 0; // Edge-trigg
     entry.disabled = 0;     // Enabled
-    entry.dest = dest_cpu;
+    entry.dest = dest_lapic;
 
     ioapic_write_reg(_lapic_base, IOAPIC_EXTERNAL_IRQ_BASE + (irq * 2), entry.low);
     ioapic_write_reg(_lapic_base, IOAPIC_EXTERNAL_IRQ_BASE + (irq * 2) + 1, entry.high);
