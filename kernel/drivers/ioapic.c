@@ -52,8 +52,9 @@ static size_t _lapic_base = 0;
 
 public
 void ioapic_redirect_external_int(uint8_t irq, uint8_t dest_lapic) {
-    //_dbg_log("redir %d to cpu%d\n", irq, dest_lapic);
-    union ioapic_redir_entry entry = {0};
+    _dbg_log("redir %d to cpu%d\n", irq, dest_lapic);
+    union ioapic_redir_entry entry;
+    _memset(&entry, 0, sizeof(entry));
     struct MADT_info *madt_info = madt_get_info();
 
     entry.vector = irq + IRQ_REDIR_BASE;
