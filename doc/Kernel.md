@@ -104,10 +104,18 @@ Memory Allocator
 ![PIC](resources/PIC.jpg)
 - All hardware interrupts must go through the PIC (ATA, keyboard, etc.).
 - All CPU-generated interrupts do not go through the PIC.
-#### 4.2.3 Interrupt Handler Implementation
+
+### 4.2.3 IO APIC
+![IOAPIC](resources/ioapic_8259pic.png)
+![APIC](resources/APIC.jpg)
+- Replaces the legacy 8259 PIC on newer machines.
+- Its purpose is similar to the PIC. However we have redirection table instead of remapping like on the PIC.
+- Affected by the Interrupt Source Override entries in the MADT. Check MADT before attempting redirection.
+
+#### 4.2.4 Interrupt Handler Implementation
 ![Interrupts](resources/Interrupts.jpg)
-#### 4.2.4 Hardware Interrupts
-##### 4.2.4.1 Keyboard
+#### 4.2.5 Hardware Interrupts
+##### 4.2.5.1 Keyboard
 - When a key is pressed, the keyboard sends an interrupt to the PIC, which is then sent to the CPU.
 The interrupt number is 0x1, plus the PIC offset (0x20 in our case) becomes 0x21.
 - When we receive this interrupt, the ISR must read the scan code from the keyboard port, then translate
@@ -124,25 +132,26 @@ vs USB:
 Key press -> keyboard controller recognizes press -> stores keypress until USB poll -> sends status to USB controller -> USB controller sends interrupt to CPU
 ```
 
-##### 4.2.4.2 Pagefault
+##### 4.2.5.2 Programmable Interval Timer
+- Interrupt number 32 (i.e. 0x20 + 0 for IRQ0).
+- Is generated every interval, based on PIT configurations.
+
+##### 4.2.5.3 Pagefault
 - Interrupt number 14.
 - This is an exception, which is a kind of interrupt.
 - The CPU generates this to interrupt itself, thus pagefault interrupt will not go through the PIC.
 - After paging is enabled, when an unmapped memory address is dereferenced, the CPU generates a pagefault interrupt.
 - We should translate this into a segmentation fault signal.
 
-##### 4.2.4.3 Programmable Interval Timer
-- Interrupt number 32 (i.e. 0x20 + 0 for IRQ0).
-- Is generated every interval, based on PIT configurations.
 
-#### 4.2.5 Software Interrupts
+#### 4.2.6 Software Interrupts
 - We can populate the IDT with custom interrupt numbers.
 - In user mode we may call asm(int <num>) to execute the software interrupt.
 
-##### 4.2.5.1 Mode Switching
+##### 4.2.6.1 Mode Switching
 - TODO: interrupt to switch from user mode to kernel mode privilege?
 
-##### 4.2.5.2 System Calls
+##### 4.2.6.2 System Calls
 - Interrupt number 128.
 - Userland applications will call ```int 128```, with syscall number in EAX to invoke a system call.
 
@@ -260,6 +269,14 @@ The trampoline function is responsible for bootstrapping the new CPU into the sa
 - Initialize CS, SS, DS, ES, FS, GS registers.
 - Set up and load GDT.
 - Set up and load IDT.
+
+#### 4.4.7 AP Start-up Sequence
+In order to wake up Application Processors, we need to identify the LAPIC ID of said processors, then send a series of interrupts to those LAPICs in a timely manner. LAPIC registers are 64-bit. We use physical destination mode for all IOAPICs and IOAPIC. This limits supported max CPUs to 16.
+- Deliver an INIT interrupt to AP.
+- Wait 10ms.
+- Deliver SIPI.
+- Wait 1ms, check AP_STARTUP_SUCCESSFUL flag.
+- If still not ready, wait 1000ms and send another SIPI.
 
 
 ### 4.5 Multitasking
