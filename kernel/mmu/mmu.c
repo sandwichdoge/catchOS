@@ -62,11 +62,3 @@ void mmu_munmap(void* mem) {
     _free(mem);
 #endif
 }
-
-/*
-[malloc()]
-[mmap]    <- Userland, need to modify process' page tables.
-[lib_malloc] <- library
-
-[kmalloc] <- Kernel use, when allocated, add 0x0, use kernel_page_directory.
-*/

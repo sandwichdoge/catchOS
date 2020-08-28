@@ -10,10 +10,14 @@
 READY = default, ready to run.
 WAITING = in sleep().
 RUNNING = being executed by cpu.
+TERMINATED = function exited.
+*/
+enum TASK_STATE { TASK_READY = 0, TASK_WAITING, TASK_RUNNING, TASK_TERMINATED };
+
+/*
 JOINABLE = function has returned, we may terminate task.
 DETACHED = parent task no longer waits for this task.
 */
-enum TASK_STATE { TASK_READY = 0, TASK_WAITING, TASK_RUNNING, TASK_TERMINATED };
 enum JOIN_STATE { JOIN_JOINABLE, JOIN_DETACHED };
 
 struct task_struct {

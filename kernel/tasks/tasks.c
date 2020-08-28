@@ -210,7 +210,7 @@ void task_isr_priority() {
     struct task_struct *t = task_get_current();
     // Other processors may modify counter in schedule(). Need to lock.
     rwlock_write_acquire(&lock_tasklist);
-
+    //_dbg_log("cpu%d isr\n", smp_get_cpu_id());
     t->counter--;
     if (!t->interruptible || t->counter > 0) {  // May not interrupt
         rwlock_write_release(&lock_tasklist);
