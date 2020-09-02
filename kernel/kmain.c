@@ -70,8 +70,12 @@ void kmain(unsigned int magic, unsigned int addr) {
     task_detach(t2);
 
     task_new(shell_main, NULL, 4096 * 16, 10);
-
+    
+    // At this point APs are initialized but yet to receive timer irqs, the next timer irq 
+    // that BSP receives will redirect it to the next AP.
+    _dbg_screen("sti!\n");
     asm("sti");  // Enable interrupts
+    
     task_join(t3);
     task_yield();
 

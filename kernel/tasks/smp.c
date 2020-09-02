@@ -93,8 +93,11 @@ int32_t start_APs() {
     timer_init_bootstrap(1000);
     
     // Do not start BSP (first CPU), otherwise triple fault.
-    for (uint8_t i = 1; i < madt_info->processor_count; ++i) {
-        start_AP(local_apic_base, madt_info->local_APIC_ids[i]);
+    for (uint8_t i = 0; i < madt_info->processor_count; ++i) {
+        uint8_t lapic_id = madt_info->local_APIC_ids[i];
+        if (lapic_id != 0) { // Do not try to start BSP (LAPIC #0).
+            start_AP(local_apic_base, lapic_id);
+        }
     }
     asm("cli");
 
