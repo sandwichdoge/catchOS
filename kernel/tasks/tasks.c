@@ -96,6 +96,8 @@ struct task_struct* task_new(void (*fp)(void*), void* arg, size_t stack_size, in
     newtask->join_state = JOIN_JOINABLE;
     newtask->cpu_state.esp = (size_t)newtask->stack_bottom + stack_size;
     _dbg_log("New task pid[%d]:[0x%x], stack top:[0x%x], stack size:[0x%x]\n", pid, newtask, newtask->cpu_state.esp, stack_size);
+
+    // Set up new task's stack.
     *(size_t*)(newtask->cpu_state.esp) = (size_t)arg;
     newtask->cpu_state.esp -= sizeof(size_t);
     *(size_t*)(newtask->cpu_state.esp) = (size_t)fp;
@@ -103,6 +105,7 @@ struct task_struct* task_new(void (*fp)(void*), void* arg, size_t stack_size, in
     *(size_t*)(newtask->cpu_state.esp) = (size_t)&on_current_task_return_cb;
     newtask->cpu_state.esp -= (sizeof(struct cpu_state) + sizeof(size_t));
     *(size_t*)(newtask->cpu_state.esp) = get_flags_reg() | CPU_EFLAGS_IF;  // Always enable interrupt flag for new tasks.
+    
     newtask->priority = priority;
     newtask->pid = pid;
     newtask->stack_state.eip = (size_t)task_startup;

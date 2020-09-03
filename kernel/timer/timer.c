@@ -6,6 +6,7 @@
 #include "tasks.h"
 #include "utils/debug.h"
 #include "interrupt.h"
+#include "cpu.h"  // cpu_relax()
 #include "smp.h"
 
 static size_t _ticks;
@@ -33,6 +34,18 @@ void ISR_SYSTIME_SCHED(size_t* return_reg, struct cpu_state* unused) {
 
 public
 size_t getticks() { return _ticks; }
+
+public
+void delay_rt(size_t ms) {
+    struct task_struct *curtask = task_get_current();
+    curtask->interruptible = 0;
+    size_t ticks_to_wait = (ms * _freq) / 1000;
+    size_t stop = _ticks + ticks_to_wait;
+    while (_ticks < stop) {
+        cpu_relax();
+    }
+    curtask->interruptible = 1;
+}
 
 // After scheduler init
 public

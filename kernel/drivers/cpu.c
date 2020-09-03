@@ -14,3 +14,8 @@ size_t get_flags_reg() {
         : "=a"(ret));
     return ret;
 }
+
+public
+inline void cpu_relax() {
+    asm volatile("rep; nop" ::: "memory");
+}

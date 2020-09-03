@@ -6,5 +6,6 @@
 #define CPU_EFLAGS_IF (1 << 9)
 
 size_t get_flags_reg();
+void cpu_relax();
 
 #endif
