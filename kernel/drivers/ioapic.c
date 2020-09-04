@@ -5,6 +5,7 @@
 #include "drivers/io.h"
 #include "interrupt.h"  // IRQ_REDIR_BASE
 #include "utils/atomic.h"
+#include "sem.h"
 
 // REDTBL allows us to choose which external interrupts are sent to which processors.
 // Index of REDTBL starts from index 0x10, 64 bits per redirection entry (corresponds to 1 irq).
@@ -33,22 +34,31 @@ union ioapic_redir_entry {
     };
 };
 
+static int32_t is_initialized = 0;
+static struct semaphore ioapic_sem = {0};
+
 private
 void ioapic_write_reg(size_t apic_base, uint32_t reg_index, uint32_t data) {
-    // Get regs
     uint32_t volatile* io_reg_sel = (uint32_t volatile*)apic_base;
     uint32_t volatile* io_reg_win = (uint32_t volatile*)(apic_base + IOAPIC_REGWIN);
-    // Write to regs
+
+    sem_wait(&ioapic_sem);
     *io_reg_sel = reg_index;
     *io_reg_win = data;
+    sem_signal(&ioapic_sem);
 }
 
 private
 uint32_t ioapic_read_reg(size_t apic_base, uint32_t reg_index) {
     uint32_t volatile* io_reg_sel = (uint32_t volatile*)apic_base;
     uint32_t volatile* io_reg_win = (uint32_t volatile*)(apic_base + IOAPIC_REGWIN);
+
+    sem_wait(&ioapic_sem);
     *io_reg_sel = reg_index;
-    return *io_reg_win;
+    uint32_t ret = *io_reg_win;
+    sem_signal(&ioapic_sem);
+    
+    return ret;
 }
 
 static size_t _lapic_base = 0;
@@ -77,10 +87,9 @@ void ioapic_redirect_external_int(uint8_t irq, uint8_t dest_lapic) {
     ioapic_write_reg(_lapic_base, IOAPIC_EXTERNAL_IRQ_BASE + (irq * 2) + 1, entry.high);
 }
 
-static int32_t is_initialized = 0;
-
 public
 void ioapic_init(size_t apic_base) {
+    sem_init(&ioapic_sem, 1);
     uint32_t ver = ioapic_read_reg(apic_base, 1); // VER
     uint32_t pins = ((ver >> 16) & 0xff) + 1;
     _dbg_log("IOAPIC pins: %d\n", pins);
