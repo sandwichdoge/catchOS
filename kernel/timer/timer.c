@@ -8,9 +8,11 @@
 #include "interrupt.h"
 #include "cpu.h"  // cpu_relax()
 #include "smp.h"
+#include "sem.h"
 
 static size_t _ticks;
 static size_t _freq;
+static struct semaphore ioapic_sem;
 
 struct MADT_info* _madt_info = NULL;
 
@@ -28,7 +30,9 @@ void ISR_SYSTIME_SCHED(size_t* return_reg, struct cpu_state* unused) {
     static uint8_t cpuno = 0;
     ++cpuno;
     cpuno = cpuno % smp_get_cpu_count();
+    sem_wait(&ioapic_sem);
     smp_redirect_external_irq(INT_SYSTIME, _madt_info->local_APIC_ids[cpuno]);
+    sem_signal(&ioapic_sem);
     task_isr_priority();
 }
 
@@ -81,6 +85,7 @@ public
 int32_t timer_init_sched(size_t freq) {
     _madt_info = madt_get_info();
     _freq = freq;
+    sem_init(&ioapic_sem, 1);
     pit_setfreq(freq);
     interrupt_register(INT_SYSTIME, ISR_SYSTIME_SCHED);
     return 0;

@@ -63,6 +63,4 @@ uint32_t task_getpid();
 
 void tasks_init();
 
-void task_write_acquire_tasklist();
-void task_write_release_tasklist();
 #endif
