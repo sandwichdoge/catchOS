@@ -1,14 +1,12 @@
 #include "utils/spinlock.h"
-#include "utils/string.h"
+#include "builddef.h"
+#include "cpu.h"
 #include "utils/atomic.h"
 #include "utils/debug.h"
-#include "cpu.h"
-#include "builddef.h"
+#include "utils/string.h"
 
 public
-inline void spinlock_init(struct spinlock* p) {
-    _memset(p, 0, sizeof(*p));
-}
+inline void spinlock_init(struct spinlock* p) { _memset(p, 0, sizeof(*p)); }
 
 public
 inline void spinlock_lock(struct spinlock* p) {

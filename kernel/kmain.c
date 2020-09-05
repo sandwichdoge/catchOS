@@ -1,20 +1,20 @@
 #include "drivers/acpi/acpi.h"
+#include "drivers/lapic.h"
 #include "drivers/serial.h"
 #include "drivers/svga.h"
 #include "interrupt.h"
 #include "kheap.h"
 #include "kinfo.h"
 #include "mmu.h"
+#include "multiboot_info.h"
+#include "panic.h"
 #include "sem.h"
 #include "shell.h"
+#include "smp.h"
 #include "syscall.h"
 #include "tasks.h"
 #include "timer.h"
-#include "panic.h"
-#include "multiboot_info.h"
 #include "utils/debug.h"
-#include "smp.h"
-#include "drivers/lapic.h"
 
 struct semaphore s;
 void test_multitask(void *done_cb) {
@@ -57,7 +57,7 @@ void kmain(unsigned int magic, unsigned int addr) {
 
     // Init SMP
     smp_init();
-    
+
     // SMP initialized, start the scheduler
     tasks_init();
 
@@ -70,12 +70,12 @@ void kmain(unsigned int magic, unsigned int addr) {
     task_detach(t2);
 
     task_new(shell_main, NULL, 4096 * 16, 10);
-    
-    // At this point APs are initialized but yet to receive timer irqs, the next timer irq 
+
+    // At this point APs are initialized but yet to receive timer irqs, the next timer irq
     // that BSP receives will redirect it to the next AP.
     _dbg_screen("sti!\n");
     asm("sti");  // Enable interrupts
-    
+
     task_join(t3);
     task_yield();
 

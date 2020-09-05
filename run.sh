@@ -1,6 +1,6 @@
 #!/bin/sh
 rm output/catch.iso -f
-make debug
+make debug -j4
 if [ "$?" -ne 0 ]; then
     echo 'Error occurred.'
     exit "$?"

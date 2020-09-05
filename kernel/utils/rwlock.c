@@ -1,8 +1,8 @@
 #include "utils/rwlock.h"
-#include "utils/string.h"
-#include "utils/debug.h"
-#include "cpu.h"
 #include "builddef.h"
+#include "cpu.h"
+#include "utils/debug.h"
+#include "utils/string.h"
 
 public
 void rwlock_init(struct rwlock* lock) {
@@ -21,9 +21,7 @@ void _psem_wait(struct rwlock* lock) {
 }
 
 private
-void _psem_signal(struct rwlock* lock) {
-    atomic_fetch_add(&lock->sem_count, 1);
-}
+void _psem_signal(struct rwlock* lock) { atomic_fetch_add(&lock->sem_count, 1); }
 
 public
 void rwlock_read_acquire(struct rwlock* lock) {

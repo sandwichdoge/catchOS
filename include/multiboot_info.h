@@ -1,8 +1,8 @@
 #ifndef INCLUDE_MULTIBOOT_INFO_H
 #define INCLUDE_MULTIBOOT_INFO_H
-#include "stdint.h"
-#include "stddef.h"
 #include "multiboot.h"
+#include "stddef.h"
+#include "stdint.h"
 
 struct multiboot_info {
     size_t phys_mem_lower;
@@ -14,6 +14,6 @@ struct multiboot_info {
 };
 
 void multiboot_info_init(struct multiboot_tag *mb2);
-struct multiboot_info* get_multiboot_info();
+struct multiboot_info *get_multiboot_info();
 
 #endif

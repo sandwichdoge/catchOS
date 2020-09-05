@@ -25,7 +25,7 @@ struct idt_entry idt_entries[IDT_SIZE] = {{0}};  // Main content of IDT
 void (*int_handler_table[IDT_SIZE])(size_t* return_reg, struct cpu_state*) = {0};
 
 public
-struct idt * interrupt_get_idt() {
+struct idt* interrupt_get_idt() {
     return &IDT;
 }
 
@@ -121,7 +121,7 @@ void interrupt_handler(size_t* return_reg, struct cpu_state cpu_state, uint32_t 
         _dbg_log("Error. Unknown interrupt number.\n");
         return;  // Stop if array out of range
     }
-    
+
     if (is_ioapic_initialized()) {
         //_dbg_screen("[cpu%u]INT%d\n", smp_get_cpu_id(), interrupt_num);
         lapic_ack(lapic_get_base());

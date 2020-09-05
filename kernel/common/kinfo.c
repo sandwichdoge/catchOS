@@ -1,7 +1,7 @@
 #include "kinfo.h"
 
-#include "multiboot_info.h"
 #include "builddef.h"
+#include "multiboot_info.h"
 #include "utils/debug.h"
 #include "utils/string.h"
 

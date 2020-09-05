@@ -47,7 +47,9 @@ inline void syscall_fb_scroll_down(size_t lines) { svga_scroll_down(lines); }
 
 inline void syscall_fb_write_chr(const char c, size_t *scrpos) { svga_draw_char_cell(scrpos, c, svga_translate_rgb(brush.r, brush.g, brush.b)); }
 
-inline void syscall_fb_write_str(const char *str, size_t *scrpos, size_t len) { svga_write_str(str, scrpos, len, svga_translate_rgb(brush.r, brush.g, brush.b)); }
+inline void syscall_fb_write_str(const char *str, size_t *scrpos, size_t len) {
+    svga_write_str(str, scrpos, len, svga_translate_rgb(brush.r, brush.g, brush.b));
+}
 
 inline void syscall_fb_brush_set_color(uint8_t r, uint8_t g, uint8_t b) {
     brush.r = r;

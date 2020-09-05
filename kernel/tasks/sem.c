@@ -1,8 +1,8 @@
 #include "sem.h"
 
+#include "builddef.h"
 #include "tasks.h"
 #include "utils/string.h"
-#include "builddef.h"
 
 public
 void sem_init(struct semaphore* sem, int32_t count) {

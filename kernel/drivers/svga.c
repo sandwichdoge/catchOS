@@ -2,8 +2,8 @@
 
 #include "builddef.h"
 #include "font.h"
-#include "multiboot_info.h"
 #include "mmu.h"
+#include "multiboot_info.h"
 #include "paging.h"
 #include "utils/bitmap.h"
 #include "utils/debug.h"

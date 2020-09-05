@@ -1,30 +1,30 @@
 #include "tasks.h"
 
 #include "builddef.h"
+#include "cpu.h"
 #include "cpu_switch_to.h"
-#include "drivers/pit.h"
 #include "drivers/acpi/madt.h"
+#include "drivers/lapic.h"
+#include "drivers/pit.h"
 #include "mmu.h"
+#include "smp.h"
 #include "timer.h"
+#include "utils/atomic.h"
 #include "utils/debug.h"
-#include "utils/string.h"
 #include "utils/rwlock.h"
 #include "utils/spinlock.h"
-#include "utils/atomic.h"
-#include "drivers/lapic.h"
-#include "smp.h"
-#include "cpu.h"
+#include "utils/string.h"
 
 // Array of all current tasks. Only 64 tasks can run at a time for now.
-static struct task_struct* _tasks[MAX_CONCURRENT_TASKS];    // Task list.
-static volatile int32_t _nr_tasks;          // Current running tasks in the system.
-struct task_struct** _current;              // Current task that controls local CPU. TASK_STATE should always be TASK_RUNNING here.
-struct task_struct** _bootstrap_tasks;      // First task when a CPU starts up. CPU will never return to this task again.
+static struct task_struct* _tasks[MAX_CONCURRENT_TASKS];  // Task list.
+static volatile int32_t _nr_tasks;                        // Current running tasks in the system.
+struct task_struct** _current;                            // Current task that controls local CPU. TASK_STATE should always be TASK_RUNNING here.
+struct task_struct** _bootstrap_tasks;                    // First task when a CPU starts up. CPU will never return to this task again.
 
-struct rwlock lock_tasklist = {.sem_count = 1, .reader_count = 0, {0}, {0}};   // R/W lock for _tasks list.
+struct rwlock lock_tasklist = {.sem_count = 1, .reader_count = 0, {0}, {0}};  // R/W lock for _tasks list.
 
 private
-void task_cleanup(struct task_struct *task) {
+void task_cleanup(struct task_struct* task) {
     mmu_munmap(task->stack_bottom);
     mmu_munmap(task);
 }
@@ -32,7 +32,7 @@ void task_cleanup(struct task_struct *task) {
 // When a task reaches return, it will call this task for cleanup.
 private
 void on_current_task_return_cb() {
-    struct task_struct *t = task_get_current();
+    struct task_struct* t = task_get_current();
     _dbg_log("On return pid [%u]\n", t->pid);
     t->interruptible = 0;
 
@@ -46,10 +46,10 @@ void on_current_task_return_cb() {
     } else {
         _dbg_log("Possible error: Invalid task state, expected TASK_RUNNING[%d] but got [%d]", TASK_RUNNING, t->state);
     }
-    if (t->join_state == JOIN_DETACHED) { 
+    if (t->join_state == JOIN_DETACHED) {
         // Clean up if already detached, otherwise task_join() will clean up later from parent task.
         task_cleanup(t);
-    } 
+    }
     task_yield();
 }
 
@@ -76,7 +76,7 @@ struct task_struct* task_new(void (*fp)(void*), void* arg, size_t stack_size, in
     [reg]
     [EFLAGS reg] <- esp
     */
-    if (atomic_compare_exchange(&_nr_tasks, MAX_CONCURRENT_TASKS, MAX_CONCURRENT_TASKS)) return NULL; // Max number of tasks reached.
+    if (atomic_compare_exchange(&_nr_tasks, MAX_CONCURRENT_TASKS, MAX_CONCURRENT_TASKS)) return NULL;  // Max number of tasks reached.
     int pid = -1;
     rwlock_read_acquire(&lock_tasklist);
     for (int i = 0; i < MAX_CONCURRENT_TASKS; ++i) {
@@ -105,7 +105,7 @@ struct task_struct* task_new(void (*fp)(void*), void* arg, size_t stack_size, in
     *(size_t*)(newtask->cpu_state.esp) = (size_t)&on_current_task_return_cb;
     newtask->cpu_state.esp -= (sizeof(struct cpu_state) + sizeof(size_t));
     *(size_t*)(newtask->cpu_state.esp) = get_flags_reg() | CPU_EFLAGS_IF;  // Always enable interrupt flag for new tasks.
-    
+
     newtask->priority = priority;
     newtask->pid = pid;
     newtask->stack_state.eip = (size_t)task_startup;
@@ -139,7 +139,7 @@ void task_switch_to(struct task_struct* next) {
     - Maybe switch page tables as well in the future?
     */
     //_current state is already TASK_READY here (changed by ISR TIMER).
-    struct task_struct *current = task_get_current();
+    struct task_struct* current = task_get_current();
     if (current == next) return;
 
     struct task_struct* prev = current;
@@ -160,7 +160,7 @@ void schedule(void* unused) {
         rwlock_read_acquire(&lock_tasklist);
         for (int i = 0; i < MAX_CONCURRENT_TASKS; ++i) {
             struct task_struct* t = _tasks[i];
-            //if (t) _dbg_log("present task at [0x%x] %d, cnt:%d, state:%d\n", t, t->pid, t->counter, t->state);
+            // if (t) _dbg_log("present task at [0x%x] %d, cnt:%d, state:%d\n", t, t->pid, t->counter, t->state);
             if (t && t->state == TASK_READY && t->counter > c) {
                 c = t->counter;
                 next = i;
@@ -170,7 +170,7 @@ void schedule(void* unused) {
 
         // Must lock to prevent 2 CPUs from picking the same next task.
         rwlock_write_acquire(&lock_tasklist);
-        if (c > 0) {    // Found a suitable next task.
+        if (c > 0) {  // Found a suitable next task.
             _tasks[next]->state = TASK_RUNNING;
             rwlock_write_release(&lock_tasklist);
             break;
@@ -198,7 +198,7 @@ public
 void task_yield() {
     // Switch control to scheduler, sched decides what process to continue.
     rwlock_write_acquire(&lock_tasklist);
-    struct task_struct *current = task_get_current();
+    struct task_struct* current = task_get_current();
     if (current->state == TASK_RUNNING) {
         current->state = TASK_READY;
     }
@@ -210,7 +210,7 @@ void task_yield() {
 // Called by PIT ISR_TIMER.
 public
 void task_isr_priority() {
-    struct task_struct *t = task_get_current();
+    struct task_struct* t = task_get_current();
     // Other processors may modify counter in schedule(). Need to lock.
     rwlock_write_acquire(&lock_tasklist);
     //_dbg_log("cpu%d isr\n", smp_get_cpu_id());
@@ -219,8 +219,8 @@ void task_isr_priority() {
         rwlock_write_release(&lock_tasklist);
         return;
     }
-    t->counter = 0; // Guaranteed atomic
-    
+    t->counter = 0;  // Guaranteed atomic
+
     if (t->state == TASK_RUNNING) {
         t->state = TASK_READY;
     }
@@ -245,7 +245,7 @@ void tasks_init() {
 
     uint8_t cpu_count = smp_get_cpu_count();
     for (uint8_t i = 0; i < cpu_count; ++i) {
-        struct task_struct *bootstrap_task = task_new(_cpu_idle_process, NULL, 0x600, 1);
+        struct task_struct* bootstrap_task = task_new(_cpu_idle_process, NULL, 0x600, 1);
         _current[i] = bootstrap_task;
     }
 }
@@ -254,16 +254,10 @@ public
 inline int32_t task_get_nr() { return atomic_load(&_nr_tasks); }
 
 public
-inline struct task_struct* task_get_current() { 
-    return _current[smp_get_cpu_id()];
-}
+inline struct task_struct* task_get_current() { return _current[smp_get_cpu_id()]; }
 
 public
-inline void task_set_current(struct task_struct* t) {
-    _current[smp_get_cpu_id()] = t;
-}
+inline void task_set_current(struct task_struct* t) { _current[smp_get_cpu_id()] = t; }
 
 public
-inline uint32_t task_getpid() { 
-    return task_get_current()->pid;
-}
+inline uint32_t task_getpid() { return task_get_current()->pid; }

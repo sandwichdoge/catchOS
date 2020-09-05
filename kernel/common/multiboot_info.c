@@ -1,7 +1,7 @@
 #include "multiboot_info.h"
-#include "utils/string.h"
-#include "utils/debug.h"
 #include "builddef.h"
+#include "utils/debug.h"
+#include "utils/string.h"
 
 static struct multiboot_info _mbinfo;
 
@@ -11,7 +11,7 @@ void multiboot_info_init(struct multiboot_tag *mb2) {
     size_t addr = (size_t)mb2;
     struct multiboot_tag *tag;
     for (tag = (struct multiboot_tag *)(addr + 8); tag->type != MULTIBOOT_TAG_TYPE_END;
-        tag = (struct multiboot_tag *)((multiboot_uint8_t *)tag + ((tag->size + 7) & ~7))) {
+         tag = (struct multiboot_tag *)((multiboot_uint8_t *)tag + ((tag->size + 7) & ~7))) {
         _dbg_log("Tag 0x%x, Size 0x%x\n", tag->type, tag->size);
         switch (tag->type) {
             case MULTIBOOT_TAG_TYPE_CMDLINE:
@@ -22,24 +22,24 @@ void multiboot_info_init(struct multiboot_tag *mb2) {
                 break;
             case MULTIBOOT_TAG_TYPE_MODULE:
                 _dbg_log("Module at 0x%x-0x%x. Command line %s\n", ((struct multiboot_tag_module *)tag)->mod_start,
-                        ((struct multiboot_tag_module *)tag)->mod_end, ((struct multiboot_tag_module *)tag)->cmdline);
+                         ((struct multiboot_tag_module *)tag)->mod_end, ((struct multiboot_tag_module *)tag)->cmdline);
                 static int modcount = 0;
                 _memcpy(&_mbinfo.mods[modcount++], (char *)tag, sizeof(struct multiboot_tag_module));
                 break;
             case MULTIBOOT_TAG_TYPE_BASIC_MEMINFO:
                 _dbg_log("mem_lower = %uKB, mem_upper = %uKB\n", ((struct multiboot_tag_basic_meminfo *)tag)->mem_lower,
-                        ((struct multiboot_tag_basic_meminfo *)tag)->mem_upper);
+                         ((struct multiboot_tag_basic_meminfo *)tag)->mem_upper);
                 _mbinfo.phys_mem_lower = ((struct multiboot_tag_basic_meminfo *)tag)->mem_lower;
                 _mbinfo.phys_mem_upper = ((struct multiboot_tag_basic_meminfo *)tag)->mem_upper;
                 break;
             case MULTIBOOT_TAG_TYPE_BOOTDEV:
                 _dbg_log("Boot device 0x%x,%u,%u\n", ((struct multiboot_tag_bootdev *)tag)->biosdev, ((struct multiboot_tag_bootdev *)tag)->slice,
-                        ((struct multiboot_tag_bootdev *)tag)->part);
+                         ((struct multiboot_tag_bootdev *)tag)->part);
                 break;
             case MULTIBOOT_TAG_TYPE_MMAP: {
                 multiboot_memory_map_t *mmap;
                 for (mmap = ((struct multiboot_tag_mmap *)tag)->entries; (multiboot_uint8_t *)mmap < (multiboot_uint8_t *)tag + tag->size;
-                    mmap = (multiboot_memory_map_t *)((size_t)mmap + ((struct multiboot_tag_mmap *)tag)->entry_size))
+                     mmap = (multiboot_memory_map_t *)((size_t)mmap + ((struct multiboot_tag_mmap *)tag)->entry_size))
                     _dbg_log(
                         " base_addr = 0x%x%x,"
                         " length = 0x%x%x, type = 0x%x\n",
@@ -50,7 +50,7 @@ void multiboot_info_init(struct multiboot_tag *mb2) {
             case MULTIBOOT_TAG_TYPE_FRAMEBUFFER: {
                 struct multiboot_tag_framebuffer *tagfb = (struct multiboot_tag_framebuffer *)tag;
                 _dbg_log("LFB at[0x%x], w[%u], h[%u], bpp[%u]\n", tagfb->common.framebuffer_addr, tagfb->common.framebuffer_width,
-                        tagfb->common.framebuffer_height, tagfb->common.framebuffer_bpp);
+                         tagfb->common.framebuffer_height, tagfb->common.framebuffer_bpp);
                 _memcpy(&_mbinfo.tagfb, tagfb, sizeof(*tagfb));
                 break;
             }
@@ -71,6 +71,6 @@ void multiboot_info_init(struct multiboot_tag *mb2) {
 #endif
 }
 
-struct multiboot_info* get_multiboot_info() {
+struct multiboot_info *get_multiboot_info() {
     return &_mbinfo;
 }

@@ -68,7 +68,6 @@ void acpi_map_sdt(void *acpi_sdt) {
     }
 }
 
-
 private
 void map_sdt_entries() {
     _dbg_screen("Map sdt entries..\n");
@@ -155,7 +154,7 @@ void acpi_init() {
     }
     //_dbg_log("ACPI %d detected, RSDP at [0x%x], signature[%s], OEMID[%s], RSDT at[0x%x]\n", acpi_ver, rsdp, rsdp->Signature, rsdp->OEMID, rsdp->RsdtAddress);
     if (kinfo->is_paging_enabled) {
-        acpi_map_sdt((void*)to_map);
+        acpi_map_sdt((void *)to_map);
         map_sdt_entries();
     }
     _dbg_screen("ACPI init done.\n");

@@ -1,9 +1,9 @@
 #include "utils/debug.h"
 
-#include "utils/spinlock.h"
 #include "builddef.h"
 #include "drivers/serial.h"
 #include "drivers/svga.h"
+#include "utils/spinlock.h"
 
 static struct spinlock lock = {0};
 
@@ -17,7 +17,7 @@ void _dbg_log(char *format, ...) {
     unsigned int u;
     char *s;
 
-    //spinlock_lock(&lock);
+    // spinlock_lock(&lock);
 
     va_list arg;
     va_start(arg, format);
@@ -75,7 +75,7 @@ void _dbg_log(char *format, ...) {
 
     // Module 3: Closing argument list to necessary clean-up
     va_end(arg);
-    //spinlock_unlock(&lock);
+    // spinlock_unlock(&lock);
 #endif
 }
 

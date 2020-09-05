@@ -1,24 +1,24 @@
-#include "stddef.h"
-#include "stdint.h"
-#include "drivers/acpi/madt.h"
-#include "drivers/lapic.h"
-#include "drivers/ioapic.h"
-#include "drivers/pic.h"
-#include "pageframe_alloc.h"
-#include "paging.h"
-#include "utils/debug.h"
 #include "builddef.h"
-#include "timer.h"
+#include "drivers/acpi/madt.h"
+#include "drivers/ioapic.h"
+#include "drivers/lapic.h"
+#include "drivers/pic.h"
 #include "interrupt.h"  // interrupt_get_idt(), IRQ_REDIR_BASE
 #include "kheap.h"
+#include "pageframe_alloc.h"
+#include "paging.h"
+#include "stddef.h"
+#include "stdint.h"
+#include "timer.h"
+#include "utils/debug.h"
 
-//http://www.osdever.net/tutorials/view/multiprocessing-support-for-hobby-oses-explained
+// http://www.osdever.net/tutorials/view/multiprocessing-support-for-hobby-oses-explained
 // We assume all local APICs and their CPUs have the same ID.
 
 extern size_t SMPBOOT_TRAMPOLINE_FUNC;
 extern size_t SMPBOOT_TRAMPOLINE_PARAMS;
 
-uint8_t AP_STARTUP_SUCCESSFUL = 0;   // Trampoline code will set this.
+uint8_t AP_STARTUP_SUCCESSFUL = 0;  // Trampoline code will set this.
 
 struct _smpboot_trampoline_params {
     size_t stackbase;
@@ -33,8 +33,8 @@ void prepare_trampoline_params() {
     // Setup params
     struct _smpboot_trampoline_params smp_params;
     smp_params.stackbase = (size_t)kmalloc(4096) + 4096;
-    smp_params.idt = (size_t)interrupt_get_idt();   // 1 idt singleton
-    smp_params.kernel_pd = (size_t)get_kernel_pd(); // 1 pd singleton
+    smp_params.idt = (size_t)interrupt_get_idt();    // 1 idt singleton
+    smp_params.kernel_pd = (size_t)get_kernel_pd();  // 1 pd singleton
     struct MADT_info *madt_info = madt_get_info();
     size_t local_apic_base = (size_t)madt_info->local_apic_addr;
     smp_params.lapic_base = local_apic_base;
@@ -63,12 +63,12 @@ int32_t start_AP(size_t local_apic_base, uint8_t lapic_id) {
     delay_bootstrap(1000);
     if (AP_STARTUP_SUCCESSFUL) {
         goto success;
-    } else {    // Second try failed, stop trying.
+    } else {  // Second try failed, stop trying.
         goto fail;
     }
 
 success:
-    AP_STARTUP_SUCCESSFUL = 0; // Reset this flag for reuse on next CPU startup
+    AP_STARTUP_SUCCESSFUL = 0;  // Reset this flag for reuse on next CPU startup
     _dbg_log("AP[%u] startup successful.\n", lapic_id);
     _dbg_screen("AP[%u] startup successful.\n", lapic_id);
     return 0;
@@ -84,18 +84,18 @@ int32_t start_APs() {
     struct MADT_info *madt_info = madt_get_info();
     size_t local_apic_base = (size_t)madt_info->local_apic_addr;
     paging_map_page(local_apic_base, local_apic_base, get_kernel_pd());
-    pageframe_set_page_from_addr((void*)local_apic_base, 1);
+    pageframe_set_page_from_addr((void *)local_apic_base, 1);
 
-    lapic_init(local_apic_base);    // Enable LAPIC and handle APIC spurious irqs.
+    lapic_init(local_apic_base);  // Enable LAPIC and handle APIC spurious irqs.
 
     // Begin SMP startup sequence
     asm("sti");  // Need PIT to boot smp
     timer_init_bootstrap(1000);
-    
+
     // Do not start BSP (first CPU), otherwise triple fault.
     for (uint8_t i = 0; i < madt_info->processor_count; ++i) {
         uint8_t lapic_id = madt_info->local_APIC_ids[i];
-        if (lapic_id != 0) { // Do not try to start BSP (LAPIC #0).
+        if (lapic_id != 0) {  // Do not try to start BSP (LAPIC #0).
             start_AP(local_apic_base, lapic_id);
         }
     }
@@ -107,22 +107,20 @@ int32_t start_APs() {
 private
 int32_t init_io_apic() {
     struct MADT_info *madt_info = madt_get_info();
-    if (madt_info->io_apic_count == 0) {    // No APICs available (Intel 8086).
+    if (madt_info->io_apic_count == 0) {  // No APICs available (Intel 8086).
         return -1;
     }
     pic_uninit();
     for (uint16_t i = 0; i < madt_info->io_apic_count; ++i) {
         paging_map_page(madt_info->io_apic_addrs[i], madt_info->io_apic_addrs[i], get_kernel_pd());
-        pageframe_set_page_from_addr((void*)(madt_info->io_apic_addrs[i]), 1);
+        pageframe_set_page_from_addr((void *)(madt_info->io_apic_addrs[i]), 1);
         ioapic_init(madt_info->io_apic_addrs[i]);
     }
     return 0;
 }
 
 public
-uint8_t smp_get_cpu_count() {
-    return madt_get_info()->processor_count;
-}
+uint8_t smp_get_cpu_count() { return madt_get_info()->processor_count; }
 
 public
 uint8_t smp_get_cpu_id() {

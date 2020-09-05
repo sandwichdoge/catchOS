@@ -1,14 +1,13 @@
 
 #include "builddef.h"
-#include "drivers/pit.h"
+#include "cpu.h"  // cpu_relax()
 #include "drivers/acpi/madt.h"
+#include "drivers/pit.h"
 #include "interrupt.h"
+#include "sem.h"
+#include "smp.h"
 #include "tasks.h"
 #include "utils/debug.h"
-#include "interrupt.h"
-#include "cpu.h"  // cpu_relax()
-#include "smp.h"
-#include "sem.h"
 
 static size_t _ticks;
 static size_t _freq;
@@ -17,9 +16,7 @@ struct MADT_info* _madt_info = NULL;
 
 // 0x20 - Programmable Interval Timer. Used for bootstrapping (before scheduler init).
 private
-void ISR_SYSTIME_BOOTSTRAP(size_t* return_reg, struct cpu_state* unused) {
-    _ticks++;
-}
+void ISR_SYSTIME_BOOTSTRAP(size_t* return_reg, struct cpu_state* unused) { _ticks++; }
 
 // Used for scheduler. This function calls scheduler.
 private
@@ -38,7 +35,7 @@ size_t getticks() { return _ticks; }
 
 public
 void delay_rt(size_t ms) {
-    struct task_struct *curtask = task_get_current();
+    struct task_struct* curtask = task_get_current();
     curtask->interruptible = 0;
     size_t ticks_to_wait = (ms * _freq) / 1000;
     size_t stop = _ticks + ticks_to_wait;

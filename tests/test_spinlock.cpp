@@ -1,12 +1,12 @@
 #include "gtest/gtest.h"
 extern "C" {
-#include "../include/utils/spinlock.h"
 #include "../include/utils/rwlock.h"
+#include "../include/utils/spinlock.h"
 }
 #include <pthread.h>
 #include <stdio.h>
-#include <unistd.h>
 #include <time.h>
+#include <unistd.h>
 
 struct spinlock lock = {0};
 int counter = 0;
@@ -76,7 +76,7 @@ TEST(rwlock, basic) {
 
     clock_t after = clock();
     auto diff = after - before;
-    printf("RW lock took %lu\n", diff );
+    printf("RW lock took %lu\n", diff);
     EXPECT_EQ(rw_counter, 4);
 }
 
@@ -126,6 +126,6 @@ TEST(spinlock, versus_rwlock) {
 
     clock_t after = clock();
     auto diff = after - before;
-    printf("Basic lock took %lu\n", diff );
+    printf("Basic lock took %lu\n", diff);
     EXPECT_EQ(basic_counter, 4);
 }

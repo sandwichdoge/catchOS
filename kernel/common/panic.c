@@ -1,6 +1,6 @@
 #include "builddef.h"
-#include "utils/debug.h"
 #include "smp.h"
+#include "utils/debug.h"
 
 static inline void cpu_relax() { asm volatile("rep; nop"); }
 

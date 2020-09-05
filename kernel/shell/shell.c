@@ -3,14 +3,14 @@
 #include "builddef.h"
 #include "drivers/keyboard.h"  // For key defs
 #include "drivers/svga.h"
-#include "multiboot_info.h"
 #include "mmu.h"
+#include "multiboot_info.h"
 #include "panic.h"
 #include "power/shutdown_reboot.h"
+#include "smp.h"
 #include "syscall.h"
 #include "tasks.h"
 #include "timer.h"
-#include "smp.h"
 #include "utils/debug.h"
 
 #define CIN_BUFSZ 256
@@ -76,7 +76,7 @@ void shell_cout(const char* str) {
     while (*tmp) {
         if (*tmp == '\n') {
             _cur = _cur + (SCREEN_COLUMNS - (_cur % SCREEN_COLUMNS));  // Go to start of next line.
-            if (_cur >= SCREEN_COLUMNS * SCREEN_ROWS) {            // Scrolldown if screen limit is reached.
+            if (_cur >= SCREEN_COLUMNS * SCREEN_ROWS) {                // Scrolldown if screen limit is reached.
                 syscall_fb_scroll_down(1);
                 _cur -= SCREEN_COLUMNS;
             }
@@ -198,7 +198,7 @@ void shell_handle_cmd(char* cmd) {
         shell_cout(ret_s);
         shell_cout("\n");
     } else if (_strncmp(cmd, "rei.bmp", _strlen("rei.bmp")) == 0) {
-        struct multiboot_info *mbinfo = get_multiboot_info();
+        struct multiboot_info* mbinfo = get_multiboot_info();
         void* img_rei = (void*)mbinfo->mods[1].mod_start;
         struct bmp bmp_rei;
         libbmp_decode_bmp(img_rei, &bmp_rei);

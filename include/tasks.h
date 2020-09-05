@@ -21,12 +21,12 @@ DETACHED = parent task no longer waits for this task.
 enum JOIN_STATE { JOIN_JOINABLE, JOIN_DETACHED };
 
 struct task_struct {
-    struct cpu_state cpu_state; // 32 bytes
-    struct stack_state stack_state; // 16 bytes
-    uint32_t pid;   // This got changed
+    struct cpu_state cpu_state;      // 32 bytes
+    struct stack_state stack_state;  // 16 bytes
+    uint32_t pid;                    // This got changed
     enum TASK_STATE state;
     int32_t priority;
-    int32_t counter;  // How long current task has been running. Add to priority for real priority.
+    int32_t counter;     // How long current task has been running. Add to priority for real priority.
     void* stack_bottom;  // Keep addr to free on task termination, and stack overflow detection.
     size_t stack_size;
     int32_t interruptible;  // If non-zero then current task on local CPU will not be interrupted by timer ISR.
