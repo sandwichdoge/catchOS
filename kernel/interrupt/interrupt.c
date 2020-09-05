@@ -66,7 +66,7 @@ void interrupt_register(uint32_t irq, void (*isr)(size_t* return_reg, struct cpu
     int_handler_table[irq] = isr;
     if (is_hw_irq(irq)) {
         _dbg_log("Enabling HW interrupt %u.\n", irq);
-        if (is_ioapic_initialized()) {
+        if (ioapic_is_initialized()) {
             ioapic_redirect_external_int(irq - IRQ_REDIR_BASE, 0);
         } else {
             pic_enable_irq(irq - IRQ_REDIR_BASE);
@@ -130,7 +130,7 @@ void interrupt_handler(size_t* return_reg, struct cpu_state cpu_state, uint32_t 
         return;  // Stop if array out of range
     }
 
-    if (is_ioapic_initialized()) {
+    if (ioapic_is_initialized()) {
         //_dbg_screen("[cpu%u]INT%d\n", smp_get_cpu_id(), interrupt_num);
         lapic_ack(lapic_get_base());
     } else {

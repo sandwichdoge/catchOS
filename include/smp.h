@@ -1,5 +1,6 @@
 #ifndef INCLUDE_SMP_H
 #define INCLUDE_SMP_H
+#include "stdint.h"
 
 void smp_init();
 void smp_redirect_external_irq(uint8_t irq, uint8_t dest_cpu);

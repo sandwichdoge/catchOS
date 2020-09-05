@@ -136,7 +136,7 @@ uint8_t smp_get_cpu_id() {
 public
 void smp_redirect_external_irq(uint8_t irq, uint8_t dest_cpu) {
     uint8_t phys_irq = irq - IRQ_REDIR_BASE;
-    if (is_ioapic_initialized()) {
+    if (ioapic_is_initialized()) {
         ioapic_redirect_external_int(phys_irq, dest_cpu);
     }
 }
