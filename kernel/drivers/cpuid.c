@@ -22,7 +22,9 @@ enum cpuid_requests {
  *  will be modified by the operation, so we need to tell the compiler about it.
  */
 private
-void cpuid(int32_t code, size_t *a, size_t *d) { asm volatile("cpuid" : "=a"(*a), "=d"(*d) : "a"(code) : "ecx", "ebx"); }
+void cpuid(int32_t code, size_t* a, size_t* d) {
+    asm volatile("cpuid" : "=a"(*a), "=d"(*d) : "a"(code) : "ecx", "ebx");
+}
 
 /** issue a complete request, storing general registers output as a string
  */
@@ -33,7 +35,7 @@ int32_t cpuid_string(int32_t code, size_t where[4]) {
 }
 
 public
-size_t cpuid_getcpufeatures(size_t *edx_out) {
+size_t cpuid_getcpufeatures(size_t* edx_out) {
     size_t eax;
     cpuid(CPUID_GETFEATURES, &eax, edx_out);
     return eax;
@@ -47,7 +49,7 @@ int cpuid_hasapic() {
 }
 
 public
-void cpuid_getvendor(char *out) {
+void cpuid_getvendor(char* out) {
     size_t vendor[4];
     _memset(vendor, 0, 4 * sizeof(size_t));
     cpuid_string(CPUID_GETVENDORSTRING, vendor);

@@ -78,7 +78,9 @@ void pic_init() {
 }
 
 public
-void pic_uninit() { pic_init(); }
+void pic_uninit() {
+    pic_init();
+}
 
 public
 void pic_enable_irq(unsigned int irq_no) {

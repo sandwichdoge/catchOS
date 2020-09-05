@@ -47,7 +47,7 @@ extern int liballoc_unlock();
  * \return NULL if the pages were not allocated.
  * \return A pointer to the allocated memory.
  */
-extern void *liballoc_alloc(size_t);
+extern void* liballoc_alloc(size_t);
 
 /** This frees previously allocated memory. The void* parameter passed
  * to the function is the exact same value returned from a previous
@@ -57,12 +57,12 @@ extern void *liballoc_alloc(size_t);
  *
  * \return 0 if the memory was successfully freed.
  */
-extern int liballoc_free(void *, size_t);
+extern int liballoc_free(void*, size_t);
 
-extern void *PREFIX(malloc)(size_t);           ///< The standard function.
-extern void *PREFIX(realloc)(void *, size_t);  ///< The standard function.
-extern void *PREFIX(calloc)(size_t, size_t);   ///< The standard function.
-extern void PREFIX(free)(void *);              ///< The standard function.
+extern void* PREFIX(malloc)(size_t);          ///< The standard function.
+extern void* PREFIX(realloc)(void*, size_t);  ///< The standard function.
+extern void* PREFIX(calloc)(size_t, size_t);  ///< The standard function.
+extern void PREFIX(free)(void*);              ///< The standard function.
 
 #ifdef __cplusplus
 }

@@ -74,7 +74,7 @@
     { serial_write(SERIAL_COM1_BASE, str, _strlen(str)); }
 #endif
 
-void _dbg_log(char *format, ...);
-void _dbg_screen(char *format, ...);
+void _dbg_log(char* format, ...);
+void _dbg_screen(char* format, ...);
 
 #endif

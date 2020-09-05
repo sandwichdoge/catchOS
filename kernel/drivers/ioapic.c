@@ -99,4 +99,6 @@ void ioapic_init(size_t apic_base) {
 }
 
 public
-int32_t ioapic_is_initialized() { return is_initialized; }
+int32_t ioapic_is_initialized() {
+    return is_initialized;
+}

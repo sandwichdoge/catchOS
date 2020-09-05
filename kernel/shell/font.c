@@ -3349,4 +3349,6 @@ unsigned char console_font_7x9[] = {
     0xff, /* 0000000 */
 };
 
-unsigned char* font_get_char(unsigned char c) { return &console_font_7x9[c * ((FONT_W * FONT_H) / 8)]; }
+unsigned char* font_get_char(unsigned char c) {
+    return &console_font_7x9[c * ((FONT_W * FONT_H) / 8)];
+}

@@ -21,10 +21,10 @@ void syscall_fb_scroll_down(size_t lines);
 void syscall_register_kb_handler(void (*kb_handler)(unsigned char c));
 
 // Print a char to screen.
-void syscall_fb_write_chr(const char c, size_t *scrpos);
+void syscall_fb_write_chr(const char c, size_t* scrpos);
 
 // Print a string to screen.
-void syscall_fb_write_str(const char *str, size_t *scrpos, size_t len);
+void syscall_fb_write_str(const char* str, size_t* scrpos, size_t len);
 
 // Draw a rectangle on screen.
 void syscall_fb_draw_rect(const uint32_t x1, const uint32_t y1, const uint32_t x2, const uint32_t y2);
@@ -33,7 +33,7 @@ void syscall_fb_draw_rect(const uint32_t x1, const uint32_t y1, const uint32_t x
 void syscall_fb_brush_set_color(unsigned char r, unsigned char g, unsigned char b);
 
 // Clear a cell.
-void syscall_fb_clr_cell(size_t *scrpos);
+void syscall_fb_clr_cell(size_t* scrpos);
 
 // Clear video screen.
 void syscall_fb_clr_scr(void);
@@ -42,6 +42,6 @@ void syscall_fb_clr_scr(void);
 void syscall_fb_mov_cursr(size_t scrpos);
 
 // Write data to serial port.
-void syscall_serial_writestr(char *str, size_t len);
+void syscall_serial_writestr(char* str, size_t len);
 
 #endif

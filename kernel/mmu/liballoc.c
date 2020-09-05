@@ -16,24 +16,24 @@
 #define USE_CASE5
 
 /** This macro will conveniently align our pointer upwards */
-#define ALIGN(ptr)                                                          \
-    if (ALIGNMENT > 1) {                                                    \
-        uintptr_t diff;                                                     \
-        ptr = (void *)((uintptr_t)ptr + ALIGN_INFO);                        \
-        diff = (uintptr_t)ptr & (ALIGNMENT - 1);                            \
-        if (diff != 0) {                                                    \
-            diff = ALIGNMENT - diff;                                        \
-            ptr = (void *)((uintptr_t)ptr + diff);                          \
-        }                                                                   \
-        *((ALIGN_TYPE *)((uintptr_t)ptr - ALIGN_INFO)) = diff + ALIGN_INFO; \
+#define ALIGN(ptr)                                                         \
+    if (ALIGNMENT > 1) {                                                   \
+        uintptr_t diff;                                                    \
+        ptr = (void*)((uintptr_t)ptr + ALIGN_INFO);                        \
+        diff = (uintptr_t)ptr & (ALIGNMENT - 1);                           \
+        if (diff != 0) {                                                   \
+            diff = ALIGNMENT - diff;                                       \
+            ptr = (void*)((uintptr_t)ptr + diff);                          \
+        }                                                                  \
+        *((ALIGN_TYPE*)((uintptr_t)ptr - ALIGN_INFO)) = diff + ALIGN_INFO; \
     }
 
-#define UNALIGN(ptr)                                                     \
-    if (ALIGNMENT > 1) {                                                 \
-        uintptr_t diff = *((ALIGN_TYPE *)((uintptr_t)ptr - ALIGN_INFO)); \
-        if (diff < (ALIGNMENT + ALIGN_INFO)) {                           \
-            ptr = (void *)((uintptr_t)ptr - diff);                       \
-        }                                                                \
+#define UNALIGN(ptr)                                                    \
+    if (ALIGNMENT > 1) {                                                \
+        uintptr_t diff = *((ALIGN_TYPE*)((uintptr_t)ptr - ALIGN_INFO)); \
+        if (diff < (ALIGNMENT + ALIGN_INFO)) {                          \
+            ptr = (void*)((uintptr_t)ptr - diff);                       \
+        }                                                               \
     }
 
 #define LIBALLOC_MAGIC 0x0001c0de
@@ -51,12 +51,12 @@
  * memory blocks. It details the usage of the memory block.
  */
 struct liballoc_major {
-    struct liballoc_major *prev;   ///< Linked list information.
-    struct liballoc_major *next;   ///< Linked list information.
+    struct liballoc_major* prev;   ///< Linked list information.
+    struct liballoc_major* next;   ///< Linked list information.
     unsigned int pages;            ///< The number of pages in the block.
     unsigned int size;             ///< The number of pages in the block.
     unsigned int usage;            ///< The number of bytes used in the block.
-    struct liballoc_minor *first;  ///< A pointer to the first allocated memory in the block.
+    struct liballoc_minor* first;  ///< A pointer to the first allocated memory in the block.
 };
 
 /** This is a structure found at the beginning of all
@@ -64,16 +64,16 @@ struct liballoc_major {
  * malloc, calloc, realloc call.
  */
 struct liballoc_minor {
-    struct liballoc_minor *prev;   ///< Linked list information.
-    struct liballoc_minor *next;   ///< Linked list information.
-    struct liballoc_major *block;  ///< The owning block. A pointer to the major structure.
+    struct liballoc_minor* prev;   ///< Linked list information.
+    struct liballoc_minor* next;   ///< Linked list information.
+    struct liballoc_major* block;  ///< The owning block. A pointer to the major structure.
     unsigned int magic;            ///< A magic number to idenfity correctness.
     unsigned int size;             ///< The size of the memory allocated. Could be 1 byte or more.
     unsigned int req_size;         ///< The size of memory requested.
 };
 
-static struct liballoc_major *l_memRoot = NULL;  ///< The root memory block acquired from the system.
-static struct liballoc_major *l_bestBet = NULL;  ///< The major with the most free memory.
+static struct liballoc_major* l_memRoot = NULL;  ///< The root memory block acquired from the system.
+static struct liballoc_major* l_bestBet = NULL;  ///< The major with the most free memory.
 
 static unsigned int l_pageSize = 4096;      ///< The size of an individual page. Set up in liballoc_init.
 static unsigned int l_pageCount = 16;       ///< The number of pages to request per chunk. Set up in liballoc_init.
@@ -86,25 +86,25 @@ static long long l_possibleOverruns = 0;  ///< Number of possible overruns
 
 // ***********   HELPER FUNCTIONS  *******************************
 
-static void *liballoc_memset(void *s, int c, size_t n) {
+static void* liballoc_memset(void* s, int c, size_t n) {
     unsigned int i;
-    for (i = 0; i < n; i++) ((char *)s)[i] = c;
+    for (i = 0; i < n; i++) ((char*)s)[i] = c;
 
     return s;
 }
-static void *liballoc_memcpy(void *s1, const void *s2, size_t n) {
-    char *cdest;
-    char *csrc;
-    unsigned int *ldest = (unsigned int *)s1;
-    unsigned int *lsrc = (unsigned int *)s2;
+static void* liballoc_memcpy(void* s1, const void* s2, size_t n) {
+    char* cdest;
+    char* csrc;
+    unsigned int* ldest = (unsigned int*)s1;
+    unsigned int* lsrc = (unsigned int*)s2;
 
     while (n >= sizeof(unsigned int)) {
         *ldest++ = *lsrc++;
         n -= sizeof(unsigned int);
     }
 
-    cdest = (char *)ldest;
-    csrc = (char *)lsrc;
+    cdest = (char*)ldest;
+    csrc = (char*)lsrc;
 
     while (n > 0) {
         *cdest++ = *csrc++;
@@ -117,8 +117,8 @@ static void *liballoc_memcpy(void *s1, const void *s2, size_t n) {
 #if defined LIBALLOC_DEBUG || defined INFO
 static void liballoc_dump() {
 #ifdef LIBALLOC_DEBUG
-    struct liballoc_major *maj = l_memRoot;
-    struct liballoc_minor *min = NULL;
+    struct liballoc_major* maj = l_memRoot;
+    struct liballoc_minor* min = NULL;
 #endif
 
     printf("liballoc: ------ Memory data ---------------\n");
@@ -148,9 +148,9 @@ static void liballoc_dump() {
 
 // ***************************************************************
 
-static struct liballoc_major *allocate_new_page(unsigned int size) {
+static struct liballoc_major* allocate_new_page(unsigned int size) {
     unsigned int st;
-    struct liballoc_major *maj;
+    struct liballoc_major* maj;
 
     // This is how much space is required.
     st = size + sizeof(struct liballoc_major);
@@ -166,7 +166,7 @@ static struct liballoc_major *allocate_new_page(unsigned int size) {
     // Make sure it's >= the minimum size.
     if (st < l_pageCount) st = l_pageCount;
 
-    maj = (struct liballoc_major *)liballoc_alloc(st);
+    maj = (struct liballoc_major*)liballoc_alloc(st);
 
     if (maj == NULL) {
         l_warningCount += 1;
@@ -196,14 +196,14 @@ static struct liballoc_major *allocate_new_page(unsigned int size) {
     return maj;
 }
 
-void *PREFIX(malloc)(size_t req_size) {
+void* PREFIX(malloc)(size_t req_size) {
     int startedBet = 0;
     unsigned long long bestSize = 0;
-    void *p = NULL;
+    void* p = NULL;
     uintptr_t diff;
-    struct liballoc_major *maj;
-    struct liballoc_minor *min;
-    struct liballoc_minor *new_min;
+    struct liballoc_major* maj;
+    struct liballoc_minor* min;
+    struct liballoc_minor* new_min;
     unsigned long size = req_size;
 
     // For alignment, we adjust size so there's enough space to align.
@@ -318,7 +318,7 @@ void *PREFIX(malloc)(size_t req_size) {
 
         // CASE 2: It's a brand new block.
         if (maj->first == NULL) {
-            maj->first = (struct liballoc_minor *)((uintptr_t)maj + sizeof(struct liballoc_major));
+            maj->first = (struct liballoc_minor*)((uintptr_t)maj + sizeof(struct liballoc_major));
 
             maj->first->magic = LIBALLOC_MAGIC;
             maj->first->prev = NULL;
@@ -330,7 +330,7 @@ void *PREFIX(malloc)(size_t req_size) {
 
             l_inuse += size;
 
-            p = (void *)((uintptr_t)(maj->first) + sizeof(struct liballoc_minor));
+            p = (void*)((uintptr_t)(maj->first) + sizeof(struct liballoc_minor));
 
             ALIGN(p);
 
@@ -353,7 +353,7 @@ void *PREFIX(malloc)(size_t req_size) {
 
         if (diff >= (size + sizeof(struct liballoc_minor))) {
             // Yes, space in front. Squeeze in.
-            maj->first->prev = (struct liballoc_minor *)((uintptr_t)maj + sizeof(struct liballoc_major));
+            maj->first->prev = (struct liballoc_minor*)((uintptr_t)maj + sizeof(struct liballoc_major));
             maj->first->prev->next = maj->first;
             maj->first = maj->first->prev;
 
@@ -366,7 +366,7 @@ void *PREFIX(malloc)(size_t req_size) {
 
             l_inuse += size;
 
-            p = (void *)((uintptr_t)(maj->first) + sizeof(struct liballoc_minor));
+            p = (void*)((uintptr_t)(maj->first) + sizeof(struct liballoc_minor));
             ALIGN(p);
 
 #ifdef LIBALLOC_DEBUG
@@ -397,7 +397,7 @@ void *PREFIX(malloc)(size_t req_size) {
 
                 if (diff >= (size + sizeof(struct liballoc_minor))) {
                     // yay....
-                    min->next = (struct liballoc_minor *)((uintptr_t)min + sizeof(struct liballoc_minor) + min->size);
+                    min->next = (struct liballoc_minor*)((uintptr_t)min + sizeof(struct liballoc_minor) + min->size);
                     min->next->prev = min;
                     min = min->next;
                     min->next = NULL;
@@ -409,7 +409,7 @@ void *PREFIX(malloc)(size_t req_size) {
 
                     l_inuse += size;
 
-                    p = (void *)((uintptr_t)min + sizeof(struct liballoc_minor));
+                    p = (void*)((uintptr_t)min + sizeof(struct liballoc_minor));
                     ALIGN(p);
 
 #ifdef LIBALLOC_DEBUG
@@ -432,7 +432,7 @@ void *PREFIX(malloc)(size_t req_size) {
 
                 if (diff >= (size + sizeof(struct liballoc_minor))) {
                     // yay......
-                    new_min = (struct liballoc_minor *)((uintptr_t)min + sizeof(struct liballoc_minor) + min->size);
+                    new_min = (struct liballoc_minor*)((uintptr_t)min + sizeof(struct liballoc_minor) + min->size);
 
                     new_min->magic = LIBALLOC_MAGIC;
                     new_min->next = min->next;
@@ -446,7 +446,7 @@ void *PREFIX(malloc)(size_t req_size) {
 
                     l_inuse += size;
 
-                    p = (void *)((uintptr_t)new_min + sizeof(struct liballoc_minor));
+                    p = (void*)((uintptr_t)new_min + sizeof(struct liballoc_minor));
                     ALIGN(p);
 
 #ifdef LIBALLOC_DEBUG
@@ -504,9 +504,9 @@ void *PREFIX(malloc)(size_t req_size) {
     return NULL;
 }
 
-void PREFIX(free)(void *ptr) {
-    struct liballoc_minor *min;
-    struct liballoc_major *maj;
+void PREFIX(free)(void* ptr) {
+    struct liballoc_minor* min;
+    struct liballoc_major* maj;
 
     if (ptr == NULL) {
         l_warningCount += 1;
@@ -521,7 +521,7 @@ void PREFIX(free)(void *ptr) {
 
     liballoc_lock();  // lockit
 
-    min = (struct liballoc_minor *)((uintptr_t)ptr - sizeof(struct liballoc_minor));
+    min = (struct liballoc_minor*)((uintptr_t)ptr - sizeof(struct liballoc_minor));
 
     if (min->magic != LIBALLOC_MAGIC) {
         l_errorCount += 1;
@@ -600,9 +600,9 @@ void PREFIX(free)(void *ptr) {
     liballoc_unlock();  // release the lock
 }
 
-void *PREFIX(calloc)(size_t nobj, size_t size) {
+void* PREFIX(calloc)(size_t nobj, size_t size) {
     int real_size;
-    void *p;
+    void* p;
 
     real_size = nobj * size;
 
@@ -613,9 +613,9 @@ void *PREFIX(calloc)(size_t nobj, size_t size) {
     return p;
 }
 
-void *PREFIX(realloc)(void *p, size_t size) {
-    void *ptr;
-    struct liballoc_minor *min;
+void* PREFIX(realloc)(void* p, size_t size) {
+    void* ptr;
+    struct liballoc_minor* min;
     unsigned int real_size;
 
     // Honour the case of size == 0 => free old and return NULL
@@ -633,7 +633,7 @@ void *PREFIX(realloc)(void *p, size_t size) {
 
     liballoc_lock();  // lockit
 
-    min = (struct liballoc_minor *)((uintptr_t)ptr - sizeof(struct liballoc_minor));
+    min = (struct liballoc_minor*)((uintptr_t)ptr - sizeof(struct liballoc_minor));
 
     // Ensure it is a valid structure.
     if (min->magic != LIBALLOC_MAGIC) {

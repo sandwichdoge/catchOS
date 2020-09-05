@@ -128,7 +128,9 @@ void task_join(struct task_struct* task) {
 }
 
 public
-void task_detach(struct task_struct* task) { task->join_state = JOIN_DETACHED; }
+void task_detach(struct task_struct* task) {
+    task->join_state = JOIN_DETACHED;
+}
 
 private
 void task_switch_to(struct task_struct* next) {
@@ -251,13 +253,21 @@ void tasks_init() {
 }
 
 public
-inline int32_t task_get_nr() { return atomic_load(&_nr_tasks); }
+inline int32_t task_get_nr() {
+    return atomic_load(&_nr_tasks);
+}
 
 public
-inline struct task_struct* task_get_current() { return _current[smp_get_cpu_id()]; }
+inline struct task_struct* task_get_current() {
+    return _current[smp_get_cpu_id()];
+}
 
 public
-inline void task_set_current(struct task_struct* t) { _current[smp_get_cpu_id()] = t; }
+inline void task_set_current(struct task_struct* t) {
+    _current[smp_get_cpu_id()] = t;
+}
 
 public
-inline uint32_t task_getpid() { return task_get_current()->pid; }
+inline uint32_t task_getpid() {
+    return task_get_current()->pid;
+}

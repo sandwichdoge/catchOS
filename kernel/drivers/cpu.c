@@ -16,4 +16,6 @@ size_t get_flags_reg() {
 }
 
 public
-inline void cpu_relax() { asm volatile("rep; nop" ::: "memory"); }
+inline void cpu_relax() {
+    asm volatile("rep; nop" ::: "memory");
+}

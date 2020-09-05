@@ -8,11 +8,11 @@ extern "C" {
 
 // req: total output char must be smaller than maxlen
 public
-void _snprintf(char *buf, unsigned int maxlen, char *format, ...) {
-    char *traverse;
+void _snprintf(char* buf, unsigned int maxlen, char* format, ...) {
+    char* traverse;
     int i;
     unsigned int len = 0;  // number of chars printed
-    char *s;
+    char* s;
 
     va_list arg;
     va_start(arg, format);
@@ -45,7 +45,7 @@ void _snprintf(char *buf, unsigned int maxlen, char *format, ...) {
                     if (len >= maxlen) return;
                 }
 
-                char *s = _int_to_str_static(i, 10);
+                char* s = _int_to_str_static(i, 10);
                 unsigned l = _strlen(s);
                 if (len + l > maxlen) {
                     l = maxlen - len;
@@ -60,7 +60,7 @@ void _snprintf(char *buf, unsigned int maxlen, char *format, ...) {
             }
             case 'x': {
                 i = va_arg(arg, unsigned int);  // Fetch Hexadecimal representation
-                char *s = _int_to_str_static(i, 16);
+                char* s = _int_to_str_static(i, 16);
                 unsigned l = _strlen(s);
                 if (len + l > maxlen) {
                     l = maxlen - len;
@@ -72,7 +72,7 @@ void _snprintf(char *buf, unsigned int maxlen, char *format, ...) {
                 break;
             }
             case 's': {
-                s = va_arg(arg, char *);  // Fetch string
+                s = va_arg(arg, char*);  // Fetch string
                 unsigned l = _strlen(s);
                 if (len + l > maxlen) {
                     l = maxlen - len;

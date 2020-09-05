@@ -9,7 +9,7 @@
 #define FB_HIGH_BYTE_CMD 14
 #define FB_LOW_BYTE_CMD 15
 
-char *fb = (char *)0x000B8000;  // Video memory address
+char* fb = (char*)0x000B8000;  // Video memory address
 
 // Write character to a cell in 80x24 framebuffer
 public
@@ -42,7 +42,7 @@ void scroll_down(unsigned int line_count) {
 
 // Framebuffer doesn't have the concept of linebreak, we have to implement it in the shell/stdin.
 public
-void write_chr(const char c, unsigned int *scrpos) {
+void write_chr(const char c, unsigned int* scrpos) {
     if (*scrpos + 1 > SCR_SIZE) {
         scroll_down(1);
         *scrpos -= SCR_W;  // Go back 1 line
@@ -54,7 +54,7 @@ void write_chr(const char c, unsigned int *scrpos) {
 
 // Write a string to framebuffer.
 public
-void write_str(const char *str, unsigned int *scrpos, unsigned int len) {
+void write_str(const char* str, unsigned int* scrpos, unsigned int len) {
     // If next string overflows screen, scroll screen to make space for OF text
     unsigned int lines_to_scroll = 0;
     if (*scrpos + len > SCR_SIZE) {
@@ -77,7 +77,7 @@ void write_str(const char *str, unsigned int *scrpos, unsigned int len) {
 
 // Write a string until NULL encountered
 public
-void write_cstr(const char *str, unsigned int scrpos) {
+void write_cstr(const char* str, unsigned int scrpos) {
     // TODO Handle scrolling
     scrpos *= 2;
 
@@ -89,10 +89,14 @@ void write_cstr(const char *str, unsigned int scrpos) {
 }
 
 public
-int fb_get_scr_w() { return SCR_W; }
+int fb_get_scr_w() {
+    return SCR_W;
+}
 
 public
-int fb_get_scr_h() { return SCR_H; }
+int fb_get_scr_h() {
+    return SCR_H;
+}
 
 public
 void clr_screen(unsigned char bg) {

@@ -7,7 +7,7 @@
 #define PAGE_SIZE 0x1000  // 4096
 
 void paging_init();
-void paging_map_table(size_t virtual_addr, size_t phys_addr, uint32_t *page_dir);
-void paging_map_page(size_t virtual_addr, size_t phys_addr, uint32_t *page_dir);
-uint32_t *get_kernel_pd();
+void paging_map_table(size_t virtual_addr, size_t phys_addr, uint32_t* page_dir);
+void paging_map_page(size_t virtual_addr, size_t phys_addr, uint32_t* page_dir);
+uint32_t* get_kernel_pd();
 #endif

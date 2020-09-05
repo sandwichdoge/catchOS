@@ -5,7 +5,7 @@
 
 TEST(PrintfUtils, snprinf1) {
     int n = 8;
-    const char *str = "World";
+    const char* str = "World";
     char buf[64] = {0};
 
     _snprintf(buf, 12, "%s%d", str, n);
@@ -23,7 +23,7 @@ TEST(PrintfUtils, snprinf2) {
 
 TEST(PrintfUtils, snprinf3) {
     int d = -123, n = 8;
-    const char *str = "World";
+    const char* str = "World";
     char buf[64] = {0};
 
     _snprintf(buf, 12, "%d%s%d", d, str, n);

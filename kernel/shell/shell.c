@@ -122,7 +122,9 @@ void shell_init() {
 }
 
 private
-size_t shell_gettime() { return getticks(); }
+size_t shell_gettime() {
+    return getticks();
+}
 
 private
 int call_user_module() {

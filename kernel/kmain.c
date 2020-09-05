@@ -17,7 +17,7 @@
 #include "utils/debug.h"
 
 struct semaphore s;
-void test_multitask(void *done_cb) {
+void test_multitask(void* done_cb) {
     _dbg_log("test start\n");
     sem_wait(&s);
     for (int i = 0; i < 4; ++i) {
@@ -29,7 +29,9 @@ void test_multitask(void *done_cb) {
     sem_signal(&s);
 }
 
-void test_done_cb() { _dbg_log("Test done! Callback complete!\n"); }
+void test_done_cb() {
+    _dbg_log("Test done! Callback complete!\n");
+}
 
 void kmain(unsigned int magic, unsigned int addr) {
     // First thing first, gather all info about our hardware capabilities, store it in kinfo singleton
@@ -43,7 +45,7 @@ void kmain(unsigned int magic, unsigned int addr) {
         panic();
     }
 
-    multiboot_info_init((struct multiboot_tag *)addr);
+    multiboot_info_init((struct multiboot_tag*)addr);
     kinfo_init();
 
     kheap_init();
@@ -63,9 +65,9 @@ void kmain(unsigned int magic, unsigned int addr) {
 
     // Perform tests
     sem_init(&s, 1);
-    struct task_struct *t1 = task_new(test_multitask, (void *)test_done_cb, 1024 * 2, 10);
-    struct task_struct *t2 = task_new(test_multitask, (void *)test_done_cb, 1024 * 2, 10);
-    struct task_struct *t3 = task_new(test_multitask, (void *)test_done_cb, 1024 * 2, 10);
+    struct task_struct* t1 = task_new(test_multitask, (void*)test_done_cb, 1024 * 2, 10);
+    struct task_struct* t2 = task_new(test_multitask, (void*)test_done_cb, 1024 * 2, 10);
+    struct task_struct* t3 = task_new(test_multitask, (void*)test_done_cb, 1024 * 2, 10);
     task_detach(t1);
     task_detach(t2);
 

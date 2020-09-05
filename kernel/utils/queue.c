@@ -28,4 +28,6 @@ int queue_pop(struct queue* Q, void* data, int data_size) {
     }
 }
 
-int queue_size(struct queue* Q) { return Q->size; }
+int queue_size(struct queue* Q) {
+    return Q->size;
+}

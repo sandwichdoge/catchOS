@@ -16,7 +16,9 @@ struct MADT_info* _madt_info = NULL;
 
 // 0x20 - Programmable Interval Timer. Used for bootstrapping (before scheduler init).
 private
-void ISR_SYSTIME_BOOTSTRAP(size_t* return_reg, struct cpu_state* unused) { _ticks++; }
+void ISR_SYSTIME_BOOTSTRAP(size_t* return_reg, struct cpu_state* unused) {
+    _ticks++;
+}
 
 // Used for scheduler. This function calls scheduler.
 private
@@ -31,7 +33,9 @@ void ISR_SYSTIME_SCHED(size_t* return_reg, struct cpu_state* unused) {
 }
 
 public
-size_t getticks() { return _ticks; }
+size_t getticks() {
+    return _ticks;
+}
 
 public
 void delay_rt(size_t ms) {

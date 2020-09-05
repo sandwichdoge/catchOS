@@ -14,23 +14,27 @@ static uint32_t SCR_H;
 static uint32_t SCR_COLUMNS;
 static uint32_t SCR_ROWS;
 
-static uint8_t *_svga_lfb = NULL;
-static uint8_t *_backbuffer = NULL;
+static uint8_t* _svga_lfb = NULL;
+static uint8_t* _backbuffer = NULL;
 
-struct multiboot_tag_framebuffer *_tagfb;
-
-private
-uint8_t *get_lfb_addr() { return _svga_lfb; }
+struct multiboot_tag_framebuffer* _tagfb;
 
 private
-void set_lfb_addr(uint8_t *fb) { _svga_lfb = fb; }
+uint8_t* get_lfb_addr() {
+    return _svga_lfb;
+}
+
+private
+void set_lfb_addr(uint8_t* fb) {
+    _svga_lfb = fb;
+}
 
 static struct rgb_color black = {0x0, 0x0, 0x0};
 
 public
 void svga_flush_lfb() {
     // Copy all data in backbuffer to front buffer to show on screen.
-    uint8_t *fb = get_lfb_addr();
+    uint8_t* fb = get_lfb_addr();
     uint32_t fb_size = SCR_H * _tagfb->common.framebuffer_pitch;
     _memcpy(fb, _backbuffer, fb_size);
 }
@@ -41,7 +45,7 @@ uint32_t svga_translate_rgb(uint8_t r, uint8_t g, uint8_t b) {
     switch (_tagfb->common.framebuffer_type) {
         case MULTIBOOT_FRAMEBUFFER_TYPE_INDEXED: {
             uint32_t best_distance, distance;
-            struct multiboot_color *palette;
+            struct multiboot_color* palette;
 
             palette = _tagfb->framebuffer_palette;
 
@@ -80,20 +84,24 @@ uint32_t svga_translate_rgb(uint8_t r, uint8_t g, uint8_t b) {
 }
 
 public
-uint32_t svga_get_scr_columns() { return SCR_COLUMNS; }
+uint32_t svga_get_scr_columns() {
+    return SCR_COLUMNS;
+}
 
 public
-uint32_t svga_get_scr_rows() { return SCR_ROWS; }
+uint32_t svga_get_scr_rows() {
+    return SCR_ROWS;
+}
 
 public
 void svga_move_cursor(uint32_t scrpos) {}
 
 public
 void svga_draw_pixel(uint32_t x, uint32_t y, uint32_t color) {
-    uint8_t *fb = get_lfb_addr();
+    uint8_t* fb = get_lfb_addr();
     switch (_tagfb->common.framebuffer_bpp) {
         case 8: {
-            multiboot_uint8_t *pixel = (multiboot_uint8_t *)(fb + _tagfb->common.framebuffer_pitch * y + x);
+            multiboot_uint8_t* pixel = (multiboot_uint8_t*)(fb + _tagfb->common.framebuffer_pitch * y + x);
             *pixel = color;
             pixel = _backbuffer + _tagfb->common.framebuffer_pitch * y + x;
             *pixel = color;
@@ -101,23 +109,23 @@ void svga_draw_pixel(uint32_t x, uint32_t y, uint32_t color) {
         }
         case 15:
         case 16: {
-            multiboot_uint16_t *pixel = (multiboot_uint16_t *)(fb + _tagfb->common.framebuffer_pitch * y + 2 * x);
+            multiboot_uint16_t* pixel = (multiboot_uint16_t*)(fb + _tagfb->common.framebuffer_pitch * y + 2 * x);
             *pixel = color;
-            pixel = (multiboot_uint16_t *)(_backbuffer + _tagfb->common.framebuffer_pitch * y + 2 * x);
+            pixel = (multiboot_uint16_t*)(_backbuffer + _tagfb->common.framebuffer_pitch * y + 2 * x);
             *pixel = color;
             break;
         }
         case 24: {
-            multiboot_uint32_t *pixel = (multiboot_uint32_t *)(fb + _tagfb->common.framebuffer_pitch * y + 3 * x);
+            multiboot_uint32_t* pixel = (multiboot_uint32_t*)(fb + _tagfb->common.framebuffer_pitch * y + 3 * x);
             *pixel = (color & 0xffffff) | (*pixel & 0xff000000);
-            pixel = (multiboot_uint32_t *)(_backbuffer + _tagfb->common.framebuffer_pitch * y + 3 * x);
+            pixel = (multiboot_uint32_t*)(_backbuffer + _tagfb->common.framebuffer_pitch * y + 3 * x);
             *pixel = color;
             break;
         }
         case 32: {
-            multiboot_uint32_t *pixel = (multiboot_uint32_t *)(fb + _tagfb->common.framebuffer_pitch * y + 4 * x);
+            multiboot_uint32_t* pixel = (multiboot_uint32_t*)(fb + _tagfb->common.framebuffer_pitch * y + 4 * x);
             *pixel = color;
-            pixel = (multiboot_uint32_t *)(_backbuffer + _tagfb->common.framebuffer_pitch * y + 4 * x);
+            pixel = (multiboot_uint32_t*)(_backbuffer + _tagfb->common.framebuffer_pitch * y + 4 * x);
             *pixel = color;
             break;
         }
@@ -136,7 +144,7 @@ void svga_draw_rect(const uint32_t x1, const uint32_t y1, const uint32_t x2, con
 // We use 7x9 text font. But actually draw 8x9 (1 empty right column as delimiter).
 public
 void svga_draw_char(const uint32_t x, const uint32_t y, uint8_t c, uint32_t color) {
-    uint8_t *bitmap = font_get_char(c);
+    uint8_t* bitmap = font_get_char(c);
     for (uint32_t yy = 0; yy < FONT_H; ++yy) {
         for (uint32_t xx = 0; xx < FONT_W; ++xx) {
             int bit = bitmap_get_bit(bitmap, yy * FONT_W + xx);
@@ -149,7 +157,7 @@ void svga_draw_char(const uint32_t x, const uint32_t y, uint8_t c, uint32_t colo
 
 public
 void svga_scroll_down(uint32_t lines) {
-    uint8_t *fb = get_lfb_addr();
+    uint8_t* fb = get_lfb_addr();
     if (lines > SCR_ROWS) {
         lines = SCR_ROWS;
     }
@@ -166,7 +174,7 @@ void svga_scroll_down(uint32_t lines) {
 }
 
 public
-void svga_draw_char_cell(uint32_t *scrpos, uint8_t c, uint32_t color) {
+void svga_draw_char_cell(uint32_t* scrpos, uint8_t c, uint32_t color) {
     if (*scrpos + 1 > (SCR_ROWS * SCR_COLUMNS)) {
         svga_scroll_down(1);
         *scrpos -= SCR_COLUMNS;  // Go back 1 line.
@@ -179,7 +187,7 @@ void svga_draw_char_cell(uint32_t *scrpos, uint8_t c, uint32_t color) {
 }
 
 public
-void svga_write_str(const char *str, uint32_t *scrpos, uint32_t len, uint32_t color) {
+void svga_write_str(const char* str, uint32_t* scrpos, uint32_t len, uint32_t color) {
     // If next string overflows screen, scroll screen to make space for OF text
     uint32_t lines_to_scroll = 0;
     if (*scrpos + len > (SCR_ROWS * SCR_COLUMNS)) {
@@ -198,7 +206,9 @@ void svga_write_str(const char *str, uint32_t *scrpos, uint32_t len, uint32_t co
 }
 
 public
-void svga_clr_cell(uint32_t *scrpos) { svga_draw_char_cell(scrpos, 255, svga_translate_rgb(black.r, black.g, black.b)); }
+void svga_clr_cell(uint32_t* scrpos) {
+    svga_draw_char_cell(scrpos, 255, svga_translate_rgb(black.r, black.g, black.b));
+}
 
 public
 void svga_clr_scr() {
@@ -214,12 +224,12 @@ void svga_init() {
     }
 
     _dbg_log("Init svga\n");
-    struct multiboot_info *mbinfo = get_multiboot_info();
+    struct multiboot_info* mbinfo = get_multiboot_info();
 
-    uint8_t *fb = (uint8_t *)mbinfo->tagfb.common.framebuffer_addr;
+    uint8_t* fb = (uint8_t*)mbinfo->tagfb.common.framebuffer_addr;
     set_lfb_addr(fb);
     // Map address space for fb.
-    uint32_t *kpd = get_kernel_pd();
+    uint32_t* kpd = get_kernel_pd();
     paging_map_table((uint32_t)fb, (uint32_t)fb, kpd);
 
     // Set global fb info so we won't have to get it again later.

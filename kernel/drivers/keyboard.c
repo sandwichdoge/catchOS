@@ -7,7 +7,9 @@
 #define KBD_DATA_PORT 0x60
 
 public
-uint8_t read_scan_code() { return inb(KBD_DATA_PORT); }
+uint8_t read_scan_code() {
+    return inb(KBD_DATA_PORT);
+}
 
 uint8_t sc_table_noshift[256] = {
     0,
@@ -225,4 +227,6 @@ void ISR_KEYBOARD(size_t* return_reg, struct cpu_state* unused) {
 }
 
 public
-void keyboard_init() { interrupt_register(INT_KEYBOARD, ISR_KEYBOARD); }
+void keyboard_init() {
+    interrupt_register(INT_KEYBOARD, ISR_KEYBOARD);
+}

@@ -6,7 +6,7 @@ extern "C" {
 #include "builddef.h"
 
 public
-size_t _strlen(const char *s) {
+size_t _strlen(const char* s) {
     size_t ret = 0;
     while (*(s++)) {
         ret++;
@@ -15,7 +15,7 @@ size_t _strlen(const char *s) {
 }
 
 public
-int _strncmp(const char *cs, const char *ct, size_t count) {
+int _strncmp(const char* cs, const char* ct, size_t count) {
     unsigned char c1, c2;
     while (count) {
         c1 = *cs++;
@@ -28,7 +28,7 @@ int _strncmp(const char *cs, const char *ct, size_t count) {
 }
 
 public
-int _strcmp(const char *cs, const char *ct) {
+int _strcmp(const char* cs, const char* ct) {
     unsigned char c1, c2;
 
     while (1) {
@@ -41,24 +41,24 @@ int _strcmp(const char *cs, const char *ct) {
 }
 
 public
-void _memset(void *dst, char c, unsigned int len) {
-    char *xs = dst;
+void _memset(void* dst, char c, unsigned int len) {
+    char* xs = dst;
     while (len--) {
         *(xs++) = c;
     }
 }
 
 public
-void _memcpy(void *dst, void *src, unsigned int len) {
-    char *d = dst;
-    char *s = src;
+void _memcpy(void* dst, void* src, unsigned int len) {
+    char* d = dst;
+    char* s = src;
     while (len--) {
         *(d++) = *(s++);
     }
 }
 
 public
-int _strcpy_s(char *dst, char *src) {
+int _strcpy_s(char* dst, char* src) {
     int ret = 0;
     while (*src != '\0') {
         *(dst++) = *(src++);
@@ -68,7 +68,7 @@ int _strcpy_s(char *dst, char *src) {
 }
 
 public
-int _strcpy_u(unsigned char *dst, char *src) {
+int _strcpy_u(unsigned char* dst, char* src) {
     int ret = 0;
     while (*src != '\0') {
         *(dst++) = *(src++);
@@ -78,7 +78,7 @@ int _strcpy_u(unsigned char *dst, char *src) {
 }
 
 public
-int _strncpy_s(char *dst, char *src, unsigned int maxlen) {
+int _strncpy_s(char* dst, char* src, unsigned int maxlen) {
     int ret = 0;
     while (*src != '\0' && ret < (int)maxlen) {
         *(dst++) = *(src++);
@@ -88,7 +88,7 @@ int _strncpy_s(char *dst, char *src, unsigned int maxlen) {
 }
 
 public
-int _strncpy_u(unsigned char *dst, unsigned char *src, unsigned int maxlen) {
+int _strncpy_u(unsigned char* dst, unsigned char* src, unsigned int maxlen) {
     int ret = 0;
     while (*src != '\0' && ret < (int)maxlen) {
         *(dst++) = *(src++);
@@ -98,8 +98,8 @@ int _strncpy_u(unsigned char *dst, unsigned char *src, unsigned int maxlen) {
 }
 
 public
-int _int_to_str_s(char *out, size_t bufsize, int n) {
-    char *start;
+int _int_to_str_s(char* out, size_t bufsize, int n) {
+    char* start;
 
     // Handle negative numbers.
     if (n < 0) {
@@ -142,8 +142,8 @@ int _int_to_str_s(char *out, size_t bufsize, int n) {
 }
 
 public
-int _int_to_str_u(char *out, size_t bufsize, unsigned int n) {
-    char *start;
+int _int_to_str_u(char* out, size_t bufsize, unsigned int n) {
+    char* start;
 
     // Remember the start of the string...  This will come into play at the end
     start = out;
@@ -178,24 +178,24 @@ int _int_to_str_u(char *out, size_t bufsize, unsigned int n) {
 }
 
 public
-char *_strnstr(const char *s1, const char *s2, size_t len) {
+char* _strnstr(const char* s1, const char* s2, size_t len) {
     size_t l2;
 
     l2 = _strlen(s2);
-    if (!l2) return (char *)s1;
+    if (!l2) return (char*)s1;
     while (len >= l2) {
         len--;
-        if (!_strncmp(s1, s2, l2)) return (char *)s1;
+        if (!_strncmp(s1, s2, l2)) return (char*)s1;
         s1++;
     }
     return NULL;
 }
 
 public
-char *_int_to_str_static(unsigned int num, int base) {
+char* _int_to_str_static(unsigned int num, int base) {
     static char Representation[] = "0123456789ABCDEF";
     static char buffer[64] = {0};
-    char *ptr;
+    char* ptr;
 
     ptr = &buffer[63];
     *ptr = '\0';

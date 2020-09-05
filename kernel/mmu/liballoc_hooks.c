@@ -38,7 +38,9 @@ void pageframe_free_liballoc(void* virt_addr, unsigned int pages) {
     pageframe_free(virt_addr, pages);
 }
 
-void* liballoc_alloc(size_t pages) { return pageframe_alloc_liballoc((unsigned int)pages); }
+void* liballoc_alloc(size_t pages) {
+    return pageframe_alloc_liballoc((unsigned int)pages);
+}
 
 int liballoc_free(void* p, size_t pages) {
     pageframe_free_liballoc(p, (unsigned int)pages);

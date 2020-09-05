@@ -8,14 +8,14 @@
 static struct spinlock lock = {0};
 
 public
-void _dbg_log(char *format, ...) {
+void _dbg_log(char* format, ...) {
 #ifdef TARGET_HOST
     printf(format);
 #else
-    char *traverse;
+    char* traverse;
     int i;
     unsigned int u;
-    char *s;
+    char* s;
 
     // spinlock_lock(&lock);
 
@@ -38,7 +38,7 @@ void _dbg_log(char *format, ...) {
         switch (*traverse) {
             case 'c':
                 i = va_arg(arg, int);  // Fetch char argument
-                serial_write(SERIAL_COM1_BASE, (char *)&i, 1);
+                serial_write(SERIAL_COM1_BASE, (char*)&i, 1);
                 break;
             case 'u':
                 u = va_arg(arg, unsigned int);
@@ -60,7 +60,7 @@ void _dbg_log(char *format, ...) {
                 serial_write(SERIAL_COM1_BASE, s, _strlen(s));
                 break;
             case 's':
-                s = va_arg(arg, char *);  // Fetch string
+                s = va_arg(arg, char*);  // Fetch string
                 serial_write(SERIAL_COM1_BASE, s, _strlen(s));
                 break;
             case 'x':
@@ -80,14 +80,14 @@ void _dbg_log(char *format, ...) {
 }
 
 public
-void _dbg_screen(char *format, ...) {
+void _dbg_screen(char* format, ...) {
 #ifdef TARGET_HOST
     printf(format);
 #else
-    char *traverse;
+    char* traverse;
     int i;
     unsigned int u;
-    char *s;
+    char* s;
     static unsigned int scrpos = 0;
 
     va_list arg;
@@ -133,7 +133,7 @@ void _dbg_screen(char *format, ...) {
                 svga_write_str(s, &scrpos, _strlen(s), svga_translate_rgb(0xff, 0xff, 0xff));
                 break;
             case 's':
-                s = va_arg(arg, char *);  // Fetch string
+                s = va_arg(arg, char*);  // Fetch string
                 svga_write_str(s, &scrpos, _strlen(s), svga_translate_rgb(0xff, 0xff, 0xff));
                 break;
             case 'x':

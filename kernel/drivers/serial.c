@@ -58,7 +58,7 @@ int serial_is_transmit_fifo_empty(unsigned int com) {
 
 // Spinning as long as the internal fifo isn't empty, then writing data to data I/O port
 public
-void serial_write(unsigned short com, char *data, unsigned int len) {
+void serial_write(unsigned short com, char* data, unsigned int len) {
     for (unsigned int i = 0; i < len; i++) {  // Hang here if interrupt enabled.
         while (serial_is_transmit_fifo_empty(com) == 0)
             ;

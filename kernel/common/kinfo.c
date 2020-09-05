@@ -13,7 +13,7 @@ extern size_t KERNEL_END_VIRTUAL;
 
 static struct kinfo _kinfo;
 
-struct kinfo *get_kernel_info() {
+struct kinfo* get_kernel_info() {
     return &_kinfo;
 }
 

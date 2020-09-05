@@ -122,7 +122,9 @@ void lapic_send_init(size_t lapic_base, uint8_t lapic_id) {
 }
 
 private
-void ISR_APIC_SPURIOUS(size_t* return_reg, struct cpu_state* unused) { _dbg_log("Spurious APIC irq.\n"); }
+void ISR_APIC_SPURIOUS(size_t* return_reg, struct cpu_state* unused) {
+    _dbg_log("Spurious APIC irq.\n");
+}
 
 static size_t _lapic_base = 0;
 public
@@ -143,7 +145,11 @@ int32_t lapic_init(size_t lapic_base) {
 }
 
 public
-void lapic_ack(size_t lapic_base) { *(uint32_t volatile*)(lapic_base + LAPIC_EOI) = 0; }
+void lapic_ack(size_t lapic_base) {
+    *(uint32_t volatile*)(lapic_base + LAPIC_EOI) = 0;
+}
 
 public
-inline size_t lapic_get_base() { return _lapic_base; }
+inline size_t lapic_get_base() {
+    return _lapic_base;
+}

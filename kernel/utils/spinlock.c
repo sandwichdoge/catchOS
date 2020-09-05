@@ -6,7 +6,9 @@
 #include "utils/string.h"
 
 public
-inline void spinlock_init(struct spinlock* p) { _memset(p, 0, sizeof(*p)); }
+inline void spinlock_init(struct spinlock* p) {
+    _memset(p, 0, sizeof(*p));
+}
 
 public
 inline void spinlock_lock(struct spinlock* p) {

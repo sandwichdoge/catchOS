@@ -2,7 +2,9 @@
 #include "smp.h"
 #include "utils/debug.h"
 
-static inline void cpu_relax() { asm volatile("rep; nop"); }
+static inline void cpu_relax() {
+    asm volatile("rep; nop");
+}
 
 public
 void panic() {

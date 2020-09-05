@@ -5,4 +5,4 @@ void serial_configure_baud_rate(unsigned short com, unsigned short divisor);
 void serial_configure_line(unsigned short com, unsigned char conf);
 void serial_configure_buffer(unsigned short com, unsigned char conf);
 void serial_configure_modem(unsigned short com, unsigned char conf);
-void serial_write(unsigned short com, char *data, unsigned int len);
+void serial_write(unsigned short com, char* data, unsigned int len);
