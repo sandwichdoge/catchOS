@@ -31,7 +31,7 @@ public
 int _strcmp(const char* cs, const char* ct) {
     unsigned char c1, c2;
 
-    while (1) {
+    for (;;) {
         c1 = *cs++;
         c2 = *ct++;
         if (c1 != c2) return c1 < c2 ? -1 : 1;

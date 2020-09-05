@@ -9,5 +9,7 @@ static inline void cpu_relax() {
 public
 void panic() {
     _dbg_log("[CPU%d]Panic!\n", smp_get_cpu_id());
-    while (1) cpu_relax();
+    for (;;) {
+        cpu_relax();
+    }
 }
