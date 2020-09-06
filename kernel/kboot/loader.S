@@ -58,6 +58,6 @@ asm_page_directory: ; ERROR: Need to align our directory here?
 asm_first_page_table:
     resb 4096
 mbinfo_struct:
-    dd 1
+    resd 1
 mbinfo_magic:
-    dd 1
+    resd 1
