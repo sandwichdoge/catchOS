@@ -79,7 +79,6 @@ void kmain(unsigned int magic, unsigned int addr) {
     asm("sti");  // Enable interrupts
 
     task_join(t3);
-    task_yield();
 
     asm("hlt");
 }

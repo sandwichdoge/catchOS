@@ -247,8 +247,13 @@ void tasks_init() {
 
     uint8_t cpu_count = smp_get_cpu_count();
     for (uint8_t i = 0; i < cpu_count; ++i) {
-        struct task_struct* bootstrap_task = task_new(_cpu_idle_process, NULL, 0x600, 1);
-        _current[i] = bootstrap_task;
+        _bootstrap_tasks[i] = mmu_mmap(sizeof(struct task_struct));
+        _bootstrap_tasks[i]->pid = 99999;
+        _bootstrap_tasks[i]->counter = 1;
+        _bootstrap_tasks[i]->state = TASK_RUNNING;
+        _bootstrap_tasks[i]->interruptible = 1;
+        _current[i] = _bootstrap_tasks[i];
+        task_new(_cpu_idle_process, NULL, 0x600, 1);
     }
 }
 
