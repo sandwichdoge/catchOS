@@ -47,14 +47,20 @@ TEST(Bitmap, bittoggle) {
     EXPECT_EQ(bit, 0);
 }
 
-TEST(Bitmap, get2) {
-    unsigned char bitmap[] = {0x60, 0x60};
-    for (int i = 0; i < 8; i++) {
-        int bit = bitmap_get_bit(bitmap, i);
-        printf("%d-", bit);
-    }
-    int bit = bitmap_get_bit(bitmap, 10);
-    EXPECT_EQ(bit, 1);
-    int bit2 = bitmap_get_bit(bitmap, 11);
-    EXPECT_EQ(bit, 1);
+TEST(Bitmap, bsf) {
+    unsigned char bitmap[] = {0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff};
+    unsigned int bitno = bitmap_find_first_set(bitmap, 8);
+    printf("BSF bitno: %d\n", bitno);
+    EXPECT_EQ(bitno, 40);
+
+    unsigned char bitmap2[] = {0x00, 0x00, 0x00, 0x00};
+    unsigned int bitno2 = bitmap_find_first_set(bitmap2, 4);
+    printf("BSF bitno2: %d\n", bitno2);
+    EXPECT_EQ(bitno2, -1);
+
+    unsigned char bitmap3[] = {0x02, 0x00, 0x00, 0x00};
+    unsigned int bitno3 = bitmap_find_first_set(bitmap3, 4);
+    int bit3 = bitmap_get_bit(bitmap3, 1);
+    EXPECT_EQ(bit3, bitno3);
+    printf("BSF bitno3: %d\n", bitno3);
 }

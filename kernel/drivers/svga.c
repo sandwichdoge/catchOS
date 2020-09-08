@@ -147,7 +147,7 @@ void svga_draw_char(const uint32_t x, const uint32_t y, uint8_t c, uint32_t colo
     uint8_t* bitmap = font_get_char(c);
     for (uint32_t yy = 0; yy < FONT_H; ++yy) {
         for (uint32_t xx = 0; xx < FONT_W; ++xx) {
-            int bit = bitmap_get_bit(bitmap, yy * FONT_W + xx);
+            int bit = bitmap_get_bit_reverse(bitmap, yy * FONT_W + xx);
             if (bit) {
                 svga_draw_pixel(x + xx, y + yy, color);
             }
