@@ -26,7 +26,7 @@ struct task_struct {
     uint32_t pid;                    // This got changed
     enum TASK_STATE state;
     int32_t static_prio;
-    int32_t dynamic_prio;        // How long current task has been running. Add to priority for real priority.
+    int32_t dynamic_prio;   // How long current task has been running. Add to priority for real priority.
     void* stack_bottom;     // Keep addr to free on task termination, and stack overflow detection.
     size_t stack_size;
     int32_t interruptible;  // If zero then current task on local CPU will not be interrupted by timer ISR.

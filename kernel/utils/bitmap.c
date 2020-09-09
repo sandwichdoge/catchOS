@@ -41,7 +41,7 @@ int bitmap_find_first_set(unsigned char* bitstring, unsigned int maxbyte) {
     unsigned int leftover = (maxbyte / 4) * 4;  // Dword-aligned bitmap only.
 
     for (unsigned int i = 0; i < leftover; i += 4) {
-        unsigned int* tmp = bitstring + i;
+        unsigned int* tmp = (unsigned int*)(bitstring + i);
         bitno = __builtin_ffsl(*tmp);
 
         if (bitno > 0) {
