@@ -29,7 +29,7 @@ void ISR_SYSTIME_SCHED(size_t* return_reg, struct cpu_state* unused) {
     ++cpuno;
     cpuno = cpuno % smp_get_cpu_count();
     smp_redirect_external_irq(INT_SYSTIME, _madt_info->local_APIC_ids[cpuno]);
-    task_isr_priority();
+    task_isr_tick();
 }
 
 public
@@ -57,6 +57,7 @@ void delay(size_t ms) {
     while (_ticks < stop) {
         task_yield();
     }
+    task_get_current()->sleep_avg += ticks_to_wait;
 }
 
 // Before scheduler init.

@@ -9,6 +9,7 @@
 #include "mmu.h"
 #include "smp.h"
 #include "timer.h"
+#include "utils/maths.h"
 #include "utils/atomic.h"
 #include "utils/debug.h"
 #include "utils/rwlock.h"
@@ -106,7 +107,7 @@ struct task_struct* task_new(void (*fp)(void*), void* arg, size_t stack_size, in
     newtask->cpu_state.esp -= (sizeof(struct cpu_state) + sizeof(size_t));
     *(size_t*)(newtask->cpu_state.esp) = get_flags_reg() | CPU_EFLAGS_IF;  // Always enable interrupt flag for new tasks.
 
-    newtask->priority = priority;
+    newtask->static_prio = priority;
     newtask->pid = pid;
     newtask->stack_state.eip = (size_t)task_startup;
     newtask->interruptible = 1;
@@ -121,7 +122,7 @@ struct task_struct* task_new(void (*fp)(void*), void* arg, size_t stack_size, in
 public
 void task_join(struct task_struct* task) {
     while (task->state != TASK_TERMINATED) {
-        task->counter = 0;  // So scheduler will switch to a different task next time it's called.
+        task->dynamic_prio = 0;  // So scheduler will switch to a different task next time it's called.
         task_yield();
     }
     task_cleanup(task);
@@ -163,8 +164,8 @@ void schedule(void* unused) {
         for (int i = 0; i < MAX_CONCURRENT_TASKS; ++i) {
             struct task_struct* t = _tasks[i];
             // if (t) _dbg_log("present task at [0x%x] %d, cnt:%d, state:%d\n", t, t->pid, t->counter, t->state);
-            if (t && t->state == TASK_READY && t->counter > c) {
-                c = t->counter;
+            if (t && t->state == TASK_READY && t->dynamic_prio > c) {
+                c = t->dynamic_prio;
                 next = i;
             }
         }
@@ -183,7 +184,7 @@ void schedule(void* unused) {
             if (t && t->state == TASK_READY) {
                 // The more iterations of the second for loop a task passes, the more its counter will be increased.
                 // A task counter can never get larger than 2 * priority.
-                t->counter = (t->counter >> 1) + t->priority;
+                t->dynamic_prio = (t->dynamic_prio >> 1) + t->static_prio;
             }
         }
         rwlock_write_release(&lock_tasklist);
@@ -204,24 +205,25 @@ void task_yield() {
     if (current->state == TASK_RUNNING) {
         current->state = TASK_READY;
     }
-    current->counter = 0;
+    current->dynamic_prio = 0;
     rwlock_write_release(&lock_tasklist);
     schedule(NULL);
 }
 
 // Called by PIT ISR_TIMER.
 public
-void task_isr_priority() {
+void task_isr_tick() {
     struct task_struct* t = task_get_current();
     // Other processors may modify counter in schedule(). Need to lock.
     rwlock_write_acquire(&lock_tasklist);
     //_dbg_log("cpu%d isr\n", smp_get_cpu_id());
-    t->counter--;
-    if (!t->interruptible || t->counter > 0) {  // May not interrupt
+    t->dynamic_prio--;
+    DEC_TIL_ZERO(t->sleep_avg);
+    if (!t->interruptible || t->dynamic_prio > 0) {  // May not interrupt
         rwlock_write_release(&lock_tasklist);
         return;
     }
-    t->counter = 0;  // Guaranteed atomic
+    t->dynamic_prio = 0;  // Guaranteed atomic
 
     if (t->state == TASK_RUNNING) {
         t->state = TASK_READY;
@@ -242,14 +244,14 @@ void _cpu_idle_process(void* unused) {
 
 public
 void tasks_init() {
-    timer_init_sched(100);
+    timer_init_sched(250);
     rwlock_init(&lock_tasklist);
 
     uint8_t cpu_count = smp_get_cpu_count();
     for (uint8_t i = 0; i < cpu_count; ++i) {
         _bootstrap_tasks[i] = mmu_mmap(sizeof(struct task_struct));
         _bootstrap_tasks[i]->pid = 99999;
-        _bootstrap_tasks[i]->counter = 1;
+        _bootstrap_tasks[i]->dynamic_prio = 1;
         _bootstrap_tasks[i]->state = TASK_RUNNING;
         _bootstrap_tasks[i]->interruptible = 1;
         _current[i] = _bootstrap_tasks[i];

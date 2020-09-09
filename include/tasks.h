@@ -25,12 +25,13 @@ struct task_struct {
     struct stack_state stack_state;  // 16 bytes
     uint32_t pid;                    // This got changed
     enum TASK_STATE state;
-    int32_t priority;
-    int32_t counter;     // How long current task has been running. Add to priority for real priority.
-    void* stack_bottom;  // Keep addr to free on task termination, and stack overflow detection.
+    int32_t static_prio;
+    int32_t dynamic_prio;        // How long current task has been running. Add to priority for real priority.
+    void* stack_bottom;     // Keep addr to free on task termination, and stack overflow detection.
     size_t stack_size;
-    int32_t interruptible;  // If non-zero then current task on local CPU will not be interrupted by timer ISR.
+    int32_t interruptible;  // If zero then current task on local CPU will not be interrupted by timer ISR.
     enum JOIN_STATE join_state;
+    int32_t sleep_avg;      // Average time this task spends sleeping, used to determine whether a task is I/O-bound or CPU-bound. Boost prio of interactive tasks.
 };
 
 // Create a new task.
@@ -51,7 +52,7 @@ void test_caller();
 int32_t task_get_nr();
 
 // Called by PIT INT_SYSTIMER.
-void task_isr_priority();
+void task_isr_tick();
 
 // Get current running task.
 struct task_struct* task_get_current();
